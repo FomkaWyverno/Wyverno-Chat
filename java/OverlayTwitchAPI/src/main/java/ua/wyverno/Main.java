@@ -2,28 +2,28 @@ package ua.wyverno;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
-import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
-import com.github.twitch4j.common.events.domain.EventUser;
-import com.github.twitch4j.helix.domain.ChatBadge;
+import com.github.twitch4j.helix.TwitchHelix;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
+        // Twitch API credentials
+        String clientId = args[0];
+        String clientSecret = args[1];
+        //String accessToken = "your_access_token_here";
+
+        // Create an authenticator and set up the client builder
         TwitchClient twitchClient = TwitchClientBuilder.builder()
-                                                        .withEnableChat(true)
-                                                        .build();
+                .withClientId(clientId)
+                .withClientSecret(clientSecret)
+                .withClientSecret(clientSecret)
+                .build();
 
-        twitchClient.getChat().joinChannel("Fomka_Wyverno");
-
-
-        twitchClient.getEventManager().onEvent(IRCMessageEvent.class, event -> {
-            Optional<String> optionalMessage = event.getMessage();
-            Optional<String> optionalClientName = event.getClientName();
-            if (optionalClientName.isPresent()&&optionalMessage.isPresent()) {
-                System.out.printf("%s: %s%n",optionalClientName.get(),optionalMessage.get());
-            }
-        });
+        twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, System.out::println);
     }
 }
