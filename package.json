@@ -1,0 +1,29 @@
+{
+  "name": "overlay",
+  "version": "1.0.0",
+  "description": "Overlay for stream twitch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FomkaWyverno/OverlayJS.git"
+  },
+  "keywords": [
+    "node.js",
+    "web",
+    "overlay",
+    "twitch"
+  ],
+  "author": "Fomka_Wyverno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FomkaWyverno/OverlayJS/issues"
+  },
+  "homepage": "https://github.com/FomkaWyverno/OverlayJS#readme",
+  "devDependencies": {
+    "electron": "^23.1.2"
+  }
+}
