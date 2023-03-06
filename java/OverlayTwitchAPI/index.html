@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Authorization</title>
+</head>
+
+<body>
+    <span>Wait for authorization -> {try}</span>
+    <script>
+        let params = new URLSearchParams(window.location.hash.substr(1));
+        let accessToken = params.get('access_token');
+        let scope = params.get('scope');
+        let tokenType = params.get('token_type');
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', '/processData');
+        console.log(xhr.readyState)
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({ accessToken: accessToken, scope: scope, tokenType: tokenType }))
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                console.log(`${xhr.status} ${xhr.responseText}`)
+            }
+        }
+
+    </script>
+</body>
+
+</html>
