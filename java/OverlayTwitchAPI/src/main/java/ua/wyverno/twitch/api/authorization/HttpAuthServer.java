@@ -39,6 +39,7 @@ public class HttpAuthServer {
 
         this.httpServer.createContext("/access",new GetHandle());
         this.httpServer.createContext("/processData",new PostHandle());
+        this.httpServer.createContext("/favicon.ico",new FaviconHandle());
     }
 
     public void start() {
@@ -100,6 +101,15 @@ public class HttpAuthServer {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
 
+        }
+    }
+
+    private static class FaviconHandle implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            exchange.sendResponseHeaders(204,-1);
+            exchange.close();
         }
     }
 }
