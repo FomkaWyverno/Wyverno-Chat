@@ -1,5 +1,7 @@
 package ua.wyverno.twitch.api.authorization;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,9 @@ public class HttpAuthServer {
     }
     public HttpAuthServer(int port) throws IOException {
         this.httpServer = HttpServer.create(new InetSocketAddress(port),0);
+
+        this.httpServer.createContext("/access",new GetHandle());
+        this.httpServer.createContext("/processData",new PostHandle());
     }
 
     public void start() {
@@ -63,6 +68,22 @@ public class HttpAuthServer {
     }
     public static class ResultAsk {
 
+    }
+
+    private static class GetHandle implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+
+        }
+    }
+
+    private static class PostHandle implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+
+        }
     }
 }
 
