@@ -1,11 +1,20 @@
 package ua.wyverno.twitch.api.authorization;
 
 import com.sun.net.httpserver.HttpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ua.wyverno.util.ExceptionToString;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Optional;
 
 public class HttpAuthServer {
+
+    Logger logger = LoggerFactory.getLogger(HttpAuthServer.class);
 
     //DEFAULT VARIABLES
     private static final int DEFAULT_PORT = 2828;
@@ -24,6 +33,14 @@ public class HttpAuthServer {
 
     public void start() {
 
+    }
+
+    public void askAuthorization() {
+        try {
+            Desktop.getDesktop().browse(new URL(authURL).toURI());
+        } catch (IOException | URISyntaxException e) {
+            logger.error(ExceptionToString.getString(e));
+        }
     }
 }
 

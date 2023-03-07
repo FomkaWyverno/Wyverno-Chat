@@ -42,12 +42,4 @@ public class Authorization {
             logger.error(ExceptionToString.getString(e));
         }
     }
-
-    private void askAuthorization() {
-        try {
-            Desktop.getDesktop().browse(new URL(authURL).toURI());
-        } catch (IOException | URISyntaxException e) {
-            logger.error(ExceptionToString.getString(e));
-        }
-    }
 }
