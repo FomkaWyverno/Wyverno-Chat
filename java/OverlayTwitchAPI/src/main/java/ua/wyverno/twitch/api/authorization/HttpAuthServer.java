@@ -108,8 +108,10 @@ public class HttpAuthServer {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            logger.debug("Client want get favicon.ico");
             exchange.sendResponseHeaders(204,-1);
             exchange.close();
+            logger.debug("We send to client what we dont have it");
         }
     }
 }
