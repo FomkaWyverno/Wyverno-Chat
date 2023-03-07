@@ -78,8 +78,10 @@ public class HttpAuthServer {
 
         @Override
         public void handle(HttpExchange t) throws IOException {
+            logger.debug("Client GET method");
             File index = new File("index.html");
             byte[] indexBytes = Files.readAllBytes(index.toPath());
+            logger.debug("Read all bytes from index.html ");
 
             String response = new String(indexBytes, StandardCharsets.UTF_8);
 
@@ -89,6 +91,7 @@ public class HttpAuthServer {
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
             os.close();
+            logger.debug("End GET Method.");
         }
     }
 
