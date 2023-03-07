@@ -16,7 +16,7 @@ public class HttpAuthServer {
     private static final Logger logger = LoggerFactory.getLogger(HttpAuthServer.class);
 
     //DEFAULT VARIABLES
-    private final Object lockObject = new Object();
+    private final    Object lockObject = new Object();
     private static final int DEFAULT_PORT = 2828;
     private final HttpServer httpServer;
     private boolean isRunServer = false;
@@ -34,6 +34,7 @@ public class HttpAuthServer {
 
     public void start() {
         this.isRunServer = true;
+        this.httpServer.start();
     }
 
     public void askAuthorization() {
@@ -48,8 +49,16 @@ public class HttpAuthServer {
         if (!isRunServer) {
             throw new Exception("HTTP SERVER NOT START! YOU NEED START SERVER AFTER GET RESULT");
         }
+        synchronized (lockObject) {
+            while (resultAsk == null) {
+                logger.debug("resultAsk = null, so Thread WAIT");
+                lockObject.wait();
+            }
 
-        return this.resultAsk;
+            logger.debug("return resultAsk");
+            return this.resultAsk;
+        }
+
     }
     public static class ResultAsk {
 
