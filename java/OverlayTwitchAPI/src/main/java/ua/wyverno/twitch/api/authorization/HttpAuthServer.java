@@ -34,6 +34,7 @@ public class HttpAuthServer {
 
     public void start() {
         this.isRunServer = true;
+        logger.info("HTTP Server is starting");
         this.httpServer.start();
     }
 
