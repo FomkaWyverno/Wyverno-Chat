@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.util.ExceptionToString;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -100,7 +98,19 @@ public class HttpAuthServer {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-
+            logger.debug("POST /processData");
+            InputStream inputStream = exchange.getRequestBody();
+            logger.debug("Get requestBody");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            logger.debug("RequestBody -> " + reader.readLine());
+            reader.close();
+            String response = "OK";
+            exchange.sendResponseHeaders(200, response.getBytes().length);
+            logger.debug("Send response Headers 200");
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            logger.debug("END POST /processData");
         }
     }
 
