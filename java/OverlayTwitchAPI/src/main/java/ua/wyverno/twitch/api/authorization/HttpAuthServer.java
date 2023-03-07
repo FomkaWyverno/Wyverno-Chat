@@ -70,7 +70,9 @@ public class HttpAuthServer {
 
     }
     public static class ResultAsk {
-
+        public String accessToken;
+        public String scope;
+        public String tokenType;
     }
 
     private static class GetHandle implements HttpHandler {
