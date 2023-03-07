@@ -8,10 +8,14 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.util.ExceptionToString;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class HttpAuthServer {
 
@@ -73,8 +77,18 @@ public class HttpAuthServer {
     private static class GetHandle implements HttpHandler {
 
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(HttpExchange t) throws IOException {
+            File index = new File("index.html");
+            byte[] indexBytes = Files.readAllBytes(index.toPath());
 
+            String response = new String(indexBytes, StandardCharsets.UTF_8);
+
+            t.sendResponseHeaders(200,response.length());
+            t.getResponseHeaders().add("Content-Type","text/html; charset=UTF-8");
+
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
         }
     }
 
