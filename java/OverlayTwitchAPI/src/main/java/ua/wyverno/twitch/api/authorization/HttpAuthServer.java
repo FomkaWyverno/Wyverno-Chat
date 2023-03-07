@@ -43,9 +43,9 @@ public class HttpAuthServer {
         }
     }
 
-    public ResultAsk getResultAsk() {
+    public ResultAsk getResultAsk() throws Exception {
         if (!isRunServer) {
-
+            throw new Exception("HTTP SERVER NOT START! YOU NEED START SERVER AFTER GET RESULT");
         }
         return this.resultAsk;
     }
