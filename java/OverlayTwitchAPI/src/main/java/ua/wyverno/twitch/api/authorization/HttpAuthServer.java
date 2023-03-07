@@ -42,5 +42,11 @@ public class HttpAuthServer {
             logger.error(ExceptionToString.getString(e));
         }
     }
+
+
+
+    public static class ResultAsk {
+        
+    }
 }
 
