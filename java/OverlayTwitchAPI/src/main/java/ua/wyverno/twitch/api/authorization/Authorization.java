@@ -24,7 +24,14 @@ public class Authorization {
         if (!isHasConfigFile()) {
             logger.debug("Not has config file");
             this.createConfigFile();
-            this.askAuthorization();
+            try {
+                HttpAuthServer httpAuthServer = new HttpAuthServer();
+                httpAuthServer.start();
+                httpAuthServer.askAuthorization();
+            } catch (IOException e) {
+                logger.error(ExceptionToString.getString(e));
+            }
+
         }
     }
     public OAuth2Credential getAccount() {
