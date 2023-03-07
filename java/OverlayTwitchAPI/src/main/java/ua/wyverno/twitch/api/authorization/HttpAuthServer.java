@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class HttpAuthServer {
 
-    Logger logger = LoggerFactory.getLogger(HttpAuthServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpAuthServer.class);
 
     //DEFAULT VARIABLES
     private static final int DEFAULT_PORT = 2828;
