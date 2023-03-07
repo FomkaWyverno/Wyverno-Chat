@@ -23,6 +23,7 @@
         xhr.onreadystatechange = () => {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 console.log(`${xhr.status} ${xhr.responseText}`)
+                window.close();
             }
         }
 
