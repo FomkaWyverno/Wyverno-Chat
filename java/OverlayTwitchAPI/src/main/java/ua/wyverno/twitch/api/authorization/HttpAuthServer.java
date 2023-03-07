@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Optional;
 
 public class HttpAuthServer {
 
@@ -19,7 +18,7 @@ public class HttpAuthServer {
     //DEFAULT VARIABLES
     private static final int DEFAULT_PORT = 2828;
     private final HttpServer httpServer;
-    private boolean isStartServer = false;
+    private boolean isRunServer = false;
     private static final String authURL =
     "https://id.twitch.tv/oauth2/authorize?client_id=znxb14or3tj0cm6e1pixh7zijlsgua&redirect_uri=http%3A%2F%2Flocalhost%3A2828/access&response_type=token&scope=channel%3Aread%3Aredemptions+chat%3Aread";
 
@@ -33,7 +32,7 @@ public class HttpAuthServer {
     }
 
     public void start() {
-        this.isStartServer = true;
+        this.isRunServer = true;
     }
 
     public void askAuthorization() {
@@ -45,6 +44,9 @@ public class HttpAuthServer {
     }
 
     public ResultAsk getResultAsk() {
+        if (!isRunServer) {
+
+        }
         return this.resultAsk;
     }
     public static class ResultAsk {
