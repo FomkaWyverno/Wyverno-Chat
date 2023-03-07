@@ -1,5 +1,6 @@
 package ua.wyverno.twitch.api.authorization;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -36,7 +37,7 @@ public class HttpAuthServer {
         this.httpServer = HttpServer.create(new InetSocketAddress(port),0);
 
         this.httpServer.createContext("/access",new GetHandle());
-        this.httpServer.createContext("/processData",new PostHandle());
+        this.httpServer.createContext("/processData",new PostHandle(this));
         this.httpServer.createContext("/favicon.ico",new FaviconHandle());
     }
 
@@ -69,10 +70,25 @@ public class HttpAuthServer {
         }
 
     }
+
+    private void setResultAsk(ResultAsk resultAsk) {
+        this.resultAsk = resultAsk;
+        logger.info("Result Ask to set -> " + resultAsk.toString());
+    }
+
     public static class ResultAsk {
         public String accessToken;
         public String scope;
         public String tokenType;
+
+        @Override
+        public String toString() {
+            return "ResultAsk{" +
+                    "accessToken='" + accessToken + '\'' +
+                    ", scope='" + scope + '\'' +
+                    ", tokenType='" + tokenType + '\'' +
+                    '}';
+        }
     }
 
     private static class GetHandle implements HttpHandler {
@@ -98,14 +114,27 @@ public class HttpAuthServer {
 
     private static class PostHandle implements HttpHandler {
 
+        private final HttpAuthServer httpAuthServer;
+
+        private PostHandle(HttpAuthServer httpAuthServer) {
+            this.httpAuthServer = httpAuthServer;
+        }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             logger.debug("POST /processData");
             InputStream inputStream = exchange.getRequestBody();
             logger.debug("Get requestBody");
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            logger.debug("RequestBody -> " + reader.readLine());
+
+            String requestBody = reader.readLine();
             reader.close();
+
+            logger.debug("RequestBody -> " + requestBody);
+
+            this.httpAuthServer.setResultAsk(new ObjectMapper().readValue(requestBody, ResultAsk.class));
+            logger.info("Created ResultAsk for HttpAuthServer");
+
             String response = "OK";
             exchange.sendResponseHeaders(200, response.getBytes().length);
             logger.debug("Send response Headers 200");
@@ -130,4 +159,3 @@ public class HttpAuthServer {
         }
     }
 }
-
