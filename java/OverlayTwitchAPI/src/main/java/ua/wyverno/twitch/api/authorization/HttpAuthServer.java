@@ -16,6 +16,7 @@ public class HttpAuthServer {
     private static final Logger logger = LoggerFactory.getLogger(HttpAuthServer.class);
 
     //DEFAULT VARIABLES
+    private final Object lockObject = new Object();
     private static final int DEFAULT_PORT = 2828;
     private final HttpServer httpServer;
     private boolean isRunServer = false;
@@ -47,6 +48,7 @@ public class HttpAuthServer {
         if (!isRunServer) {
             throw new Exception("HTTP SERVER NOT START! YOU NEED START SERVER AFTER GET RESULT");
         }
+
         return this.resultAsk;
     }
     public static class ResultAsk {
