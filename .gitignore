@@ -1,5 +1,9 @@
+#Node.js
 node.js/node_modules
 node.js/style
 node.js/package-lock.json
+
+#Java
 java/OverlayTwitchAPI/target
 java/OverlayTwitchAPI/.idea
+java/OverlayTwitchAPI/logs
