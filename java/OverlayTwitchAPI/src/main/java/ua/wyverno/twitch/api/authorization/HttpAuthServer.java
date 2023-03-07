@@ -111,6 +111,9 @@ public class HttpAuthServer {
             os.write(response.getBytes());
             os.close();
             logger.debug("END POST /processData");
+
+            exchange.getHttpContext().getServer().stop(0);
+            logger.info("HTTP Server - is stop");
         }
     }
 
