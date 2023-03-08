@@ -80,9 +80,21 @@ public class HttpAuthServer {
     }
 
     public static class ResultAsk {
-        public String accessToken;
-        public String scope;
-        public String tokenType;
+        private String accessToken;
+        private String scope;
+        private String tokenType;
+
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        public String getScope() {
+            return scope;
+        }
+
+        public String getTokenType() {
+            return tokenType;
+        }
 
         @Override
         public String toString() {
