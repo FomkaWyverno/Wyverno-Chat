@@ -21,23 +21,28 @@ public class Authorization {
     private static final Logger logger = LoggerFactory.getLogger(Authorization.class);
     private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
-    private final String accessToken;
+    private final OAuth2Credential auth2Credential;
 
     public Authorization() throws Exception {
         logger.debug("Config path = " +configFile);
 
         Properties p = new Properties();
+        String accessToken;
         if (!isHasConfigFile()) { // Якщо нема конфиг файла.
             logger.debug("Not has config file");
             this.createConfigFile();
-            this.accessToken = getAccessTokenFromUser();
-            p.put("access_token", this.accessToken);
+            accessToken = getAccessTokenFromUser();
+            p.put("access_token", accessToken);
             p.store(Files.newBufferedWriter(configFile),"");
         } else { // Якщо є конфіг файл то читаємо.
             logger.debug("Config file is exists");
             p.load(Files.newBufferedReader(configFile));
-            this.accessToken = p.getProperty("access_token");
+            accessToken = p.getProperty("access_token");
         }
+        if (accessToken == null ||!isValidToken(accessToken)) {
+            throw new AccessTokenNoLongerValidException();
+        }
+        this.auth2Credential = new OAuth2Credential("twitch", accessToken);
     }
 
     private String getAccessTokenFromUser() throws Exception {
@@ -65,7 +70,7 @@ public class Authorization {
     }
 
     public OAuth2Credential getAccount() {
-        return null;
+        return this.auth2Credential;
     }
 
     private boolean isHasConfigFile() {
