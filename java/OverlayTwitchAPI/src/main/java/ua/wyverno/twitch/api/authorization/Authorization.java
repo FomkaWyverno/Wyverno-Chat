@@ -58,7 +58,7 @@ public class Authorization {
     private boolean isValidToken(String accessToken) {
         return new TwitchIdentityProvider(null,null, null)
                 .isCredentialValid(
-                new OAuth2Credential("twitch",this.accessToken))
+                new OAuth2Credential("twitch",accessToken))
                 .orElse(false);
     }
 
