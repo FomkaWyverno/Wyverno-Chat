@@ -12,29 +12,48 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 public class Authorization {
 
     private static final Logger logger = LoggerFactory.getLogger(Authorization.class);
     private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
+    private final String accessToken;
+
     public Authorization() throws Exception {
         logger.debug("Config path = " +configFile);
         logger.debug("Config absolute path = " + configFile.toAbsolutePath().normalize());
-        if (!isHasConfigFile()) {
+
+        Properties p = new Properties();
+        if (!isHasConfigFile()) { // Якщо нема конфиг файла.
             logger.debug("Not has config file");
             this.createConfigFile();
-            try {
-                HttpAuthServer httpAuthServer = new HttpAuthServer();
-                httpAuthServer.start();
-                httpAuthServer.askAuthorization();
-                logger.info("Access token: " + httpAuthServer.getResultAsk().getAccessToken());
-            } catch (IOException e) {
-                logger.error(ExceptionToString.getString(e));
-            }
-
+            this.accessToken = getAccessTokenFromUser();
+            p.put("access_token", this.accessToken);
+            p.store(Files.newBufferedWriter(configFile),"");
+        } else { // Якщо є конфіг файл то читаємо.
+            logger.debug("Config file is exists");
+            p.load(Files.newBufferedReader(configFile));
+            this.accessToken = p.getProperty("access_token");
         }
     }
+
+    private String getAccessTokenFromUser() throws Exception {
+        try {
+            HttpAuthServer httpAuthServer = new HttpAuthServer();
+            httpAuthServer.start();
+            logger.debug("Ask access token");
+            httpAuthServer.askAuthorization();
+            String accessToken = httpAuthServer.getResultAsk().getAccessToken();
+            logger.info("Access token: " + accessToken);
+            return accessToken;
+        } catch (IOException e) {
+            logger.error(ExceptionToString.getString(e));
+        }
+        return null;
+    }
+
     public OAuth2Credential getAccount() {
         return null;
     }
