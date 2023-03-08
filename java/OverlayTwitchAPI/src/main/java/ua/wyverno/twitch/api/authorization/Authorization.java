@@ -1,6 +1,7 @@
 package ua.wyverno.twitch.api.authorization;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.util.ExceptionToString;
@@ -12,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Properties;
 
 public class Authorization {
@@ -23,7 +25,6 @@ public class Authorization {
 
     public Authorization() throws Exception {
         logger.debug("Config path = " +configFile);
-        logger.debug("Config absolute path = " + configFile.toAbsolutePath().normalize());
 
         Properties p = new Properties();
         if (!isHasConfigFile()) { // Якщо нема конфиг файла.
@@ -52,6 +53,13 @@ public class Authorization {
             logger.error(ExceptionToString.getString(e));
         }
         return null;
+    }
+
+    private boolean isValidToken(String accessToken) {
+        return new TwitchIdentityProvider(null,null, null)
+                .isCredentialValid(
+                new OAuth2Credential("twitch",this.accessToken))
+                .orElse(false);
     }
 
     public OAuth2Credential getAccount() {
