@@ -19,7 +19,7 @@ public class GetHandle implements HttpHandler
     @Override
     public void handle(HttpExchange t) throws IOException {
         logger.debug("Client GET method");
-        File index = new File("index.html");
+        File index = new File("htmls/index.html");
         byte[] indexBytes = Files.readAllBytes(index.toPath());
         logger.debug("Read all bytes from index.html ");
 
