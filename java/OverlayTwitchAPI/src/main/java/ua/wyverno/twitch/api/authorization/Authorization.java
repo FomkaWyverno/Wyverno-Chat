@@ -39,7 +39,7 @@ public class Authorization {
             p.load(Files.newBufferedReader(configFile));
             accessToken = p.getProperty("access_token");
         }
-        if (accessToken == null ||!isValidToken(accessToken)) {
+        if (accessToken == null || accessToken.isEmpty() || !isValidToken(accessToken)) {
             throw new AccessTokenNoLongerValidException();
         }
         this.auth2Credential = new OAuth2Credential("twitch", accessToken);
