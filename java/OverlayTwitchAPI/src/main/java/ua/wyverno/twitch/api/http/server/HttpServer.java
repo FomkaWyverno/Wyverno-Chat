@@ -68,7 +68,7 @@ public class HttpServer {
             logger.debug("Result ask = null, so we wait it.");
         }
 
-        synchronized (lockObject) {
+        synchronized (this.lockObject) {
             while (this.resultAsk == null) {
                 lockObject.wait();
             }

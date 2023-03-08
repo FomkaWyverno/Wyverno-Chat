@@ -26,7 +26,10 @@ public record PostHandle(HttpServer httpServer) implements HttpHandler {
 
         logger.debug("RequestBody -> " + requestBody);
 
-        this.httpServer.setResultAsk(new ObjectMapper().readValue(requestBody, ResultAsk.class));
+        ResultAsk resultAsk = new ObjectMapper().readValue(requestBody, ResultAsk.class);
+        logger.debug("Created Result Ask object!");
+        resultAsk.setHttpServer(this.httpServer);
+        this.httpServer.setResultAsk(resultAsk);
         logger.info("Created ResultAsk for HttpAuthServer");
 
         String response = "OK";
