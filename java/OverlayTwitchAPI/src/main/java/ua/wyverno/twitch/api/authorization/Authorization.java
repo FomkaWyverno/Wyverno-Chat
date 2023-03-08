@@ -20,8 +20,11 @@ public class Authorization {
 
     private final OAuth2Credential auth2Credential;
 
-    public Authorization() throws Exception {
+    private final HttpServer httpServer;
+
+    public Authorization(HttpServer httpServer) throws Exception {
         logger.debug("Config path = " +configFile);
+        this.httpServer = httpServer;
 
         Properties p = new Properties();
         String accessToken;
@@ -44,8 +47,6 @@ public class Authorization {
 
     private String getAccessTokenFromUser() throws Exception {
         try {
-            HttpServer httpServer = new HttpServer();
-            httpServer.start();
             logger.debug("Ask access token");
             httpServer.askAuthorization(ResultAsk.authURL);
             ResultAsk resultAsk = httpServer.getResultAsk();
