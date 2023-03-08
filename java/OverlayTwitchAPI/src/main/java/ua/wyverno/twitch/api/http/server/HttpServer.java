@@ -1,10 +1,10 @@
 package ua.wyverno.twitch.api.http.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.http.handlers.GetHandle;
+import ua.wyverno.twitch.api.authorization.http.handlers.PostHandle;
+import ua.wyverno.twitch.api.http.server.handlers.FaviconHandle;
 import ua.wyverno.util.ExceptionToString;
 
 import java.awt.*;
@@ -12,8 +12,6 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 public class HttpServer {
 
@@ -70,7 +68,7 @@ public class HttpServer {
 
     }
 
-    private void setResultAsk(ResultAsk resultAsk) {
+    public void setResultAsk(ResultAsk resultAsk) {
         this.resultAsk = resultAsk;
         logger.debug("Result Ask to set -> " + resultAsk.toString());
         synchronized (lockObject) {
@@ -102,67 +100,6 @@ public class HttpServer {
                     ", scope='" + scope + '\'' +
                     ", tokenType='" + tokenType + '\'' +
                     '}';
-        }
-    }
-
-    private static class GetHandle implements HttpHandler {
-
-        @Override
-        public void handle(HttpExchange t) throws IOException {
-            logger.debug("Client GET method");
-            File index = new File("index.html");
-            byte[] indexBytes = Files.readAllBytes(index.toPath());
-            logger.debug("Read all bytes from index.html ");
-
-            String response = new String(indexBytes, StandardCharsets.UTF_8);
-
-            t.sendResponseHeaders(200,response.length());
-            t.getResponseHeaders().add("Content-Type","text/html; charset=UTF-8");
-
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-            logger.debug("End GET Method.");
-        }
-    }
-
-    private record PostHandle(HttpServer httpAuthServer) implements HttpHandler {
-        @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                logger.debug("POST /processData");
-                InputStream inputStream = exchange.getRequestBody();
-                logger.debug("Get requestBody");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String requestBody = reader.readLine();
-                reader.close();
-
-                logger.debug("RequestBody -> " + requestBody);
-
-                this.httpAuthServer.setResultAsk(new ObjectMapper().readValue(requestBody, ResultAsk.class));
-                logger.info("Created ResultAsk for HttpAuthServer");
-
-                String response = "OK";
-                exchange.sendResponseHeaders(200, response.getBytes().length);
-                logger.debug("Send response Headers 200");
-                OutputStream os = exchange.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-                logger.debug("END POST /processData");
-
-                exchange.getHttpContext().getServer().stop(0);
-                logger.info("HTTP Server - is stop");
-            }
-        }
-
-    private static class FaviconHandle implements HttpHandler {
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            logger.debug("Client want get favicon.ico");
-            exchange.sendResponseHeaders(204,-1);
-            exchange.close();
-            logger.debug("We send to client what we dont have it");
         }
     }
 }
