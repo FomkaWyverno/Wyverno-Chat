@@ -74,6 +74,9 @@ public class HttpAuthServer {
     private void setResultAsk(ResultAsk resultAsk) {
         this.resultAsk = resultAsk;
         logger.info("Result Ask to set -> " + resultAsk.toString());
+        synchronized (lockObject) {
+            lockObject.notifyAll();
+        }
     }
 
     public static class ResultAsk {
