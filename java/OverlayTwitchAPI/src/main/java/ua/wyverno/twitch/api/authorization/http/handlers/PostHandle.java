@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.ResultAsk;
 import ua.wyverno.twitch.api.http.server.HttpServer;
 
 import java.io.*;
@@ -25,7 +26,7 @@ public record PostHandle(HttpServer httpServer) implements HttpHandler {
 
         logger.debug("RequestBody -> " + requestBody);
 
-        this.httpServer.setResultAsk(new ObjectMapper().readValue(requestBody, HttpServer.ResultAsk.class));
+        this.httpServer.setResultAsk(new ObjectMapper().readValue(requestBody, ResultAsk.class));
         logger.info("Created ResultAsk for HttpAuthServer");
 
         String response = "OK";
