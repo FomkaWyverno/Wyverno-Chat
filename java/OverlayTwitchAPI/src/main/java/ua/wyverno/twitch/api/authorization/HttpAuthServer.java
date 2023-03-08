@@ -112,41 +112,34 @@ public class HttpAuthServer {
         }
     }
 
-    private static class PostHandle implements HttpHandler {
-
-        private final HttpAuthServer httpAuthServer;
-
-        private PostHandle(HttpAuthServer httpAuthServer) {
-            this.httpAuthServer = httpAuthServer;
-        }
-
+    private record PostHandle(HttpAuthServer httpAuthServer) implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            logger.debug("POST /processData");
-            InputStream inputStream = exchange.getRequestBody();
-            logger.debug("Get requestBody");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            public void handle(HttpExchange exchange) throws IOException {
+                logger.debug("POST /processData");
+                InputStream inputStream = exchange.getRequestBody();
+                logger.debug("Get requestBody");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-            String requestBody = reader.readLine();
-            reader.close();
+                String requestBody = reader.readLine();
+                reader.close();
 
-            logger.debug("RequestBody -> " + requestBody);
+                logger.debug("RequestBody -> " + requestBody);
 
-            this.httpAuthServer.setResultAsk(new ObjectMapper().readValue(requestBody, ResultAsk.class));
-            logger.info("Created ResultAsk for HttpAuthServer");
+                this.httpAuthServer.setResultAsk(new ObjectMapper().readValue(requestBody, ResultAsk.class));
+                logger.info("Created ResultAsk for HttpAuthServer");
 
-            String response = "OK";
-            exchange.sendResponseHeaders(200, response.getBytes().length);
-            logger.debug("Send response Headers 200");
-            OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-            logger.debug("END POST /processData");
+                String response = "OK";
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                logger.debug("Send response Headers 200");
+                OutputStream os = exchange.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+                logger.debug("END POST /processData");
 
-            exchange.getHttpContext().getServer().stop(0);
-            logger.info("HTTP Server - is stop");
+                exchange.getHttpContext().getServer().stop(0);
+                logger.info("HTTP Server - is stop");
+            }
         }
-    }
 
     private static class FaviconHandle implements HttpHandler {
 
