@@ -8,7 +8,7 @@ import java.io.IOException;
 public class CloseHandle implements HttpHandler {
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange t) throws IOException {
 
     }
 }

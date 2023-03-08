@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.ResultAsk;
 import ua.wyverno.twitch.api.authorization.http.handlers.GetHandle;
 import ua.wyverno.twitch.api.authorization.http.handlers.PostHandle;
+import ua.wyverno.twitch.api.http.server.handlers.CloseHandle;
 import ua.wyverno.twitch.api.http.server.handlers.FaviconHandle;
 import ua.wyverno.util.ExceptionToString;
 
@@ -35,6 +36,7 @@ public class HttpServer {
         this.httpServer.createContext("/access",new GetHandle());
         this.httpServer.createContext("/processData",new PostHandle(this));
         this.httpServer.createContext("/favicon.ico",new FaviconHandle());
+        this.httpServer.createContext("/close",new CloseHandle());
     }
 
     public void start() {
