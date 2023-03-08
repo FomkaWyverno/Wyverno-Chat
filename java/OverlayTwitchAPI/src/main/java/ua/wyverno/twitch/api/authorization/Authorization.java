@@ -18,7 +18,7 @@ public class Authorization {
     private static final Logger logger = LoggerFactory.getLogger(Authorization.class);
     private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
-    public Authorization() {
+    public Authorization() throws Exception {
         logger.debug("Config path = " +configFile);
         logger.debug("Config absolute path = " + configFile.toAbsolutePath().normalize());
         if (!isHasConfigFile()) {
@@ -28,6 +28,7 @@ public class Authorization {
                 HttpAuthServer httpAuthServer = new HttpAuthServer();
                 httpAuthServer.start();
                 httpAuthServer.askAuthorization();
+                logger.info("Access token: " + httpAuthServer.getResultAsk().getAccessToken());
             } catch (IOException e) {
                 logger.error(ExceptionToString.getString(e));
             }
