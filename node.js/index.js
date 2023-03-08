@@ -2,6 +2,30 @@ const { app, BrowserWindow } = require('electron')
 const http = require('http');
 const path = require('path');
 
+function createMainWindow() {
+    const win = new BrowserWindow({
+        width: 800,
+        height: 800,
+        show: false,
+
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            enableRemoteModule: false
+        }
+    });
+
+    win.loadURL('http://localhost:2828');
+
+    win.setMenu(null);
+
+    win.once('ready-to-show', () => {
+        win.show();
+    });
+
+    win.webContents.openDevTools();
+}
+
 function createOverlay() {
     const win = new BrowserWindow({
         width: 800,
@@ -27,12 +51,10 @@ function createOverlay() {
     win.once('ready-to-show', () => {
         win.show();
     });
-
-    win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
-    createOverlay()
+    createMainWindow()
 })
 
 app.on('window-all-closed', () => {
