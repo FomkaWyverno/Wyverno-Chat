@@ -4,16 +4,13 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.http.server.HttpServer;
 import ua.wyverno.util.ExceptionToString;
 
-import java.awt.*;
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.Properties;
 
 public class Authorization {
@@ -47,11 +44,11 @@ public class Authorization {
 
     private String getAccessTokenFromUser() throws Exception {
         try {
-            HttpAuthServer httpAuthServer = new HttpAuthServer();
-            httpAuthServer.start();
+            HttpServer httpServer = new HttpServer();
+            httpServer.start();
             logger.debug("Ask access token");
-            httpAuthServer.askAuthorization();
-            String accessToken = httpAuthServer.getResultAsk().getAccessToken();
+            httpServer.askAuthorization();
+            String accessToken = httpServer.getResultAsk().getAccessToken();
             logger.info("Access token: " + accessToken);
             return accessToken;
         } catch (IOException e) {

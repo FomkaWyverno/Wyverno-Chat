@@ -1,9 +1,8 @@
-package ua.wyverno.twitch.api.authorization;
+package ua.wyverno.twitch.api.http.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.util.ExceptionToString;
@@ -16,25 +15,25 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-public class HttpAuthServer {
+public class HttpServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpAuthServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
     //DEFAULT VARIABLES
     private final    Object lockObject = new Object();
     private static final int DEFAULT_PORT = 2828;
-    private final HttpServer httpServer;
+    private final com.sun.net.httpserver.HttpServer httpServer;
     private boolean isRunServer = false;
     private static final String authURL =
     "https://id.twitch.tv/oauth2/authorize?client_id=znxb14or3tj0cm6e1pixh7zijlsgua&redirect_uri=http%3A%2F%2Flocalhost%3A2828/access&response_type=token&scope=channel%3Aread%3Aredemptions+chat%3Aread";
 
     private ResultAsk resultAsk = null;
 
-    public HttpAuthServer() throws IOException {
+    public HttpServer() throws IOException {
         this(DEFAULT_PORT);
     }
-    public HttpAuthServer(int port) throws IOException {
-        this.httpServer = HttpServer.create(new InetSocketAddress(port),0);
+    public HttpServer(int port) throws IOException {
+        this.httpServer = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(port),0);
 
         this.httpServer.createContext("/access",new GetHandle());
         this.httpServer.createContext("/processData",new PostHandle(this));
@@ -127,7 +126,7 @@ public class HttpAuthServer {
         }
     }
 
-    private record PostHandle(HttpAuthServer httpAuthServer) implements HttpHandler {
+    private record PostHandle(HttpServer httpAuthServer) implements HttpHandler {
         @Override
             public void handle(HttpExchange exchange) throws IOException {
                 logger.debug("POST /processData");
