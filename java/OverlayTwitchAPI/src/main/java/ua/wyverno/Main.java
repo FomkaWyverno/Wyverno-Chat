@@ -16,7 +16,7 @@ public class Main {
             try {
                 new Authorization();
             } catch (AccessTokenNoLongerValidException e) {
-
+                logger.error(ExceptionToString.getString(e));
             }
 
         } catch (Exception e) {
