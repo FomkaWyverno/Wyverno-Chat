@@ -47,8 +47,10 @@ public class Authorization {
             HttpServer httpServer = new HttpServer();
             httpServer.start();
             logger.debug("Ask access token");
-            httpServer.askAuthorization();
-            String accessToken = httpServer.getResultAsk().getAccessToken();
+            httpServer.askAuthorization(ResultAsk.authURL);
+            ResultAsk resultAsk = httpServer.getResultAsk();
+
+            String accessToken = resultAsk.getAccessToken();
             logger.info("Access token: " + accessToken);
             return accessToken;
         } catch (IOException e) {
