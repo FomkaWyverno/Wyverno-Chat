@@ -7,6 +7,7 @@ import ua.wyverno.twitch.api.authorization.http.handlers.GetHandle;
 import ua.wyverno.twitch.api.authorization.http.handlers.PostHandle;
 import ua.wyverno.twitch.api.http.server.handlers.CloseHandle;
 import ua.wyverno.twitch.api.http.server.handlers.FaviconHandle;
+import ua.wyverno.twitch.api.http.server.handlers.MainHandle;
 import ua.wyverno.util.ExceptionToString;
 
 import java.awt.*;
@@ -37,6 +38,7 @@ public class HttpServer {
         this.httpServer.createContext("/processData",new PostHandle(this));
         this.httpServer.createContext("/favicon.ico",new FaviconHandle());
         this.httpServer.createContext("/close",new CloseHandle());
+        this.httpServer.createContext("/",new MainHandle());
     }
 
     public void start() {
