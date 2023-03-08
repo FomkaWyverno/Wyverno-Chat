@@ -1,6 +1,8 @@
 const { app, BrowserWindow } = require('electron')
+const http = require('http');
+const path = require('path');
 
-function createWindow() {
+function createOverlay() {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
@@ -30,9 +32,42 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-    createWindow()
+    createOverlay()
 })
 
 app.on('window-all-closed', () => {
     app.quit()
-})
+});
+
+function closeServer() {
+    console.log('Try close server');
+    const data = JSON.stringify({ close: true })
+
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    };
+
+    const req = http.request('http://localhost:2828/close', options, (res) => {
+
+        console.log(`HTTP/${res.httpVersion} ${res.statusCode} ${res.statusMessage}`);
+
+        res.setEncoding('utf8');
+        let body = '';
+        res.on('data', (chunk) => {
+            body += chunk;
+        });
+        res.on('end', () => {
+            console.log(body);
+        })
+
+    }).on('error', (err) => {
+        console.log('Error: ', err.message);
+    });
+
+    req.write(data);
+    req.end();
+}
+
