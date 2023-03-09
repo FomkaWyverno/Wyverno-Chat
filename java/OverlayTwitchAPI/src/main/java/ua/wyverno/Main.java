@@ -21,10 +21,9 @@ public class Main {
             logger.info("Start main class");
             HttpServer httpServer = new HttpServer();
             httpServer.start();
+            startUI();
             try {
                 new Authorization(httpServer);
-
-                startUI();
             } catch (AccessTokenNoLongerValidException e) {
                 logger.error(ExceptionToString.getString(e));
             }
@@ -34,20 +33,26 @@ public class Main {
         }
     }
 
-    private static int startUI() throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.directory(new File("D:\\MyProgram\\Overlay\\node.js"));
-        processBuilder.command("npm.cmd","start");
+    private static void startUI() {
 
-        Process process = processBuilder.start();
+        Thread thread = new Thread(() -> {
+            try {
+                ProcessBuilder processBuilder = new ProcessBuilder();
+                processBuilder.directory(new File("D:\\MyProgram\\Overlay\\node.js"));
+                processBuilder.command("npm.cmd","start");
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
+                Process process = processBuilder.start();
 
-        while ((line = reader.readLine()) != null) {
-            logger.debug("[Node.js] >>> " + line);
-        }
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
 
-        return process.waitFor();
+                while ((line = reader.readLine()) != null) {
+                    logger.debug("[Node.js] >>> " + line);
+                }
+            } catch (IOException e) {
+                logger.error("[NODE.JS] " + ExceptionToString.getString(e));
+            }
+        });
+        thread.start();
     }
 }
