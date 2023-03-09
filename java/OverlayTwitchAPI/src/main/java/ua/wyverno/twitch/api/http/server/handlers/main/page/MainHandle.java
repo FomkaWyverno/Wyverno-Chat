@@ -1,4 +1,4 @@
-package ua.wyverno.twitch.api.http.server.handlers;
+package ua.wyverno.twitch.api.http.server.handlers.main.page;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

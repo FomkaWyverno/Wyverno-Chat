@@ -7,7 +7,7 @@ import ua.wyverno.twitch.api.authorization.http.handlers.GetHandle;
 import ua.wyverno.twitch.api.authorization.http.handlers.PostHandle;
 import ua.wyverno.twitch.api.http.server.handlers.CloseHandle;
 import ua.wyverno.twitch.api.http.server.handlers.FaviconHandle;
-import ua.wyverno.twitch.api.http.server.handlers.MainHandle;
+import ua.wyverno.twitch.api.http.server.handlers.main.page.MainHandle;
 import ua.wyverno.util.ExceptionToString;
 
 import java.awt.*;
