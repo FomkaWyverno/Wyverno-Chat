@@ -34,14 +34,14 @@ public class HttpServer {
     public HttpServer(int port) throws IOException {
         this.httpServer = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(port),0);
 
-        this.httpServer.createContext("/access",new GetHandle());
+        this.httpServer.createContext("/access",new GetHandle()); // Создаэмо контексти для серверу.
         this.httpServer.createContext("/processData",new PostHandle(this));
         this.httpServer.createContext("/favicon.ico",new FaviconHandle());
         this.httpServer.createContext("/close",new CloseHandle());
         this.httpServer.createContext("/",new MainHandle());
     }
 
-    public void start() {
+    public void start() { // Запускаэмо сервер
         this.isRunServer = true;
         logger.info("HTTP Server is starting on port " + this.httpServer.getAddress().getPort());
         this.httpServer.start();
@@ -51,7 +51,7 @@ public class HttpServer {
         return isRunServer;
     }
 
-    public void askAuthorization(String url) {
+    public void askAuthorization(String url) { // Робим запит на авторизацію за допомоги браузеру по дефолту.
         try {
             Desktop.getDesktop().browse(new URL(url).toURI());
         } catch (IOException | URISyntaxException e) {
@@ -59,7 +59,7 @@ public class HttpServer {
         }
     }
 
-    public void setResultAsk(ResultAsk resultAsk) {
+    public void setResultAsk(ResultAsk resultAsk) { // Встановлюємо результат того що прийшло нам після авторизації
         this.resultAsk = resultAsk;
         logger.debug("Result ask we got. Notify all threads.");
         synchronized (this.lockObject) {
@@ -67,7 +67,8 @@ public class HttpServer {
         }
     }
 
-    public ResultAsk getResultAsk() throws InterruptedException {
+    public ResultAsk getResultAsk() throws InterruptedException { // Відаємо результат авторизації якщо нема результата потік який питається взяти цей
+        // результат замре поки не зявится результат.
         if (this.resultAsk == null) {
             logger.debug("Result ask = null, so we wait it.");
         }

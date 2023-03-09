@@ -45,22 +45,22 @@ public class Authorization {
         this.auth2Credential = new OAuth2Credential("twitch", accessToken);
     }
 
-    private String getAccessTokenFromUser() throws Exception {
+    private String getAccessTokenFromUser() throws Exception { // Беремо у користовача accessToken
         try {
             logger.debug("Ask access token");
-            httpServer.askAuthorization(ResultAsk.authURL);
+            httpServer.askAuthorization(ResultAsk.authURL); // Просимо у кліента дати нам access token
             ResultAsk resultAsk = httpServer.getResultAsk();
 
-            String accessToken = resultAsk.getAccessToken();
+            String accessToken = resultAsk.getAccessToken(); // Беремо з результата запиту access token.
             logger.info("Access token: " + accessToken);
-            return accessToken;
+            return accessToken; // Повертаємо access token
         } catch (IOException e) {
             logger.error(ExceptionToString.getString(e));
         }
         return null;
     }
 
-    private boolean isValidToken(String accessToken) {
+    private boolean isValidToken(String accessToken) { // Провіряємо через Twitch4J чи є валідним токен
         boolean isValidToken = new TwitchIdentityProvider(null,null, null)
                 .isCredentialValid(
                 new OAuth2Credential("twitch",accessToken))
