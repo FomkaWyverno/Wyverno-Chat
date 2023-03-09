@@ -8,6 +8,8 @@ import ua.wyverno.twitch.api.authorization.http.handlers.PostHandle;
 import ua.wyverno.twitch.api.http.server.handlers.CloseHandle;
 import ua.wyverno.twitch.api.http.server.handlers.FaviconHandle;
 import ua.wyverno.twitch.api.http.server.handlers.main.page.MainHandle;
+import ua.wyverno.twitch.api.http.server.handlers.overlay.css.OverlayCSSHandle;
+import ua.wyverno.twitch.api.http.server.handlers.overlay.page.OverlayHandle;
 import ua.wyverno.util.ExceptionToString;
 
 import java.awt.*;
@@ -39,6 +41,8 @@ public class HttpServer {
         this.httpServer.createContext("/favicon.ico",new FaviconHandle());
         this.httpServer.createContext("/close",new CloseHandle());
         this.httpServer.createContext("/",new MainHandle());
+        this.httpServer.createContext("/overlay",new OverlayHandle());
+        this.httpServer.createContext("/overlay/style/style.css",new OverlayCSSHandle());
     }
 
     public void start() { // Запускаэмо сервер
