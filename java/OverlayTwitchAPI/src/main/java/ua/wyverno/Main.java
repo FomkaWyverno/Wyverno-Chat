@@ -47,12 +47,12 @@ public class Main {
                 String line;
 
                 while ((line = reader.readLine()) != null) {
-                    logger.debug("[Node.js] >>> " + line);
+                    logger.debug(line);
                 }
             } catch (IOException e) {
-                logger.error("[NODE.JS] " + ExceptionToString.getString(e));
+                logger.error(ExceptionToString.getString(e));
             }
-        });
+        },"Node.js");
         thread.start();
     }
 }
