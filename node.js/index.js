@@ -42,7 +42,7 @@ function createOverlay() {
         }
     })
 
-    win.loadFile('index.html')
+    win.loadURL('http://localhost:2828/overlay')
 
     win.setMenu(null)
 
