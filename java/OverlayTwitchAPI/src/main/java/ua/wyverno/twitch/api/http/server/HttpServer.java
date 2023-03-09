@@ -43,7 +43,7 @@ public class HttpServer {
 
     public void start() {
         this.isRunServer = true;
-        logger.info("HTTP Server is starting");
+        logger.info("HTTP Server is starting on port " + this.httpServer.getAddress().getPort());
         this.httpServer.start();
     }
 
