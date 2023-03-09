@@ -23,6 +23,15 @@ function createMainWindow() {
         win.show();
     });
 
+    let overlay = null;
+
+    overlay = createOverlay();
+
+    win.on('close', () => { // Коли головне вікно закрили.
+        closeServer(); // Зупиняємо внутрішній сервер.
+        if (overlay != null && !overlay.isDestroyed()) overlay.close();
+    });
+
     win.webContents.openDevTools();
 }
 
@@ -46,11 +55,13 @@ function createOverlay() {
 
     win.setMenu(null)
 
-    win.setIgnoreMouseEvents(true); //
+    win.setIgnoreMouseEvents(true); // Відключаємо взаємодію з вікном.
 
     win.once('ready-to-show', () => {
         win.show();
     });
+
+    return win;
 }
 
 app.whenReady().then(() => {
@@ -58,7 +69,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-    app.quit()
+    closeServer()
 });
 
 function closeServer() {
@@ -84,6 +95,8 @@ function closeServer() {
         res.on('end', () => {
             console.log(body);
         })
+
+        app.quit();
 
     }).on('error', (err) => {
         console.log('Error: ', err.message);
