@@ -16,11 +16,15 @@ public class ConfigHandler {
 
     private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
+    private static ConfigHandler instance;
+
     private final Properties properties;
 
     private String accessToken;
 
-    public ConfigHandler() throws IOException, AccessTokenNoLongerValidException {
+    private static final String clientID = "znxb14or3tj0cm6e1pixh7zijlsgua";
+
+    private ConfigHandler() throws IOException {
         logger.debug("Config path = " + configFile);
 
         this.properties = new Properties();
@@ -30,10 +34,24 @@ public class ConfigHandler {
             this.accessToken = properties.getProperty("access_token");
         } else { // Якщо нема конфіг файлу то створюємо.
             logger.debug("Not has config file");
-            this.createConfigFile();
+            this.createDirectoryForConfig();
             properties.store(Files.newBufferedWriter(configFile),"");
-            throw new AccessTokenNoLongerValidException(); // Викидуємо виключення що в нас нема токену.
         }
+    }
+
+    public static ConfigHandler getInstance() {
+        if (instance == null) {
+            try {
+                instance = new ConfigHandler();
+            } catch (IOException e) {
+                logger.error(ExceptionToString.getString(e));
+            }
+        }
+        return instance;
+    }
+
+    public String getClientID() {
+        return clientID;
     }
 
     private boolean isHasConfigFile() {
@@ -46,6 +64,9 @@ public class ConfigHandler {
         this.properties.store(Files.newBufferedWriter(configFile),"");
     }
 
+    public String getAccessToken() {
+        return this.accessToken;
+    }
     public boolean isValidAccessToken() {
         logger.debug("AccessToken isEmpty? - " + this.accessToken.isEmpty());
         if (this.accessToken.isEmpty()) return false;
@@ -60,12 +81,13 @@ public class ConfigHandler {
             return false;
         }
     }
-
-    private void createConfigFile() {
+    private void createDirectoryForConfig() {
         try {
             Files.createDirectories(configFile.getParent()); // Створюэмо директорію до файлу з конфігом
         } catch (IOException e) {
             logger.error(ExceptionToString.getString(e));
         }
     }
+
+
 }
