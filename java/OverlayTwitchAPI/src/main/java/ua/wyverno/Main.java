@@ -14,15 +14,12 @@ import java.io.InputStreamReader;
 public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
-
-    private static ConfigHandler config;
     
     public static void main(String[] args) {
         try {
             logger.info("Start main class");
             HttpServer httpServer = new HttpServer();
             httpServer.start();
-            config = new ConfigHandler();
             startUI();
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
@@ -50,9 +47,5 @@ public class Main {
             }
         },"Node.js");
         thread.start();
-    }
-
-    public static ConfigHandler getConfig() {
-        return config;
     }
 }
