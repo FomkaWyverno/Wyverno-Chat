@@ -20,18 +20,13 @@ public class Authorization {
 
     private final OAuth2Credential auth2Credential;
 
-    private final HttpServer httpServer;
-
-    public Authorization(HttpServer httpServer) throws Exception {
+    public Authorization(String accessToken) throws AccessTokenNoLongerValidException, IOException {
         logger.debug("Config path = " +configFile);
-        this.httpServer = httpServer;
 
         Properties p = new Properties();
-        String accessToken;
         if (!isHasConfigFile()) { // Якщо нема конфиг файла.
             logger.debug("Not has config file");
             this.createConfigFile();
-            accessToken = getAccessTokenFromUser();
             p.put("access_token", accessToken);
             p.store(Files.newBufferedWriter(configFile),"");
         } else { // Якщо є конфіг файл то читаємо.
@@ -43,21 +38,6 @@ public class Authorization {
             throw new AccessTokenNoLongerValidException();
         }
         this.auth2Credential = new OAuth2Credential("twitch", accessToken);
-    }
-
-    private String getAccessTokenFromUser() throws Exception { // Беремо у користовача accessToken
-        try {
-            logger.debug("Ask access token");
-            httpServer.askAuthorization(ResultAsk.authURL); // Просимо у кліента дати нам access token
-            ResultAsk resultAsk = httpServer.getResultAsk();
-
-            String accessToken = resultAsk.getAccessToken(); // Беремо з результата запиту access token.
-            logger.info("Access token: " + accessToken);
-            return accessToken; // Повертаємо access token
-        } catch (IOException e) {
-            logger.error(ExceptionToString.getString(e));
-        }
-        return null;
     }
 
     private boolean isValidToken(String accessToken) { // Провіряємо через Twitch4J чи є валідним токен
