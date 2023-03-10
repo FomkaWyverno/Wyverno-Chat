@@ -2,8 +2,6 @@ package ua.wyverno;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.twitch.api.authorization.AccessTokenNoLongerValidException;
-import ua.wyverno.twitch.api.authorization.Authorization;
 import ua.wyverno.twitch.api.http.server.HttpServer;
 import ua.wyverno.util.ExceptionToString;
 
