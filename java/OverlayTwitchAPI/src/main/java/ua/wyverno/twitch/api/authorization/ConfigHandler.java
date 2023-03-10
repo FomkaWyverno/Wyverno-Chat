@@ -46,6 +46,21 @@ public class ConfigHandler {
         this.properties.store(Files.newBufferedWriter(configFile),"");
     }
 
+    public boolean isValidAccessToken() {
+        logger.debug("AccessToken isEmpty? - " + this.accessToken.isEmpty());
+        if (this.accessToken.isEmpty()) return false;
+
+        try {
+            logger.debug("AccessToken validation try create Authorization");
+            new Authorization(this.accessToken);
+            logger.debug("AccessToken valid return TRUE");
+            return true;
+        } catch (AccessTokenNoLongerValidException e) {
+            logger.debug("AccessToken not valid return false");
+            return false;
+        }
+    }
+
     private void createConfigFile() {
         try {
             Files.createDirectories(configFile.getParent()); // Створюэмо директорію до файлу з конфігом
