@@ -38,6 +38,15 @@
             <AppenderRef ref="file_log"/>
         </Logger>
 
+        <Logger name="com.github" additivity="false" level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Logger>
+        <Logger name="io.github" additivity="false" level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Logger>
+
         <Root level="ALL">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
