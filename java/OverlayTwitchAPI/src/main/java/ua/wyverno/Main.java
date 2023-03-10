@@ -2,6 +2,7 @@ package ua.wyverno;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.ConfigHandler;
 import ua.wyverno.twitch.api.http.server.HttpServer;
 import ua.wyverno.util.ExceptionToString;
 
@@ -14,11 +15,15 @@ public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    private static ConfigHandler config;
+
+
     public static void main(String[] args) {
         try {
             logger.info("Start main class");
             HttpServer httpServer = new HttpServer();
             httpServer.start();
+            config = new ConfigHandler();
             startUI();
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
@@ -46,5 +51,9 @@ public class Main {
             }
         },"Node.js");
         thread.start();
+    }
+
+    public static ConfigHandler getConfig() {
+        return config;
     }
 }
