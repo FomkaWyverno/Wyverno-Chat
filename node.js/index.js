@@ -26,8 +26,6 @@ function createMainWindow() {
 
     let overlay = null;
 
-    overlay = createOverlay();
-
     win.on('close', () => { // Коли головне вікно закрили.
         closeServer(); // Зупиняємо внутрішній сервер.
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
@@ -41,6 +39,10 @@ function createMainWindow() {
 
         const authWin = createAuthorization(data.url);
     });
+
+    ipc.on('open-overlay', () => {
+        if (overlay === null) overlay = createOverlay();
+    })
 
     win.webContents.openDevTools();
 }
