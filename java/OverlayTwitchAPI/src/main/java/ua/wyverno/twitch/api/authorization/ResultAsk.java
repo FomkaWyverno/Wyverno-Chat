@@ -15,11 +15,7 @@ public class ResultAsk {
     public static final String authURL =
             "https://id.twitch.tv/oauth2/authorize?client_id=znxb14or3tj0cm6e1pixh7zijlsgua&redirect_uri=http%3A%2F%2Flocalhost%3A2828/access&response_type=token&scope=channel%3Aread%3Aredemptions+chat%3Aread";
 
-    private HttpServer httpServer;
     public ResultAsk() {}
-    public ResultAsk(HttpServer httpServer) {
-        this.httpServer = httpServer;
-    }
     private volatile String accessToken;
     private volatile String scope;
     private volatile String tokenType;
@@ -46,11 +42,6 @@ public class ResultAsk {
         synchronized (this.lockObjectTypeToken) {
             this.lockObjectTypeToken.notifyAll();
         }
-    }
-
-    public void setHttpServer(HttpServer httpServer) {
-        logger.debug("Set HTTP SERVER");
-        this.httpServer = httpServer;
     }
 
     public String getAccessToken() throws Exception {
