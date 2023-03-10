@@ -11,9 +11,6 @@ public class ResultAsk {
     private final Object lockObjectScope = new Object();
     private final Object lockObjectTypeToken = new Object();
 
-    public static final String authURL =
-            "https://id.twitch.tv/oauth2/authorize?client_id=znxb14or3tj0cm6e1pixh7zijlsgua&redirect_uri=http%3A%2F%2Flocalhost%3A2828/access&response_type=token&scope=channel%3Aread%3Aredemptions+chat%3Aread";
-
     public ResultAsk() {}
     private volatile String accessToken;
     private volatile String scope;
