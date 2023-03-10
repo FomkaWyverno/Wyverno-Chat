@@ -11,9 +11,9 @@ import ua.wyverno.twitch.api.http.server.HttpHandle;
 import java.io.*;
 
 @HttpHandle(path = "/processData")
-public class PostHandle implements HttpHandler {
+public class ProcessDataHandle implements HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostHandle.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProcessDataHandle.class);
     
     @Override
     public void handle(HttpExchange exchange) throws IOException {
