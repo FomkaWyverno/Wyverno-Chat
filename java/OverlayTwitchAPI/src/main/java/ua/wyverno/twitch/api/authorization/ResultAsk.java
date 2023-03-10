@@ -44,7 +44,6 @@ public class ResultAsk {
     }
 
     public String getAccessToken() throws Exception {
-        this.isHttpServerLive();
         synchronized (lockObjectAccess) {
             while (this.accessToken == null) {
                 logger.debug("Access token = null, so Thread WAIT!");
