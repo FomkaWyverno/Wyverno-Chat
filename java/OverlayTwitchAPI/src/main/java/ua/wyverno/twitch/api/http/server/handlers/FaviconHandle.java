@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
-import ua.wyverno.twitch.api.http.server.HttpServer;
 
 import java.io.IOException;
 
