@@ -2,6 +2,22 @@ const { ipcRenderer } = require('electron');
 
 const authButton = document.querySelector('.authorization')
 
+const xhr = new XMLHttpRequest()
+
+xhr.open('GET','/verifyAccessToken');
+
+xhr.onload = () => {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+            console.log('AccessToken is valid!')
+        } else if (xhr.status === 401) {
+            console.log('AccessToken is not valid!')
+        }
+    }
+}
+
+xhr.send();
+
 authButton.addEventListener('click', () => {
     authorization();
 });
