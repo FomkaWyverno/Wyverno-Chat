@@ -16,52 +16,28 @@ import java.util.Properties;
 public class Authorization {
 
     private static final Logger logger = LoggerFactory.getLogger(Authorization.class);
-    private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
-    private final OAuth2Credential auth2Credential;
+    private OAuth2Credential auth2Credential;
+    private final String accessToken;
 
     public Authorization(String accessToken) throws AccessTokenNoLongerValidException, IOException {
-        logger.debug("Config path = " +configFile);
-
-        Properties p = new Properties();
-        if (!isHasConfigFile()) { // Якщо нема конфиг файла.
-            logger.debug("Not has config file");
-            this.createConfigFile();
-            p.put("access_token", accessToken);
-            p.store(Files.newBufferedWriter(configFile),"");
-        } else { // Якщо є конфіг файл то читаємо.
-            logger.debug("Config file is exists");
-            p.load(Files.newBufferedReader(configFile));
-            accessToken = p.getProperty("access_token");
-        }
-        if (accessToken == null || accessToken.isEmpty() || !isValidToken(accessToken)) {
+        this.accessToken = accessToken;
+        if (accessToken == null || accessToken.isEmpty() || !isValidToken()) {
             throw new AccessTokenNoLongerValidException();
         }
-        this.auth2Credential = new OAuth2Credential("twitch", accessToken);
     }
 
-    private boolean isValidToken(String accessToken) { // Провіряємо через Twitch4J чи є валідним токен
+    protected boolean isValidToken() { // Провіряємо через Twitch4J чи є валідним токен
         boolean isValidToken = new TwitchIdentityProvider(null,null, null)
                 .isCredentialValid(
-                new OAuth2Credential("twitch",accessToken))
+                new OAuth2Credential("twitch",this.accessToken))
                 .orElse(false);
         logger.debug("Credential is valid -> " + isValidToken);
         return isValidToken;
     }
 
     public OAuth2Credential getAccount() {
+        if (this.auth2Credential == null) this.auth2Credential = new OAuth2Credential("twitch", this.accessToken);
         return this.auth2Credential;
-    }
-
-    private boolean isHasConfigFile() {
-        return Files.exists(configFile);
-    }
-
-    private void createConfigFile() {
-        try {
-            Files.createDirectories(configFile.getParent()); // Створюэмо директорію до файлу з конфігом
-        } catch (IOException e) {
-            logger.error(ExceptionToString.getString(e));
-        }
     }
 }
