@@ -1,6 +1,8 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain} = require('electron')
 const http = require('http');
 const path = require('path');
+
+const ipc = ipcMain;
 
 function createMainWindow() {
     const win = new BrowserWindow({
@@ -9,9 +11,8 @@ function createMainWindow() {
         show: false,
 
         webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            enableRemoteModule: false
+            nodeIntegration: true,
+            contextIsolation: false,
         }
     });
 
@@ -30,6 +31,15 @@ function createMainWindow() {
     win.on('close', () => { // Коли головне вікно закрили.
         closeServer(); // Зупиняємо внутрішній сервер.
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
+    });
+
+    // IPC
+
+    ipc.on('main-auth-url', (event, data) => {
+        console.log(`Code: ${data.code}`)
+        console.log(`URL: ${data.url}`)
+
+        const authWin = createAuthorization(data.url);
     });
 
     win.webContents.openDevTools();
@@ -60,6 +70,32 @@ function createOverlay() {
     win.once('ready-to-show', () => {
         win.show();
     });
+
+    return win;
+}
+
+function createAuthorization(url) {
+    const win = new BrowserWindow({
+        width: 650,
+        height: 800,
+        show: false,
+
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            enableRemoteModule: false
+        }
+    });
+
+    win.loadURL(url);
+
+    win.setMenu(null);
+
+    win.once('ready-to-show', () => {
+        win.show();
+    });
+
+    win.webContents.openDevTools()
 
     return win;
 }
