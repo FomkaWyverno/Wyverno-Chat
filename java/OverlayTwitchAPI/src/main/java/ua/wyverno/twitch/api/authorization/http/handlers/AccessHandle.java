@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
-import ua.wyverno.twitch.api.http.server.HttpServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 @HttpHandle(path = "/access")
-public class GetHandle implements HttpHandler
+public class AccessHandle implements HttpHandler
 {
-    private static final Logger logger = LoggerFactory.getLogger(GetHandle.class);
+    private static final Logger logger = LoggerFactory.getLogger(AccessHandle.class);
 
     @Override
     public void handle(HttpExchange t) throws IOException {
