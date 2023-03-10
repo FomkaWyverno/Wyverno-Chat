@@ -20,7 +20,7 @@ public class Authorization {
     private OAuth2Credential auth2Credential;
     private final String accessToken;
 
-    public Authorization(String accessToken) throws AccessTokenNoLongerValidException, IOException {
+    public Authorization(String accessToken) throws AccessTokenNoLongerValidException {
         this.accessToken = accessToken;
         if (accessToken == null || accessToken.isEmpty() || !isValidToken()) {
             throw new AccessTokenNoLongerValidException();
