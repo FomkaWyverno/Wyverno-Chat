@@ -4,10 +4,12 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.http.server.HttpHandle;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+@HttpHandle(path = "/close")
 public class CloseHandle implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CloseHandle.class);
