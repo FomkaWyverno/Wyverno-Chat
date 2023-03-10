@@ -57,7 +57,6 @@ public class ResultAsk {
     }
 
     public String getScope() throws Exception {
-        this.isHttpServerLive();
         synchronized (lockObjectScope) {
             while (this.scope == null) {
                 logger.debug("Scope = null, so Thread WAIT!");
@@ -70,7 +69,6 @@ public class ResultAsk {
     }
 
     public String getTokenType() throws Exception {
-        this.isHttpServerLive();
 
         synchronized (lockObjectTypeToken) {
             while (this.tokenType == null) {
@@ -81,12 +79,6 @@ public class ResultAsk {
 
         logger.debug("Return Token Type!");
         return tokenType;
-    }
-
-    private void isHttpServerLive() throws Exception {
-        if (!this.httpServer.isRunServer()) {
-            throw new Exception("HTTP SERVER NOT START! YOU NEED START SERVER AFTER GET RESULT");
-        }
     }
 
     @Override
