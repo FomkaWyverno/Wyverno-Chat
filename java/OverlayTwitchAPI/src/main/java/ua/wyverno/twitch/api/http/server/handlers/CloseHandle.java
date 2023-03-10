@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.Account;
+import ua.wyverno.twitch.api.authorization.ConfigHandler;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class CloseHandle implements HttpHandler {
         os.close();
 
         t.getHttpContext().getServer().stop(0);
+        Account.getInstance().closeAccount();
         logger.info("HTTP Server - is stop");
     }
 }
