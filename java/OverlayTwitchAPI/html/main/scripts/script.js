@@ -3,7 +3,12 @@ const { ipcRenderer } = require('electron');
 const authButton = document.querySelector('.authorization')
 const body = document.querySelector('body');
 
-const xhr = new XMLHttpRequest()
+authButton.addEventListener('click', () => {
+    authorization();
+});
+
+function tryVerifyAccessToken() {
+    const xhr = new XMLHttpRequest()
 
 xhr.open('GET','/verifyAccessToken');
 
@@ -22,10 +27,7 @@ xhr.onload = () => {
 }
 
 xhr.send();
-
-authButton.addEventListener('click', () => {
-    authorization();
-});
+}
 
 function authorization() {
     let xhr = new XMLHttpRequest();
