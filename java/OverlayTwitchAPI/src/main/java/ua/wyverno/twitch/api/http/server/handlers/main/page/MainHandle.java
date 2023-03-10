@@ -17,7 +17,7 @@ public class MainHandle implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
         logger.debug("Main page GET");
-        File page = new File("htmls/main/index.html");
+        File page = new File("html/main/index.html");
         byte[] pageBytes = Files.readAllBytes(page.toPath());
         logger.debug("Reading all bytes for Page.");
 

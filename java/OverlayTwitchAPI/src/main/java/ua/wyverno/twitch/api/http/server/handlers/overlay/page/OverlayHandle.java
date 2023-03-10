@@ -18,7 +18,7 @@ public class OverlayHandle implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
         logger.debug("Start Overlay GET Handle");
 
-        File index = new File("htmls/overlay/index.html");
+        File index = new File("html/overlay/index.html");
         byte[] bytes = Files.readAllBytes(index.toPath());
 
         logger.debug("Read all bytes for response page!");

@@ -19,7 +19,7 @@ public class OverlayCSSHandle implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
         logger.debug("Start OverlayCSS GET Handle");
 
-        File index = new File("htmls/overlay/css/style.css");
+        File index = new File("html/overlay/css/style.css");
         byte[] bytes = Files.readAllBytes(index.toPath());
 
         logger.debug("Read all bytes for response page!");
