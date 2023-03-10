@@ -40,7 +40,6 @@ public class HttpServer {
         this.httpServer = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(port), 0);
 
         // Ініцілізуємо обробники HTTP запитів
-        this.httpServer.createContext("/processData", new PostHandle(this));
         List<HttpHandlerWrapper> list = this.findHttpHandlers();
 
         list.forEach(e -> {
