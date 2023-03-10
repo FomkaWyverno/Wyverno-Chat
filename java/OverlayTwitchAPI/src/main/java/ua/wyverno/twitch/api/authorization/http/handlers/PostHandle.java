@@ -6,12 +6,11 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.ResultAsk;
-import ua.wyverno.twitch.api.http.server.HttpServer;
 
 import java.io.*;
 
-public record PostHandle(HttpServer httpServer) implements HttpHandler {
-    
+public class PostHandle implements HttpHandler {
+
     private static final Logger logger = LoggerFactory.getLogger(PostHandle.class);
     
     @Override
@@ -28,7 +27,6 @@ public record PostHandle(HttpServer httpServer) implements HttpHandler {
 
         ResultAsk resultAsk = new ObjectMapper().readValue(requestBody, ResultAsk.class);
         logger.debug("Created Result Ask object!");
-        this.httpServer.setResultAsk(resultAsk);
         logger.info("Created ResultAsk for HttpAuthServer");
 
         String response = "OK";
