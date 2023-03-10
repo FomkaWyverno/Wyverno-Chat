@@ -22,12 +22,6 @@ public class Main {
             HttpServer httpServer = new HttpServer();
             httpServer.start();
             startUI();
-            try {
-                new Authorization(httpServer);
-            } catch (AccessTokenNoLongerValidException e) {
-                logger.error(ExceptionToString.getString(e));
-            }
-
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
         }
