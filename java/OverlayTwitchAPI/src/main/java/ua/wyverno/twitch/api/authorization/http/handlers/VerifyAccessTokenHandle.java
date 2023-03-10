@@ -1,13 +1,17 @@
 package ua.wyverno.twitch.api.authorization.http.handlers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.Main;
+import ua.wyverno.twitch.api.authorization.AboutAccount;
+import ua.wyverno.twitch.api.authorization.Account;
+import ua.wyverno.twitch.api.authorization.ConfigHandler;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 @HttpHandle(path = "/verifyAccessToken")
 public class VerifyAccessTokenHandle implements HttpHandler {
@@ -18,18 +22,32 @@ public class VerifyAccessTokenHandle implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
         logger.debug("Start VerifyAccessTokenHandle");
 
-        boolean valid = Main.getConfig().isValidAccessToken();
+        boolean isValid = ConfigHandler.getInstance().isValidAccessToken();
 
-        logger.debug("Valid token? -> " + valid);
+        logger.debug("Valid token? -> " + isValid);
 
-        if (valid) {
+        if (isValid) {
+
+            Account account = Account.getInstance();
+
+            AboutAccount aboutAccount = new AboutAccount(account.getDisplayName(),account.getProfileImageURL());
+
+            String jsonAboutAccount = new ObjectMapper().writeValueAsString(aboutAccount);
+
             logger.debug("Send code 200");
-            t.sendResponseHeaders(200,-1);
+            t.sendResponseHeaders(200,jsonAboutAccount.length());
+
+            t.getResponseHeaders().add("Content-Type","application/json");
+
+            OutputStream os = t.getResponseBody();
+
+            os.write(jsonAboutAccount.getBytes());
+            os.close();
         } else {
             logger.debug("Send code 401");
             t.sendResponseHeaders(401,-1);
+            t.close();
         }
-        t.close();
         logger.debug("Close VerifyAccessTokenHandle");
     }
 }
