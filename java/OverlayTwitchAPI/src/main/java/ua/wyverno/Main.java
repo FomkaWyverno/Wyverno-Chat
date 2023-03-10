@@ -16,8 +16,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static ConfigHandler config;
-
-
+    
     public static void main(String[] args) {
         try {
             logger.info("Start main class");
