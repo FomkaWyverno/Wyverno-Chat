@@ -18,7 +18,6 @@ public class Account {
         this.twitchClient = TwitchClientBuilder.builder()
                 .withEnableHelix(true)
                 .withEnableChat(true)
-                .withEnablePubSub(true)
                 .withClientId(clientID)
                 .withChatAccount(new OAuth2Credential("twitch",accessToken))
                 .build();
