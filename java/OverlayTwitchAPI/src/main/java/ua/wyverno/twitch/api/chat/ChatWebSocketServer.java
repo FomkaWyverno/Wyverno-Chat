@@ -54,4 +54,19 @@ public class ChatWebSocketServer extends WebSocketServer {
         }
         return wssInstance;
     }
+
+    public static void stopWSS() {
+        if (wssInstance != null) {
+            try {
+                logger.info("Try stop Web-Socket-Server");
+                wssInstance.stop();
+                logger.info("Web-Socket-Server is stop");
+                return;
+            } catch (InterruptedException e) {
+                logger.error(ExceptionToString.getString(e));
+            }
+
+        }
+        logger.info("Web-Socket-Server null not need stop");
+    }
 }
