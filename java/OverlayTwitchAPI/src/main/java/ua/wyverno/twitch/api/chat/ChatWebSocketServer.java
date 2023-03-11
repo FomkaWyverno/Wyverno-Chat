@@ -39,6 +39,6 @@ public class ChatWebSocketServer extends WebSocketServer {
 
     @Override
     public void onStart() {
-
+        logger.info("WebSocket Server is running");
     }
 }
