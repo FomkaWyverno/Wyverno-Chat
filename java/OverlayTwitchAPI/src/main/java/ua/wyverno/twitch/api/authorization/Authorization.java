@@ -12,15 +12,15 @@ public class Authorization {
 
     public Authorization(String accessToken) throws AccessTokenNoLongerValidException {
         this.accessToken = accessToken;
-        if (accessToken == null || accessToken.isEmpty() || !isValidToken()) {
+        if (accessToken == null || accessToken.isEmpty() || !isValidToken(this.accessToken)) {
             throw new AccessTokenNoLongerValidException();
         }
     }
 
-    protected boolean isValidToken() { // Провіряємо через Twitch4J чи є валідним токен
+    public static boolean isValidToken(String accessToken) { // Провіряємо через Twitch4J чи є валідним токен
         boolean isValidToken = new TwitchIdentityProvider(null,null, null)
                 .isCredentialValid(
-                new OAuth2Credential("twitch",this.accessToken))
+                new OAuth2Credential("twitch",accessToken))
                 .orElse(false);
         logger.debug("Credential is valid -> " + isValidToken);
         return isValidToken;
