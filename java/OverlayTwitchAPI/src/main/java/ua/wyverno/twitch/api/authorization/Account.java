@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 public class Account {
 
     private static final Logger logger = LoggerFactory.getLogger(Account.class);
-    private static Account instance;
     private final TwitchClient twitchClient;
     private final User user;
 
