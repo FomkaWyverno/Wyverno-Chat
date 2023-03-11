@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.ConfigHandler;
 import ua.wyverno.twitch.api.authorization.ResultAsk;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 
@@ -29,7 +30,8 @@ public class ProcessDataHandle implements HttpHandler {
 
         ResultAsk resultAsk = new ObjectMapper().readValue(requestBody, ResultAsk.class);
         logger.debug("Created Result Ask object!");
-        logger.info("Created ResultAsk for HttpAuthServer");
+
+        ConfigHandler.getInstance().putAccessToken(resultAsk.getAccessToken());
 
         String response = "OK";
         exchange.sendResponseHeaders(200, response.getBytes().length);
