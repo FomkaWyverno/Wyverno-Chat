@@ -11,7 +11,11 @@ import java.net.InetSocketAddress;
 
 public class ChatWebSocketServer extends WebSocketServer {
 
-    public ChatWebSocketServer(int port) {
+    private static ChatWebSocketServer wssInstance;
+
+
+
+    private ChatWebSocketServer(int port) {
         super(new InetSocketAddress(port));
     }
 
@@ -40,5 +44,10 @@ public class ChatWebSocketServer extends WebSocketServer {
     @Override
     public void onStart() {
         logger.info("WebSocket Server is running");
+    }
+    public static ChatWebSocketServer getInstance() throws IllegalArgumentException {
+        if (wssInstance == null) wssInstance = new ChatWebSocketServer(2929);
+        wssInstance.start();
+        return wssInstance;
     }
 }
