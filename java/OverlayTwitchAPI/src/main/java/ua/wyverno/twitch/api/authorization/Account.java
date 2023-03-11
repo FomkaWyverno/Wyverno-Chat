@@ -6,6 +6,7 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 
 public class Account {
 
@@ -26,6 +27,8 @@ public class Account {
                 .execute()
                 .getUsers()
                 .get(0);
+
+        ChatWebSocketServer.getInstance();
     }
 
     public String getDisplayName() {
