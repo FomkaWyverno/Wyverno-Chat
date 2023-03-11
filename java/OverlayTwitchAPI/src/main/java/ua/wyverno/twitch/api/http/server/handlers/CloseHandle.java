@@ -5,8 +5,8 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.AccessTokenNoLongerValidException;
-import ua.wyverno.twitch.api.authorization.Account;
 import ua.wyverno.twitch.api.authorization.Authorization;
+import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 
 import java.io.IOException;
@@ -34,6 +34,8 @@ public class CloseHandle implements HttpHandler {
         } catch (AccessTokenNoLongerValidException e) {
             logger.trace("Account is not logged");
         }
+
+        ChatWebSocketServer.stopWSS();
         logger.info("HTTP Server - is stop");
     }
 }
