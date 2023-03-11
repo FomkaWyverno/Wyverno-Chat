@@ -1,8 +1,11 @@
 package ua.wyverno.twitch.api.authorization;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.philippheuer.events4j.core.EventManager;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.chat.TwitchChat;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,20 @@ public class Account {
                 .get(0);
 
         ChatWebSocketServer.getInstance();
+
+        this.initEvents();
+    }
+
+    private void initEvents() {
+        logger.info("Getting twitch chat!");
+        TwitchChat twitchChat = this.twitchClient.getChat();
+        logger.info("Joining to self chat!");
+        twitchChat.joinChannel(this.getDisplayName());
+
+        logger.trace("Getting event manager!");
+        EventManager eventManager = twitchChat.getEventManager();
+
+        eventManager.onEvent(ChannelMessageEvent.class)
     }
 
     public String getDisplayName() {
