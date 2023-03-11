@@ -38,6 +38,11 @@ function createMainWindow() {
         console.log(`URL: ${data.url}`)
 
         const authWin = createAuthorization(data.url);
+
+        authWin.on('closed', () => {
+            win.webContents.send('logged')
+        });
+        
     });
 
     ipc.on('open-overlay', () => {
@@ -85,7 +90,7 @@ function createAuthorization(url) {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            enableRemoteModule: false
+            enableRemoteModule: false,
         }
     });
 
