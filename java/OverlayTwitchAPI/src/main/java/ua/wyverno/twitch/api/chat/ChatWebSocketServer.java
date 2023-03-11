@@ -46,8 +46,12 @@ public class ChatWebSocketServer extends WebSocketServer {
         logger.info("WebSocket Server is running");
     }
     public static ChatWebSocketServer getInstance() throws IllegalArgumentException {
-        if (wssInstance == null) wssInstance = new ChatWebSocketServer(2929);
-        wssInstance.start();
+        if (wssInstance == null) {
+            logger.info("Create Chat Web-Socket-Server on port 2929");
+            wssInstance = new ChatWebSocketServer(2929);
+            logger.info("Starting Chat Web-Socket-Server");
+            wssInstance.start();
+        }
         return wssInstance;
     }
 }
