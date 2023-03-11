@@ -2,6 +2,7 @@ package ua.wyverno.twitch.api.authorization;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.util.ExceptionToString;
 
 public class ResultAsk {
 
@@ -40,11 +41,15 @@ public class ResultAsk {
         }
     }
 
-    public String getAccessToken() throws Exception {
+    public String getAccessToken() {
         synchronized (lockObjectAccess) {
             while (this.accessToken == null) {
                 logger.debug("Access token = null, so Thread WAIT!");
-                lockObjectAccess.wait();
+                try {
+                    lockObjectAccess.wait();
+                } catch (InterruptedException e) {
+                    logger.error(ExceptionToString.getString(e));
+                }
             }
         }
 
