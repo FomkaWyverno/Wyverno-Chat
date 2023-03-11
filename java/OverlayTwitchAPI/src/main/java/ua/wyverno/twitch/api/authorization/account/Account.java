@@ -1,4 +1,4 @@
-package ua.wyverno.twitch.api.authorization;
+package ua.wyverno.twitch.api.authorization.account;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.core.EventManager;
@@ -9,6 +9,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.account.events.ChatMessageEvent;
 import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 
 public class Account {
@@ -17,7 +18,7 @@ public class Account {
     private final TwitchClient twitchClient;
     private final User user;
 
-    protected Account(String accessToken,String clientID) {
+    public Account(String accessToken,String clientID) {
         this.twitchClient = TwitchClientBuilder.builder()
                 .withEnableHelix(true)
                 .withEnableChat(true)
@@ -45,7 +46,7 @@ public class Account {
         logger.trace("Getting event manager!");
         EventManager eventManager = twitchChat.getEventManager();
 
-        eventManager.onEvent(ChannelMessageEvent.class)
+        eventManager.onEvent(ChannelMessageEvent.class, new ChatMessageEvent());
     }
 
     public String getDisplayName() {
