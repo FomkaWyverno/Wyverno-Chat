@@ -1,4 +1,4 @@
-const body = document.querySelector('body');
+const chat = document.querySelector('ul');
 
 const socket = new WebSocket('ws://localhost:2929')
 
@@ -12,6 +12,6 @@ socket.addEventListener('message', e=> {
     console.log(data)
 
     if (data.type === 'html') {
-        body.innerHTML = `${body.innerHTML}\n${data.content}`;
+        chat.innerHTML = `${chat.innerHTML}\n${data.content}`;
     }
 })
