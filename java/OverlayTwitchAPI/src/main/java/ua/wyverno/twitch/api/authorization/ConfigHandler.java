@@ -16,7 +16,7 @@ public class ConfigHandler {
 
     private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
-    private static ConfigHandler instance = null;
+    private static ConfigHandler instance;
 
     private final Properties properties;
 
