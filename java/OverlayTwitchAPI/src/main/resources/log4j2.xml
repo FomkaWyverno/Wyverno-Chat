@@ -53,6 +53,11 @@
             <AppenderRef ref="file_log"/>
         </Logger>
 
+        <Logger name="org.java_websocket" additivity="false" level="WARN">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Logger>
+
         <Root level="ALL">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
