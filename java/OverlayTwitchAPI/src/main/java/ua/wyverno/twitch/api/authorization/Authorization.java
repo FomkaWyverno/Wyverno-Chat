@@ -4,6 +4,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.account.Account;
 
 public class Authorization {
 
