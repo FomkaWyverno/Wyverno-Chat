@@ -1,10 +1,11 @@
 const { ipcRenderer } = require('electron');
 
-const authButton = document.querySelector('.authorization')
+const loadingSpan = document.querySelector('.loading')
+const authButton = document.querySelector('.authorization');
 const body = document.querySelector('body');
 const openOverlay = document.querySelector('.open-overlay');
 
-tryVerifyAccessToken();
+loggin();
 
 authButton.addEventListener('click', () => {
     authorization();
@@ -14,9 +15,12 @@ openOverlay.addEventListener('click', () => {
     ipcRenderer.send('open-overlay');
 });
 
-ipcRenderer.on('logged', () => { tryVerifyAccessToken() });
+ipcRenderer.on('logged', () => { loggin() });
 
-function tryVerifyAccessToken() {
+function loggin() {
+
+    authButton.classList.add('hide')
+    loadingSpan.classList.remove('hide');
     const xhr = new XMLHttpRequest()
 
     xhr.open('GET', '/verifyAccessToken');
@@ -30,8 +34,12 @@ function tryVerifyAccessToken() {
                 authButton.classList.add('hide')
                 displayInformation(about)
                 openOverlay.classList.remove('hide')
+                
+                
+                loadingSpan.classList.add('hide')
             } else if (xhr.status === 401) {
                 console.log('AccessToken is not valid!')
+                authButton.classList.remove('hide')
             }
         }
     }
