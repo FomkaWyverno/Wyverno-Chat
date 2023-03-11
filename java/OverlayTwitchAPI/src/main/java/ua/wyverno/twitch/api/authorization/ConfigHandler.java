@@ -75,15 +75,12 @@ public class ConfigHandler {
         logger.debug("AccessToken isEmpty? - " + this.accessToken.isEmpty());
         if (this.accessToken.isEmpty()) return false;
 
-        try {
-            logger.debug("AccessToken validation try create Authorization");
-            new Authorization(this.accessToken);
-            logger.debug("AccessToken valid return TRUE");
+        if (Authorization.isValidToken(this.accessToken)) {
+            logger.debug("Access Token is valid");
             return true;
-        } catch (AccessTokenNoLongerValidException e) {
-            logger.debug("AccessToken not valid return false");
-            return false;
         }
+        logger.debug("Access Token is not valid");
+        return false;
     }
     private void createDirectoryForConfig() {
         try {
