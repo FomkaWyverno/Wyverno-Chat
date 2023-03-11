@@ -14,7 +14,7 @@ public class Account {
     private final TwitchClient twitchClient;
     private final User user;
 
-    private Account(String accessToken,String clientID) {
+    protected Account(String accessToken,String clientID) {
         this.twitchClient = TwitchClientBuilder.builder()
                 .withEnableHelix(true)
                 .withEnableChat(true)
@@ -27,11 +27,6 @@ public class Account {
                 .execute()
                 .getUsers()
                 .get(0);
-    }
-
-    public static Account getInstance() {
-        if (instance == null) instance = new Account(ConfigHandler.getInstance().getAccessToken(), ConfigHandler.getInstance().getClientID());
-        return instance;
     }
 
     public String getDisplayName() {
