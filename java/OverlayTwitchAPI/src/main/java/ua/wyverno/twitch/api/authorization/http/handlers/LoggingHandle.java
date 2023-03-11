@@ -11,14 +11,14 @@ import ua.wyverno.twitch.api.http.server.HttpHandle;
 import java.io.IOException;
 import java.io.OutputStream;
 
-@HttpHandle(path = "/verifyAccessToken")
-public class VerifyAccessTokenHandle implements HttpHandler {
+@HttpHandle(path = "/logging")
+public class LoggingHandle implements HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(VerifyAccessTokenHandle.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoggingHandle.class);
 
     @Override
     public void handle(HttpExchange t) throws IOException {
-        logger.debug("Start VerifyAccessTokenHandle");
+        logger.debug("Start LoggingHandle");
 
         boolean isValid = ConfigHandler.getInstance().isValidAccessToken();
 
