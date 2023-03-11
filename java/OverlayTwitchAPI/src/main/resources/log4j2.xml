@@ -12,7 +12,7 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
 
-        <RollingFile  name="file_log" fileName="${HOME_LOG}${NAME_LOG_FILE}"
+        <RollingFile name="file_log" fileName="${HOME_LOG}${NAME_LOG_FILE}"
                       filePattern="${HOME_LOG}%d{yyyy-MM-dd}-%i.log.gz"
                       append="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
@@ -42,7 +42,13 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </Logger>
+
         <Logger name="io.github" additivity="false" level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Logger>
+
+        <Logger name="com.netflix.hystrix" additivity="false" level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </Logger>
