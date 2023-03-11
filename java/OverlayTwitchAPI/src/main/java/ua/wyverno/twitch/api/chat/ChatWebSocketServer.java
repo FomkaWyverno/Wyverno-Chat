@@ -1,5 +1,7 @@
 package ua.wyverno.twitch.api.chat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -8,12 +10,15 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.util.ExceptionToString;
 
 import java.net.InetSocketAddress;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChatWebSocketServer extends WebSocketServer {
 
     private static ChatWebSocketServer wssInstance;
 
-
+    private final static ObjectMapper mapper = new ObjectMapper();
+    private final Set<WebSocket> webSocketSet = new HashSet<>();
 
     private ChatWebSocketServer(int port) {
         super(new InetSocketAddress(port));
@@ -24,11 +29,13 @@ public class ChatWebSocketServer extends WebSocketServer {
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
         logger.info("WebSocket opened: " + webSocket.getRemoteSocketAddress());
+        this.webSocketSet.add(webSocket);
     }
 
     @Override
     public void onClose(WebSocket webSocket, int i, String s, boolean b) {
         logger.info("WebSocket closed: " + webSocket.getRemoteSocketAddress());
+        this.webSocketSet.remove(webSocket);
     }
 
     @Override
@@ -45,6 +52,17 @@ public class ChatWebSocketServer extends WebSocketServer {
     public void onStart() {
         logger.info("WebSocket Server is running");
     }
+
+    public void messageEvent(Protocol protocol) {
+        this.webSocketSet.forEach(ws -> {
+            try {
+                ws.send(mapper.writeValueAsString(protocol));
+            } catch (JsonProcessingException e) {
+                logger.error(ExceptionToString.getString(e));
+            }
+        });
+    }
+
     public static ChatWebSocketServer getInstance() throws IllegalArgumentException {
         if (wssInstance == null) {
             logger.info("Create Chat Web-Socket-Server on port 2929");
