@@ -45,8 +45,10 @@ public class VerifyAccessTokenHandle implements HttpHandler {
             os.close();
         } else {
             logger.debug("Send code 401");
-            t.sendResponseHeaders(401,-1);
-            t.close();
+            t.sendResponseHeaders(401,0);
+            t.getResponseHeaders().add("Content-Type","text/html");
+
+            t.getResponseBody().close();
         }
         logger.debug("Close VerifyAccessTokenHandle");
     }
