@@ -23,7 +23,7 @@ function loggin() {
     loadingSpan.classList.remove('hide');
     const xhr = new XMLHttpRequest()
 
-    xhr.open('GET', '/verifyAccessToken');
+    xhr.open('GET', '/logging');
 
     xhr.onload = () => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
