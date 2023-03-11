@@ -8,16 +8,7 @@ import org.slf4j.LoggerFactory;
 public class Authorization {
 
     private static final Logger logger = LoggerFactory.getLogger(Authorization.class);
-    private final String accessToken;
-
     private static Account instance;
-
-    public Authorization(String accessToken) throws AccessTokenNoLongerValidException {
-        this.accessToken = accessToken;
-        if (accessToken == null || accessToken.isEmpty() || !isValidToken(this.accessToken)) {
-            throw new AccessTokenNoLongerValidException();
-        }
-    }
 
     public static boolean isValidToken(String accessToken) { // Провіряємо через Twitch4J чи є валідним токен
         boolean isValidToken = new TwitchIdentityProvider(null,null, null)
