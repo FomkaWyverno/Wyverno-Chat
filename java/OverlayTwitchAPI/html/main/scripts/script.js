@@ -14,27 +14,29 @@ openOverlay.addEventListener('click', () => {
     ipcRenderer.send('open-overlay');
 });
 
+ipcRenderer.on('logged', () => { tryVerifyAccessToken() });
+
 function tryVerifyAccessToken() {
     const xhr = new XMLHttpRequest()
 
-xhr.open('GET','/verifyAccessToken');
+    xhr.open('GET', '/verifyAccessToken');
 
-xhr.onload = () => {
-    if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200) {
-            console.log('AccessToken is valid!')
-            const about = JSON.parse(xhr.responseText);
-            console.log(about);
-            authButton.classList.add('hide')
-            displayInformation(about)
-            openOverlay.classList.remove('hide')
-        } else if (xhr.status === 401) {
-            console.log('AccessToken is not valid!')
+    xhr.onload = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                console.log('AccessToken is valid!')
+                const about = JSON.parse(xhr.responseText);
+                console.log(about);
+                authButton.classList.add('hide')
+                displayInformation(about)
+                openOverlay.classList.remove('hide')
+            } else if (xhr.status === 401) {
+                console.log('AccessToken is not valid!')
+            }
         }
     }
-}
 
-xhr.send();
+    xhr.send();
 }
 
 function authorization() {
