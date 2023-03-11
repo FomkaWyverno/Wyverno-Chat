@@ -5,9 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.twitch.api.authorization.AboutAccount;
-import ua.wyverno.twitch.api.authorization.Account;
-import ua.wyverno.twitch.api.authorization.ConfigHandler;
+import ua.wyverno.twitch.api.authorization.*;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 
 import java.io.IOException;
@@ -25,31 +23,35 @@ public class VerifyAccessTokenHandle implements HttpHandler {
         boolean isValid = ConfigHandler.getInstance().isValidAccessToken();
 
         logger.debug("Valid token? -> " + isValid);
+        try {
+            if (isValid) {
 
-        if (isValid) {
+                Account account = Authorization.registerAccount(ConfigHandler.getInstance().getAccessToken());
 
-            Account account = Account.getInstance();
+                AboutAccount aboutAccount = new AboutAccount(account.getDisplayName(),account.getProfileImageURL());
 
-            AboutAccount aboutAccount = new AboutAccount(account.getDisplayName(),account.getProfileImageURL());
+                String jsonAboutAccount = new ObjectMapper().writeValueAsString(aboutAccount);
 
-            String jsonAboutAccount = new ObjectMapper().writeValueAsString(aboutAccount);
+                logger.debug("Send code 200");
+                t.sendResponseHeaders(200,jsonAboutAccount.length());
 
-            logger.debug("Send code 200");
-            t.sendResponseHeaders(200,jsonAboutAccount.length());
+                t.getResponseHeaders().add("Content-Type","application/json");
 
-            t.getResponseHeaders().add("Content-Type","application/json");
+                OutputStream os = t.getResponseBody();
 
-            OutputStream os = t.getResponseBody();
-
-            os.write(jsonAboutAccount.getBytes());
-            os.close();
-        } else {
+                os.write(jsonAboutAccount.getBytes());
+                os.close();
+            } else {
+                throw new AccessTokenNoLongerValidException();
+            }
+        } catch (AccessTokenNoLongerValidException e) {
             logger.debug("Send code 401");
             t.sendResponseHeaders(401,0);
             t.getResponseHeaders().add("Content-Type","text/html");
 
             t.getResponseBody().close();
         }
+
         logger.debug("Close VerifyAccessTokenHandle");
     }
 }
