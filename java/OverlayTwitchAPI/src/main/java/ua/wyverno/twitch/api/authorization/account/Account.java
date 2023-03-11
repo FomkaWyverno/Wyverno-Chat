@@ -7,9 +7,13 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
+import com.github.twitch4j.tmi.TwitchMessagingInterface;
+import com.github.twitch4j.tmi.domain.Chatters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.twitch.api.authorization.account.events.ChatMessageEvent;
+import ua.wyverno.twitch.api.authorization.account.events.ChatMessageEventConsumer;
+import ua.wyverno.twitch.api.authorization.account.events.RewardRedemptionEventConsumer;
 import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 
 public class Account {
@@ -23,6 +27,9 @@ public class Account {
                 .withEnableHelix(true)
                 .withEnableChat(true)
                 .withClientId(clientID)
+                .withEnablePubSub(true)
+                .withEnableTMI(true)
+                .withChatCommandsViaHelix(false)
                 .withChatAccount(new OAuth2Credential("twitch",accessToken))
                 .build();
         this.user = twitchClient
@@ -40,13 +47,15 @@ public class Account {
     private void initEvents() {
         logger.info("Getting twitch chat!");
         TwitchChat twitchChat = this.twitchClient.getChat();
-        logger.info("Joining to self chat!");
-        twitchChat.joinChannel(this.getDisplayName());
 
         logger.trace("Getting event manager!");
-        EventManager eventManager = twitchChat.getEventManager();
 
-        eventManager.onEvent(ChannelMessageEvent.class, new ChatMessageEvent());
+        this.twitchClient.getPubSub().listenForChannelPointsRedemptionEvents(null,this.user.getId());
+
+        EventManager helixEventManager = twitchChat.getEventManager();
+
+        helixEventManager.onEvent(ChannelMessageEvent.class, new ChatMessageEventConsumer());
+        helixEventManager.onEvent(RewardRedeemedEvent.class, new RewardRedemptionEventConsumer());
     }
 
     public String getDisplayName() {
