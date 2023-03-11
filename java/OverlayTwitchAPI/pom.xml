@@ -35,6 +35,11 @@
             <version>0.10.2</version>
         </dependency>
 
+        <dependency> <!-- WebSocket -->
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.3</version>
+        </dependency>
 
     </dependencies>
 
