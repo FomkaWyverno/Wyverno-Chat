@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain} = require('electron')
 const http = require('http');
 const path = require('path');
 
+const child_process = require("child_process")
+
 const ipc = ipcMain;
 
 function createMainWindow() {
@@ -37,12 +39,7 @@ function createMainWindow() {
         console.log(`Code: ${data.code}`)
         console.log(`URL: ${data.url}`)
 
-        const authWin = createAuthorization(data.url);
-
-        authWin.on('closed', () => {
-            win.webContents.send('logged')
-        });
-        
+        child_process.exec(`start "" "${data.url}"`)
     });
 
     ipc.on('open-overlay', () => {
@@ -77,32 +74,6 @@ function createOverlay() {
     win.once('ready-to-show', () => {
         win.show();
     });
-
-    return win;
-}
-
-function createAuthorization(url) {
-    const win = new BrowserWindow({
-        width: 650,
-        height: 800,
-        show: false,
-
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            enableRemoteModule: false,
-        }
-    });
-
-    win.loadURL(url);
-
-    win.setMenu(null);
-
-    win.once('ready-to-show', () => {
-        win.show();
-    });
-
-    win.webContents.openDevTools()
 
     return win;
 }
