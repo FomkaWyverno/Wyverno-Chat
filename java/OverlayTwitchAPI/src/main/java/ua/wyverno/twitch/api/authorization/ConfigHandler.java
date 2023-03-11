@@ -16,7 +16,7 @@ public class ConfigHandler {
 
     private static final Path configFile = Paths.get("./twitch/api/config/account.properties").toAbsolutePath().normalize();
 
-    private static ConfigHandler instance;
+    private static ConfigHandler instance = null;
 
     private final Properties properties;
 
@@ -42,6 +42,7 @@ public class ConfigHandler {
     public static ConfigHandler getInstance() {
         if (instance == null) {
             try {
+                logger.info("Create ConfigHandler");
                 instance = new ConfigHandler();
             } catch (IOException e) {
                 logger.error(ExceptionToString.getString(e));
@@ -68,6 +69,9 @@ public class ConfigHandler {
         return this.accessToken;
     }
     public boolean isValidAccessToken() {
+        logger.debug("AccessToken is null? - " + (this.accessToken == null));
+        if (this.accessToken==null) return false;
+
         logger.debug("AccessToken isEmpty? - " + this.accessToken.isEmpty());
         if (this.accessToken.isEmpty()) return false;
 
