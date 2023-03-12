@@ -4,6 +4,7 @@ import com.github.twitch4j.pubsub.domain.ChannelPointsRedemption;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.domain.ChannelPointsUser;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
@@ -59,22 +60,48 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
 
         if (isUserInputRequired) {
             message = redemption.getUserInput();
+            logger.info("Message: " + message);
+            htmlContext = this.getRewardWithTextHtmlContext(redemption);
         } else {
-             htmlContext = this.getDefaultRewardHtmlContext(username,title,cost);
+            htmlContext = this.getDefaultRewardHtmlContext(redemption);
         }
 
-        logger.debug("HTML Context\n"+htmlContext);
+        logger.debug("HTML Context\n" + htmlContext);
 
         ChatWebSocketServer.getInstance().messageEvent(new Protocol(Protocol.TYPE.html, htmlContext));
     }
 
-    private String getDefaultRewardHtmlContext(String username, String title, String cost) {
+    private String getDefaultRewardHtmlContext(ChannelPointsRedemption redemption) {
         String htmlContext = TEMPLATE_DEFAULT;
 
-        htmlContext = htmlContext.replace("{username}",username);
-        htmlContext = htmlContext.replace("{title}",title);
-        htmlContext = htmlContext.replace("{cost}",cost);
+        String username = redemption.getUser().getDisplayName();
+        String title = redemption.getReward().getTitle();
+        String cost = String.valueOf(redemption.getReward().getCost());
 
+        htmlContext = getDefaultMapping(htmlContext, username, title, cost);
+
+        return htmlContext;
+    }
+
+    private String getRewardWithTextHtmlContext(ChannelPointsRedemption redemption) {
+        String htmlContext = TEMPLATE_TEXT;
+
+        String username = redemption.getUser().getDisplayName();
+        String title = redemption.getReward().getTitle();
+        String cost = String.valueOf(redemption.getReward().getCost());
+        String message = redemption.getUserInput();
+
+        htmlContext = getDefaultMapping(htmlContext, username, title, cost);
+        htmlContext = htmlContext.replace("{message}",message);
+
+        return htmlContext;
+    }
+
+    @NotNull
+    private String getDefaultMapping(String htmlContext, String username, String title, String cost) {
+        htmlContext = htmlContext.replace("{username}", username);
+        htmlContext = htmlContext.replace("{title}", title);
+        htmlContext = htmlContext.replace("{cost}", cost);
         return htmlContext;
     }
 }
