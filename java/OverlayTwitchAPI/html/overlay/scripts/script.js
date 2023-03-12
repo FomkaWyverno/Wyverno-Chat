@@ -13,5 +13,15 @@ socket.addEventListener('message', e=> {
 
     if (data.type === 'html') {
         chat.innerHTML = `${chat.innerHTML}\n${data.content}`;
+    } else if (data.type === 'videoPlayback') {
+        const videoPlayback = JSON.parse(data.content);
+        
+        if (videoPlayback.type === 'VIEW_COUNT') {
+            console.log('Viewers: ' + videoPlayback.content);
+        } else if (videoPlayback.type === 'STREAM_UP') {
+            console.log('Stream start!')
+        } else if (videoPlayback.type === 'STREAM_DOWN') {
+            console.log('Stream offline!')
+        }
     }
 })
