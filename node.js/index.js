@@ -1,8 +1,8 @@
 const { app, BrowserWindow, ipcMain} = require('electron')
 const http = require('http');
-const path = require('path');
-
 const child_process = require("child_process")
+
+const { NativeKeyboardListener } = require('./keyboardlistener.js')
 
 const ipc = ipcMain;
 
@@ -33,6 +33,8 @@ function createMainWindow() {
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
     });
 
+    const keyboard = new NativeKeyboardListener('Left Control',pressButton,releasedButton)
+
     // IPC
 
     ipc.on('main-auth-url', (event, data) => {
@@ -43,10 +45,33 @@ function createMainWindow() {
     });
 
     ipc.on('open-overlay', () => {
-        if (overlay === null) overlay = createOverlay();
+        if (overlay === null) {
+            overlay = createOverlay();
+            overlay.on('close', () => {
+                overlay = null;
+            });
+        }
     })
 
     win.webContents.openDevTools();
+
+    function pressButton() {
+        console.log('Press Control')
+        if (overlay != null) {
+            console.log('Overlay is drag!')
+            overlay.setIgnoreMouseEvents(false);
+            overlay.setAlwaysOnTop(false);
+        }
+    }
+
+    function releasedButton() {
+        console.log('Released Control')
+        if (overlay != null) {
+            console.log('Overylay is now not drag')
+            overlay.setIgnoreMouseEvents(true)
+            overlay.setAlwaysOnTop(true)
+        }
+    }
 }
 
 function createOverlay() {
@@ -111,12 +136,14 @@ function closeServer() {
         })
 
         app.quit();
+        process.exit();
 
     }).on('error', (err) => {
         console.log('Error: ', err.message);
+        app.quit()
+        process.exit()
     });
 
     req.write(data);
     req.end();
 }
-
