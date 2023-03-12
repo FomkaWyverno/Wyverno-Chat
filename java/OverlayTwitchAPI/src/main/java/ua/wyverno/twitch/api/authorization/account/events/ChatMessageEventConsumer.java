@@ -32,6 +32,11 @@ public class ChatMessageEventConsumer implements Consumer<ChannelMessageEvent> {
 
     @Override
     public void accept(ChannelMessageEvent event) {
+        if (event.getCustomRewardId().isEmpty()) {
+            logger.info("Reward message ignore consumer event!");
+            return;
+        }
+        
         String username = event.getMessageEvent().getTagValue("display-name").orElse(event.getUser().getName());
         String message = event.getMessage();
         String color = event.getMessageEvent().getTagValue("color").orElse("NO COLOR");
