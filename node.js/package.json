@@ -23,7 +23,8 @@
     "url": "https://github.com/FomkaWyverno/OverlayJS/issues"
   },
   "homepage": "https://github.com/FomkaWyverno/OverlayJS#readme",
-  "devDependencies": {
+  "dependencies": {
+    "gkm": "^0.2.0",
     "electron": "^23.1.2"
   }
 }
