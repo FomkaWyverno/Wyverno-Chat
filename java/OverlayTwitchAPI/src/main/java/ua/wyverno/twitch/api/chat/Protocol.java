@@ -30,6 +30,6 @@ public class Protocol {
     }
 
     public static enum TYPE {
-        text,html,number_spectators
+        videoPlayback,html
     }
 }
