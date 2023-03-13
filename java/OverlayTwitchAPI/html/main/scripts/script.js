@@ -40,6 +40,7 @@ function loggin() {
             } else if (xhr.status === 401) {
                 console.log('AccessToken is not valid!')
                 authButton.classList.remove('hide')
+                loadingSpan.classList.add('hide')
             }
         }
     }
