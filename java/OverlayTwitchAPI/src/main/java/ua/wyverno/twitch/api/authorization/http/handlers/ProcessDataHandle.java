@@ -20,18 +20,15 @@ public class ProcessDataHandle implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         logger.debug("POST /processData");
         InputStream inputStream = exchange.getRequestBody();
-        logger.debug("Get requestBody");
+        logger.debug("Get accessTokenJSON");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        String requestBody = reader.readLine();
+        String accessTokenJSON = reader.readLine();
         reader.close();
 
-        logger.debug("RequestBody -> " + requestBody);
+        logger.debug("RequestBody -> " + accessTokenJSON);
 
-        ResultAsk resultAsk = new ObjectMapper().readValue(requestBody, ResultAsk.class);
-        logger.debug("Created Result Ask object!");
-
-        ConfigHandler.getInstance().putAccessToken(resultAsk.getAccessToken());
+        ConfigHandler.getInstance().putAccessToken(new ObjectMapper().readTree(accessTokenJSON).get("accessToken").asText());
 
         String response = "OK";
         exchange.sendResponseHeaders(200, response.getBytes().length);
