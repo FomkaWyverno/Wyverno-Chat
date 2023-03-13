@@ -38,12 +38,15 @@ public class ResourceHandle implements HttpHandler {
             }
 
             if (response != null) {
-                t.sendResponseHeaders(200,response.length());
-                t.getResponseHeaders().add("Content-Type",contentType);
+                logger.trace("Length bytes response: " + response.getBytes().length);
+
+                t.sendResponseHeaders(200, response.getBytes().length);
+
+                t.getResponseHeaders().add("Content-Type", contentType);
                 t.getResponseBody().write(response.getBytes());
             } else {
                 String errorMessage = "File not found!";
-                t.sendResponseHeaders(404,errorMessage.length());
+                t.sendResponseHeaders(404, errorMessage.length());
                 t.getResponseBody().write(errorMessage.getBytes());
             }
 
