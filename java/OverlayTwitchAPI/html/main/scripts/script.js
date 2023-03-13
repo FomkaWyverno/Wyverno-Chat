@@ -34,8 +34,8 @@ function loggin() {
                 authButton.classList.add('hide')
                 displayInformation(about)
                 openOverlay.classList.remove('hide')
-                
-                
+
+
                 loadingSpan.classList.add('hide')
             } else if (xhr.status === 401) {
                 console.log('AccessToken is not valid!')
@@ -69,6 +69,30 @@ function authorization() {
     }
 
     xhr.send();
+
+    if(!isRunWaitAuth) {
+        isRunWaitAuth = true;
+        wait_authorization();
+    }
+
+}
+
+let isRunWaitAuth = false;
+
+function wait_authorization() {
+        fetch('/authorization-status')
+            .then(r => r.json())
+            .then(isAuth => {
+                if (isAuth) {
+                    isRunWaitAuth = false;
+                    loggin();
+                } else {
+                    setTimeout(wait_authorization, 2000);
+                }
+            }).catch(error => {
+                console.error(`Помилка: ${error}`)
+            });
+    
 }
 
 function displayInformation(about) {
