@@ -56,7 +56,7 @@ function createMainWindow() {
     win.webContents.openDevTools();
 
     function pressButton() {
-        console.log('Press Control')
+        //console.log('Press Control')
         if (overlay != null) {
             console.log('Overlay is drag!')
             overlay.setIgnoreMouseEvents(false);
@@ -65,7 +65,7 @@ function createMainWindow() {
     }
 
     function releasedButton() {
-        console.log('Released Control')
+        //console.log('Released Control')
         if (overlay != null) {
             console.log('Overylay is now not drag')
             overlay.setIgnoreMouseEvents(true)
