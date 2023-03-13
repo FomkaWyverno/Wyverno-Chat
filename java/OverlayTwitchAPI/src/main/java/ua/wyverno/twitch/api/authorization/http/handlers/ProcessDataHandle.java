@@ -6,7 +6,6 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.ConfigHandler;
-import ua.wyverno.twitch.api.authorization.ResultAsk;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 
 import java.io.*;
