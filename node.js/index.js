@@ -11,6 +11,7 @@ function createMainWindow() {
         width: 800,
         height: 800,
         show: false,
+        frame: false,
 
         webPreferences: {
             nodeIntegration: true,
@@ -72,6 +73,35 @@ function createMainWindow() {
             overlay.setAlwaysOnTop(true)
         }
     }
+
+    // Frame manipulation
+
+    ipcMain.on('window.main.collapse', () => {
+        console.log('collapse')
+        win.minimize();
+    });
+
+    ipcMain.on('window.main.maximize-minimize', () => {
+        console.log('maximize-minimize')
+        if (win.isMaximized()) {
+            win.unmaximize();
+        } else {
+            win.maximize();
+        }
+    });
+
+    ipcMain.on('window.main.close',() => {
+        console.log('close')
+        win.close()
+    });
+
+    win.on('maximize', () => {
+        win.webContents.send('window.main.maximize');
+    });
+    
+    win.on('unmaximize', () => {
+        win.webContents.send('window.main.minimize')
+    });
 }
 
 function createOverlay() {

@@ -4,23 +4,24 @@ const close_button = document.querySelector('.list-control-panel__close');
 
 collapse_button.addEventListener('click', () => { // Сворачиваем окно
     console.log('click collapse')
-    ipcRenderer.send('window.collapse')
+    ipcRenderer.send('window.main.collapse')
 });
 maximize_minimize_button.addEventListener('click', () => { // Маштабируем или минимизируем
     console.log('click maximize_minimize');
-    ipcRenderer.send('window.maximize-minimize');
+    ipcRenderer.send('window.main.maximize-minimize');
 });
 close_button.addEventListener('click', () => { // Закрываем окно
     console.log('click close');
-    ipcRenderer.send('window.close')
+    ipcRenderer.send('window.main.close')
 });
 
-ipcRenderer.on('window.maximize',() => 
+ipcRenderer.on('window.main.maximize',() => 
 {
     console.log('Maximize')
+    maximize_minimize_button.firstElementChild.classList.remove('minimize')
 });
 
-ipcRenderer.on('window.minimize',() =>
+ipcRenderer.on('window.main.minimize',() =>
 {
     console.log('Minimize')
     maximize_minimize_button.firstElementChild.classList.add('minimize')
