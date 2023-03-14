@@ -38,9 +38,9 @@ public class LoggingHandle implements HttpHandler {
                 String jsonAboutAccount = new ObjectMapper().writeValueAsString(aboutAccount);
 
                 logger.debug("Send code 200");
+                t.getResponseHeaders().add("Content-Type","application/json");
                 t.sendResponseHeaders(200,jsonAboutAccount.length());
 
-                t.getResponseHeaders().add("Content-Type","application/json");
 
                 OutputStream os = t.getResponseBody();
 
@@ -51,8 +51,8 @@ public class LoggingHandle implements HttpHandler {
             }
         } catch (AccessTokenNoLongerValidException e) {
             logger.debug("Send code 401");
-            t.sendResponseHeaders(401,0);
             t.getResponseHeaders().add("Content-Type","text/html");
+            t.sendResponseHeaders(401,0);
 
             t.getResponseBody().close();
         }
