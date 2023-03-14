@@ -43,4 +43,8 @@ public class Authorization {
         logger.warn("Try register account!");
         return registerAccount(ConfigHandler.getInstance().getAccessToken());
     }
+
+    public static boolean isHasInstance() {
+        return instance != null;
+    }
 }
