@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 @HttpHandle(path = "/")
 public class ResourceHandle implements HttpHandler {
@@ -35,14 +36,15 @@ public class ResourceHandle implements HttpHandler {
             } else if (path.endsWith(".js")) {
                 response = getResponse(resource);
                 contentType = "application/javascript";
+            } else if (path.endsWith(".svg")){
+                response = getResponse(resource);
+                contentType = "image/svg+xml";
             }
 
             if (response != null) {
                 logger.trace("Length bytes response: " + response.getBytes().length);
-
-                t.sendResponseHeaders(200, response.getBytes().length);
-
                 t.getResponseHeaders().add("Content-Type", contentType);
+                t.sendResponseHeaders(200, response.getBytes().length);
                 t.getResponseBody().write(response.getBytes());
             } else {
                 String errorMessage = "File not found!";
