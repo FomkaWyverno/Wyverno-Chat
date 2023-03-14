@@ -41,8 +41,8 @@ public class AuthorizationHandle implements HttpHandler {
             t.sendResponseHeaders(204,-1);
             t.close();
         } else {
-            t.sendResponseHeaders(200,authorizationURL.length());
             t.getResponseHeaders().add("Content-Type","text/html");
+            t.sendResponseHeaders(200,authorizationURL.length());
 
             OutputStream os = t.getResponseBody();
 
