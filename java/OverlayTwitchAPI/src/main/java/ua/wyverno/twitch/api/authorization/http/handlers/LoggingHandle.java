@@ -29,7 +29,11 @@ public class LoggingHandle implements HttpHandler {
 
                 Account account = Authorization.registerAccount(ConfigHandler.getInstance().getAccessToken());
 
-                AboutAccount aboutAccount = new AboutAccount(account.getDisplayName(),account.getProfileImageURL());
+                AboutAccount aboutAccount = new AboutAccount(account.getDisplayName(),
+                        account.getProfileImageURL(),
+                        account.getFollowersCountByIds(account.getUserID()));
+
+                logger.trace("AccountAbout getCountFollowers: " + aboutAccount.getCountFollowers());
 
                 String jsonAboutAccount = new ObjectMapper().writeValueAsString(aboutAccount);
 

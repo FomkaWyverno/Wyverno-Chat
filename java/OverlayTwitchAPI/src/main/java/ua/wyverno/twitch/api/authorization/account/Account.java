@@ -6,14 +6,13 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.StreamList;
+import com.github.twitch4j.helix.domain.Follow;
+import com.github.twitch4j.helix.domain.InboundFollow;
+import com.github.twitch4j.helix.domain.InboundFollowers;
 import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.helix.domain.UserList;
+import com.github.twitch4j.pubsub.events.FollowingEvent;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.github.twitch4j.pubsub.events.VideoPlaybackEvent;
-import com.github.twitch4j.tmi.TwitchMessagingInterface;
-import com.github.twitch4j.tmi.domain.Chatters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.account.events.ChatMessageEventConsumer;
@@ -21,16 +20,14 @@ import ua.wyverno.twitch.api.authorization.account.events.RewardRedemptionEventC
 import ua.wyverno.twitch.api.authorization.account.events.VideoPlaybackEventConsumer;
 import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class Account {
 
     private static final Logger logger = LoggerFactory.getLogger(Account.class);
 
-    private static final Map<String, String> userNamesMapByIds = new HashMap<>(); // Кэш
-
+    private static final Map<String, String> userNamesMapByIds = new HashMap<>(); // Кэш відображаємих нік-неймів
+    private static final Map<String, Integer> followersCountMapByIds = new HashMap<>(); // Кєш кількість фолловерів по айді
     private final String accessToken;
 
     private final TwitchClient twitchClient;
@@ -102,7 +99,7 @@ public class Account {
     }
 
     public Optional<String> getUsernameByIds(String userId) {
-        logger.debug("Get User by ID!");
+        logger.debug("Get Display Name by ID!");
 
         if (userNamesMapByIds.containsKey(userId)) {
             logger.debug("Username is has in map userNamesMapByIds");
@@ -124,6 +121,28 @@ public class Account {
         userNamesMapByIds.put(userId,username);
 
         return Optional.ofNullable(username);
+    }
+
+    public int getFollowersCountByIds(String userId) {
+        logger.debug("Get followers count by ID!");
+
+        if (followersCountMapByIds.containsKey(userId)) {
+            logger.debug("FollowersCount is has in map followersCount");
+            return followersCountMapByIds.get(userId);
+        }
+        logger.debug("Followers count is not have in map followersCount!");
+        int countFollowers = this.twitchClient.getHelix()
+                .getChannelFollowers(this.accessToken,
+                        this.getUserID(),
+                        null,
+                        null,
+                        null).execute().getTotal();
+
+        logger.info("Follower count: "+ countFollowers);
+        logger.debug("Save count followers in map");
+        followersCountMapByIds.put(userId,countFollowers);
+
+        return countFollowers;
     }
 
     public void closeAccount() {

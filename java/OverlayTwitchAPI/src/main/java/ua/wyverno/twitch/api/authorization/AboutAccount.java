@@ -5,13 +5,16 @@ public class AboutAccount {
     public String displayName;
     public String profileImageURL;
 
+    public int countFollowers;
+
     public AboutAccount() {
 
     }
 
-    public AboutAccount(String displayName, String profileImageURL) {
+    public AboutAccount(String displayName, String profileImageURL, int countFollowers) {
         this.displayName = displayName;
         this.profileImageURL = profileImageURL;
+        this.countFollowers = countFollowers;
     }
 
     public String getDisplayName() {
@@ -28,5 +31,13 @@ public class AboutAccount {
 
     public void setProfileImageURL(String profileImageURL) {
         this.profileImageURL = profileImageURL;
+    }
+
+    public int getCountFollowers() {
+        return countFollowers;
+    }
+
+    public void setCountFollowers(int countFollowers) {
+        this.countFollowers = countFollowers;
     }
 }
