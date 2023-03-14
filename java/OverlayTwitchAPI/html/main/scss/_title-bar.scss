@@ -1,0 +1,56 @@
+.title-bar {
+    height: 20px;
+    width: 100%;
+    background-color: #1F0F37;
+
+    -webkit-app-region: drag;
+
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.list-control-panel {
+    -webkit-app-region: no-drag;
+
+    display: flex;
+
+    & li {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+
+        & span {
+            display: block;
+
+            content: '';
+            width: 100%;
+            height: 100%;
+
+            background-repeat: no-repeat;
+        }
+    }
+
+    &__collapse span {
+        background-image: url('/main/icons/collapse-icon.svg');
+        &:hover {
+            background-color: #7BE838;
+        }
+    }
+
+    &__maximize-minimize span {
+        background-image: url('/main/icons/minimize-maximize-icon.svg');
+        &:hover {
+            background-color: #9146FF;
+        }
+        &.minimize {
+            background-position-y: -20px;
+        }
+    }
+
+    &__close span {
+        background-image: url('/main/icons/close-icon.svg');
+        &:hover {
+            background-color: #EC2929;
+        }
+    }
+}

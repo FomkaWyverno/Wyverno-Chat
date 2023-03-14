@@ -5,7 +5,7 @@ const authButton = document.querySelector('.authorization');
 const body = document.querySelector('body');
 const openOverlay = document.querySelector('.open-overlay');
 
-loggin();
+//loggin();
 
 authButton.addEventListener('click', () => {
     authorization();
