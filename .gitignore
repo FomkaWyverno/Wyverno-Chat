@@ -1,5 +1,7 @@
 #Project
-.vscode
+**/.vscode/
+**/.idea/
+**/css/
 
 #Node.js
 node.js/node_modules
@@ -8,8 +10,5 @@ node.js/package-lock.json
 
 #Java
 java/OverlayTwitchAPI/target
-java/OverlayTwitchAPI/.idea
 java/OverlayTwitchAPI/logs
 java/OverlayTwitchAPI/twitch
-java/OverlayTwitchAPI/html/main/css
-java/OverlayTwitchAPI/html/overlay/css
