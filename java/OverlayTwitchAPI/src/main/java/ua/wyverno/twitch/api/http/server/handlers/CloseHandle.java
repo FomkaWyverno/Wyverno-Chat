@@ -30,7 +30,12 @@ public class CloseHandle implements HttpHandler {
 
         t.getHttpContext().getServer().stop(0);
         try {
-            Authorization.getAccountInstance().closeAccount();
+            if (Authorization.isHasInstance()) {
+                Authorization.getAccountInstance().closeAccount();
+            } else {
+                logger.debug("Account is not register");
+            }
+
         } catch (AccessTokenNoLongerValidException e) {
             logger.trace("Account is not logged");
         }
