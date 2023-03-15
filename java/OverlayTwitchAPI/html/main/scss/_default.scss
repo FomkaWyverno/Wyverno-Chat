@@ -1,6 +1,8 @@
 * {
     margin:0;
     padding: 0;
+    border-color: transparent;
+    box-sizing: border-box;
 }
 
 html, body {
@@ -19,6 +21,7 @@ main {
 
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 ul, li {
