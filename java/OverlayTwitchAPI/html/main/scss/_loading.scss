@@ -1,0 +1,91 @@
+.loading {
+    position: relative;
+    width: 100px;
+    height: 100px;
+
+    animation: load-cube 3s ease-in-out infinite;
+    &__cube {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background-color: $twitch-color;
+
+        animation-duration: 1.5s;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+
+        box-shadow: 0 0 20px $twitch-color;
+
+        transition: 0.5s all;
+
+        &:nth-of-type(1) {
+            left: 0;
+            top: 0;
+            animation-name: load-left-top;
+        }
+        &:nth-of-type(2) {
+            left: 0;
+            bottom: 0;
+            animation-name: load-left-bottom;
+        }
+        &:nth-of-type(3) {
+            right: 0;
+            top: 0;
+            animation-name: load-right-top;
+        }
+        &:nth-of-type(4) {
+            right: 0;
+            bottom: 0;
+            animation-name: load-right-bottom;
+        }
+    }
+}
+
+@keyframes load-cube {
+    from {
+        transform: rotate(0deg);
+    } to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes load-left-top {
+    from {
+        left: -3px;
+        top: -3px
+    } to {
+        left: -30px;
+        top: -30px
+    }
+}
+
+@keyframes load-left-bottom {
+    from {
+        left: -3px;
+        bottom: -3px
+    } to {
+        left: -30px;
+        bottom: -30px
+    }
+}
+
+@keyframes load-right-top {
+    from {
+        right: -3px;
+        top: -3px
+    } to {
+        right: -30px;
+        top: -30px
+    }
+}
+
+@keyframes load-right-bottom {
+    from {
+        right: -3px;
+        bottom: -3px;
+    } to {
+        right: -30px;
+        bottom: -30px
+    }
+}

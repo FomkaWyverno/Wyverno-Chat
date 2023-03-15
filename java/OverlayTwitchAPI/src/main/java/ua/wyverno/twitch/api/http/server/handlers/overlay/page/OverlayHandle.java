@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 import ua.wyverno.twitch.api.http.server.handlers.HtmlHandle;
+import ua.wyverno.twitch.api.http.server.handlers.ResourceHandle;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -17,6 +18,12 @@ public class OverlayHandle implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
         logger.debug("Start Overlay GET Handle");
-        new HtmlHandle().handle(t, Paths.get("./html/overlay/index.html"));
+        String path = t.getRequestURI().getPath();
+        if (path.equals("/overlay")) {
+            new HtmlHandle().handle(t, Paths.get("./html/overlay/index.html"));
+        } else {
+            new ResourceHandle().handle(t);
+        }
+
     }
 }

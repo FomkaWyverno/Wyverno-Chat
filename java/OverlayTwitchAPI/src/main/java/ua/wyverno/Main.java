@@ -19,18 +19,18 @@ public class Main {
             logger.info("Start main class");
             HttpServer httpServer = new HttpServer();
             httpServer.start();
-            startUI();
+            startUI(args[2]);
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
         }
     }
 
-    private static void startUI() {
+    private static void startUI(String pathUI) {
 
         Thread thread = new Thread(() -> {
             try {
                 ProcessBuilder processBuilder = new ProcessBuilder();
-                processBuilder.directory(new File("D:\\MyProgram\\Overlay\\node.js"));
+                processBuilder.directory(new File(pathUI));
                 processBuilder.command("npm.cmd","start");
 
                 Process process = processBuilder.start();
