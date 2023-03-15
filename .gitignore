@@ -1,7 +1,7 @@
 #Project
-**/.vscode/
-**/.idea/
-**/css/
+**/.vscode/**
+**/.idea/**
+**/css/**
 
 #Node.js
 node.js/node_modules
