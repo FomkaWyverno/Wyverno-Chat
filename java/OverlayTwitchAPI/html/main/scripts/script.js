@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 
-const loadingSpan = document.querySelector('.loading')
+const loading = document.querySelector('.loading')
 const loginButton = document.querySelector('.login');
 const containerLogged = document.querySelector('.container__logged')
 const openOverlay = document.querySelector('.open-overlay');
@@ -25,7 +25,7 @@ ipcRenderer.on('logged', () => { loggin() });
 function loggin() {
 
     loginButton.classList.add('hide')
-    loadingSpan.classList.remove('hide');
+    loading.classList.remove('hide');
     const xhr = new XMLHttpRequest()
 
     xhr.open('GET', '/logging');
@@ -37,7 +37,7 @@ function loggin() {
                 const jsonResponse = JSON.parse(xhr.responseText);
                 console.log(jsonResponse);
                 loginButton.classList.add('hide') // Відключаємо кнопку авторизації
-                loadingSpan.classList.add('hide') // Вимикаємо загрузку
+                loading.classList.add('hide') // Вимикаємо загрузку
 
                 containerLogged.classList.remove('hide') // Відображуємо авторизоване вікно
                 channel_logo.src = jsonResponse.profileImageURL;
@@ -46,7 +46,7 @@ function loggin() {
             } else if (xhr.status === 401) {
                 console.log('AccessToken is not valid!')
                 loginButton.classList.remove('hide')
-                loadingSpan.classList.add('hide')
+                loading.classList.add('hide')
             }
         }
     }
