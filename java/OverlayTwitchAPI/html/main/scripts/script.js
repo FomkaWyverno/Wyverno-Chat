@@ -37,9 +37,12 @@ function loggin() {
                 const jsonResponse = JSON.parse(xhr.responseText);
                 console.log(jsonResponse);
                 loginButton.classList.add('hide') // Відключаємо кнопку авторизації
-                loading.classList.add('hide') // Вимикаємо загрузку
+                loading.classList.add('opacity_hide') // Вимикаємо загрузку
+                setTimeout(() => {loading.classList.add('hide')},2000);
 
                 containerLogged.classList.remove('hide') // Відображуємо авторизоване вікно
+                setTimeout(() => {containerLogged.classList.remove('opacity_hide')},100);
+
                 channel_logo.src = jsonResponse.profileImageURL;
                 channel_username.textContent = jsonResponse.displayName;
                 channel_followers.textContent = `${jsonResponse.countFollowers} followers`

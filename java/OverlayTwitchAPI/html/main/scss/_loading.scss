@@ -1,9 +1,10 @@
 .loading {
-    position: relative;
+    position: absolute;
     width: 100px;
     height: 100px;
 
     animation: load-cube 3s ease-in-out infinite;
+    transition: 2s all;
     &__cube {
         position: absolute;
         width: 50px;
@@ -16,8 +17,6 @@
         animation-direction: alternate;
 
         box-shadow: 0 0 20px $twitch-color;
-
-        transition: 0.5s all;
 
         &:nth-of-type(1) {
             left: 0;

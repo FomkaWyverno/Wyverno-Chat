@@ -1,7 +1,7 @@
 @import "colors";
 @import "mixins";
-@import "preset";
 @import "default";
+@import "preset";
 @import "background";
 @import "loading";
 @import "title-bar";
@@ -10,7 +10,10 @@
 @import "login";
 @import "channel-description";
 
-
 .hide {
     display: none;
+}
+
+.opacity_hide {
+    opacity: 0;
 }
