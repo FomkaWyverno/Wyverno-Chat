@@ -1,0 +1,63 @@
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+
+    display: flex;
+    justify-content: space-around;
+    z-index: 0;
+
+    &__particles {
+        display: block;
+        position: relative;
+        content: '';
+        width: 20px;
+        height: 20px;
+
+        bottom: 80px;
+
+        
+        background-color: #ff9a02;
+
+        box-shadow: 0 0 0 5px #ff9a0244,
+            0 0 25px #f5bb64,
+            -50px 0 #b46f0699,
+            50px 0 #29ff3b99;
+        margin: 0 4px;
+        border-radius: 50%;
+        animation: background_animate 15s ease-in-out infinite;
+
+        @for $i from 0 through 20 {
+            $random-number: random() * (30 - 20)+20;
+
+            &:nth-of-type(#{$i}) {
+                animation-duration: calc(125s / $random-number);
+                animation-delay: calc(10s / $random-number);
+            }
+        }
+
+        &:nth-child(even) {
+            background-color: #29ff3b;
+            box-shadow: 0 0 0 5px #29ff3b44,
+                0 0 25px #77fd82,
+                -50px 0 #ff52bd99,
+                50px 0 #f50d9c99;
+        }
+    }
+}
+
+@keyframes background_animate {
+    0% {
+        transform: translateY(120vh) scale(0) rotate(90deg);
+    }
+
+    25% {
+        transform: translateY(100vh) scale(1) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-50vh) scale(0.5) rotate(360deg);
+    }
+}

@@ -1,6 +1,7 @@
 .container {
     flex: 1;
     display: flex;
+    position: relative;
 
     justify-content: center;
     align-items: center;
@@ -17,6 +18,4 @@
             border-radius: 15px;
         }
     }
-
-
 }
