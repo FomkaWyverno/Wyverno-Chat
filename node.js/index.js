@@ -12,6 +12,8 @@ function createMainWindow() {
         height: 800,
         show: false,
         frame: false,
+        minWidth: 600,
+        minHeight: 500,
 
         webPreferences: {
             nodeIntegration: true,
