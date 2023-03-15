@@ -16,6 +16,9 @@ body {
 main {
     flex: 1;
     background-color: #09111D;
+
+    display: flex;
+    flex-direction: column;
 }
 
 ul, li {

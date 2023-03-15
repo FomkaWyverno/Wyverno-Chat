@@ -1,13 +1,12 @@
 const { ipcRenderer } = require('electron');
 
 const loadingSpan = document.querySelector('.loading')
-const authButton = document.querySelector('.authorization');
-const body = document.querySelector('body');
+const loginButton = document.querySelector('.login');
 const openOverlay = document.querySelector('.open-overlay');
 
 //loggin();
 
-authButton.addEventListener('click', () => {
+loginButton.addEventListener('click', () => {
     authorization();
 });
 
@@ -19,7 +18,7 @@ ipcRenderer.on('logged', () => { loggin() });
 
 function loggin() {
 
-    authButton.classList.add('hide')
+    loginButton.classList.add('hide')
     loadingSpan.classList.remove('hide');
     const xhr = new XMLHttpRequest()
 
@@ -29,17 +28,16 @@ function loggin() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
                 console.log('AccessToken is valid!')
-                const about = JSON.parse(xhr.responseText);
-                console.log(about);
-                authButton.classList.add('hide')
-                displayInformation(about)
+                const html = xhr.responseText;
+                console.log(html);
+                loginButton.classList.add('hide')
                 openOverlay.classList.remove('hide')
 
 
                 loadingSpan.classList.add('hide')
             } else if (xhr.status === 401) {
                 console.log('AccessToken is not valid!')
-                authButton.classList.remove('hide')
+                loginButton.classList.remove('hide')
                 loadingSpan.classList.add('hide')
             }
         }
@@ -93,10 +91,4 @@ function wait_authorization() {
                 console.error(`Помилка: ${error}`)
             });
     
-}
-
-function displayInformation(about) {
-    const span = document.createElement('span');
-    span.innerText = JSON.stringify(about, null, 2);
-    body.appendChild(span)
 }

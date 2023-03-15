@@ -1,0 +1,22 @@
+.container {
+    flex: 1;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    &__logged {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &__open-overlay {
+            width: 175px;
+            height: 50px;
+            background-color: $twitch-color;
+            border-radius: 15px;
+        }
+    }
+
+
+}

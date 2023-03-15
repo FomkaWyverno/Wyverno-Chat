@@ -11,7 +11,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800&display=swap" rel="stylesheet">
 
 </head>
 
@@ -33,9 +33,21 @@
                 <span></span>
             </div>
         </header>
-        <button class="authorization">authorization</button>
-        <span class="loading hide">loading</span>
-        <button class="open-overlay hide">open-overlay</button>
+        <div class="container">
+            <button class="login tw-btn hide">Log in</button>
+            <span class="loading hide">loading</span>
+            <div class="container__logged">
+                <div class="channel-description">
+                    <img src="https://static-cdn.jtvnw.net/jtv_user_pictures/fc403498-9aa9-4d65-9e97-d2805f01022d-profile_image-300x300.png"
+                        class="channel-description__logo">
+                    <span class="channel-description__username">Fomka_Wyverno</span>
+                    <span class="channel-description__followers">261 followers</span>
+                </div>
+                <button class="container__logged__open-overlay open-overlay tw-btn">Open-Chat</button>
+            </div>
+
+        </div>
+
     </main>
     <script src="/main/scripts/script.js"></script>
     <script src="/main/scripts/window.js"></script>
