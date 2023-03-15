@@ -8,6 +8,16 @@ html, body {
     height: 100%;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    background-color: #09111D;
+}
+
 ul, li {
     list-style: none;
 }

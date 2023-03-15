@@ -1,5 +1,8 @@
+@import "colors";
+@import "mixins";
 @import "default";
 @import "title-bar";
+@import "header";
 
 .hide {
     display: none;
