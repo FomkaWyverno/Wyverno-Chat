@@ -2,6 +2,7 @@
 **/.vscode/**
 **/.idea/**
 **/css/**
+**/*.iml
 
 #Node.js
 node.js/node_modules
