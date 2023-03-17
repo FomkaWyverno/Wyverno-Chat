@@ -1,13 +1,12 @@
-div {
-    width: 50px;
-    height: 50px;
-    background-color: aqua;
-}
+@import "fonts";
+@import "colors";
+@import "default";
+@import "preset";
+@import "start_block";
+@import "titlebar";
+@import "footer";
+@import "messages";
 
-.titlebar {
-    -webkit-app-region: drag;
-    width: 100px;
-    height: 30px;
-    background-color: #002fff;
-    cursor: pointer;
+.hide {
+    display: none;
 }

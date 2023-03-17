@@ -1,0 +1,34 @@
+.start-block {
+    position: absolute;
+    display: flex;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: white;
+
+    &__text {
+        font-family: 'Montserrat';
+        font-weight: 700;
+        font-size: 36px;
+        text-align: center;
+        z-index: 2;
+    }
+
+    &__container-btn {
+        &__button {
+            font-family: 'Montserrat';
+            font-weight: 700;
+            font-size: 36px;
+            padding: 16px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        margin-top: 50px;
+    }
+}

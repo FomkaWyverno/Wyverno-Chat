@@ -1,0 +1,133 @@
+.message {
+    display: flex;
+
+    &__icons-users {
+        &__tw-icon {
+            margin-top: 3px;
+            display: block;
+            width: 15px;
+            height: 17px;
+            background: url('/overlay/icons/tw-icon.svg');
+        }
+    }
+
+    &__container {
+        margin-left: 5px;
+
+        &__username,
+        &__colon,
+        &__content {
+            user-select: text;
+        }
+
+        &__username {
+            font-family: 'Montserrat';
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        &__colon {
+            font-family: 'Montserrat';
+            font-weight: 700;
+            font-size: 13px;
+            color: #fff;
+            margin-left: 1px;
+        }
+
+        &__content {
+            font-family: 'Montserrat';
+            font-weight: 200;
+            color: #fff;
+            margin-left: 4px;
+
+            &--highlight {
+                background-color: $twitch-color;
+                opacity: .7;
+            }
+        }
+    }
+}
+
+.reward-block {
+    display: flex;
+
+    &__icons-users {
+        &__tw-icon {
+            margin-top: 4px;
+            display: block;
+            width: 15px;
+            height: 17px;
+            background: url('/overlay/icons/tw-icon.svg');
+        }
+    }
+}
+
+.reward {
+    display: inline-block;
+    vertical-align: middle;
+
+    margin-left: 5px;
+    color: #c9c9c9;
+    font-family: 'Montserrat';
+    font-weight: 500;
+    font-size: 13px;
+
+    span,
+    img {
+        vertical-align: middle;
+    }
+
+    span {
+        user-select: text;
+    }
+
+    &__icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    &__points-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.reward-message {
+    display: flex;
+
+    &__icons-users {
+        &__tw-icon {
+            margin-top: 4px;
+            display: block;
+            width: 15px;
+            height: 17px;
+            background: url('/overlay/icons/tw-icon.svg');
+        }
+    }
+
+    &__container {
+        margin-left: 5px;
+        display: inline-block;
+        vertical-align: middle;
+        &__reward {
+            color: #c9c9c9;
+            font-family: 'Montserrat';
+            font-weight: 500;
+            font-size: 13px;
+
+            img, span {
+                width: 20px;
+                height: 20px;
+                vertical-align: middle;
+            }
+            span {
+                user-select: text;
+            }
+        }
+        &__content {
+            color: #fff;
+        }
+    }
+
+
+}

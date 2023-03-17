@@ -1,0 +1,62 @@
+.tw-btn {
+    font-family: 'Montserrat';
+    font-weight: 800;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    border-radius: 15px;
+    background-color: $twitch-color;
+    transition: .5s ease background-color;
+
+    &:hover {
+        background-color: #3f206d;
+    }
+}
+
+.button-particles {
+    position: relative;
+
+    &__button {
+        position: relative;
+        z-index: 2;
+    }
+
+    &__particles {
+        position: absolute;
+        background-color: $twitch-color;
+        width: 30px;
+        height: 30px;
+        top: calc(50% - 30px / 2);
+        left: calc(50% - 30px / 2);
+
+        border-radius: 30px;
+
+        transform: scale(0);
+
+        box-shadow: 0 0 0 0 $twitch-color;
+        z-index: 1;
+
+        &:nth-of-type(odd) {
+            background-color: transparent;
+            border: 2px solid $twitch-color;
+        }
+
+        @for $i from 1 through 35 {
+            @keyframes particles-#{$i} {
+                from {
+                    transform: scale(1);
+                }
+
+                to {
+                    transform: scale(0);
+                    left: random(250)-75+0px;
+                    top: random(250)-125+0px;
+                }
+            }
+
+            .button-particles__button:hover~&:nth-of-type(#{$i}) {
+                animation: 1.5s ($i / 10) + 0s ease infinite particles-#{$i};
+            }
+        }
+    }
+}

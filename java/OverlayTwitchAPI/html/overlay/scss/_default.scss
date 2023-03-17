@@ -1,0 +1,38 @@
+* {
+    margin:0;
+    padding: 0;
+    border-color: transparent;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+
+    position: relative;
+
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+ul, li {
+    list-style: none;
+}
+
+::selection {
+    background-color: #fc15a3;
+    color: #fff;
+}

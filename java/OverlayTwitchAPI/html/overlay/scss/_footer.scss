@@ -1,0 +1,103 @@
+.container-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__start {
+        display: flex;
+    }
+
+    &__end {
+        display: flex;
+    }
+}
+
+.viewers {
+    display: flex;
+    align-items: center;
+
+    &__icon {
+        display: block;
+        width: 20px;
+        height: 20px;
+        background-image: url('/overlay/icons/viewers-icon.svg');
+        background-repeat: no-repeat;
+    }
+
+    &__count {
+        margin-left: 2px;
+        font-family: Montserrat;
+        font-weight: 500;
+        color: #ff0000;
+        font-size: 14px;
+    }
+}
+
+.settings {
+    display: flex;
+    align-items: center;
+
+    &__icon {
+        display: block;
+        width: 25px;
+        height: 25px;
+
+        cursor: pointer;
+
+        & svg {
+            display: block;
+            fill: #000000;
+            transition: .3s ease fill;
+        }
+
+        &:hover svg {
+            fill: #3b3b3b;
+        }
+    }
+
+    &__text {
+        margin-left: 4px;
+        font-family: 'Montserrat';
+        font-weight: 500;
+        font-size: 14px;
+        color: #000000;
+    }
+}
+
+.stream-status {
+
+    margin-right: 5px;
+
+    &__icon {
+        margin-left: auto;
+        margin-right: auto;
+        width: 20px;
+        height: 20px;
+        & svg {
+            fill: #d3d3d3;
+        }
+    }
+
+    &__status-text {
+        display: inline-block;
+
+        font-family: 'Montserrat';
+        font-size: 14px;
+        font-weight: 500;
+        padding: 3px;
+        border-radius: 3px;
+        
+        text-align: center;
+
+        transition: 5s background-color;
+
+        color: #fff;
+        &--offline {
+            background-color: #3b3b3bd3;
+        }
+
+        &--online {
+            background-color: #03fc41bd;
+        }
+    }
+}
