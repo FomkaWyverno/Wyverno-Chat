@@ -14,15 +14,3 @@ close_button.addEventListener('click', () => { // Закрываем окно
     console.log('click close');
     ipcRenderer.send('window.main.close')
 });
-
-ipcRenderer.on('window.main.maximize',() => 
-{
-    console.log('Maximize')
-    maximize_minimize_button.firstElementChild.classList.remove('minimize')
-});
-
-ipcRenderer.on('window.main.minimize',() =>
-{
-    console.log('Minimize')
-    maximize_minimize_button.firstElementChild.classList.add('minimize')
-});
