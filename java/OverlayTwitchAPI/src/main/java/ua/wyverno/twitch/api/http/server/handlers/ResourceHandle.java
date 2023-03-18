@@ -20,7 +20,7 @@ public class ResourceHandle implements HttpHandler {
 
     @Override
     public void handle(HttpExchange t) throws IOException {
-        String response = null;
+        byte[] response = null;
         String contentType = "text/plain";
 
         String path = t.getRequestURI().getPath();
@@ -39,13 +39,16 @@ public class ResourceHandle implements HttpHandler {
             } else if (path.endsWith(".svg")){
                 response = getResponse(resource);
                 contentType = "image/svg+xml";
+            } else if (path.endsWith(".ttf")) {
+                response = getResponse(resource);
+                contentType = "font/ttf";
             }
 
             if (response != null) {
-                logger.trace("Length bytes response: " + response.getBytes().length);
+                logger.trace("Length bytes response: " + response.length);
                 t.getResponseHeaders().add("Content-Type", contentType);
-                t.sendResponseHeaders(200, response.getBytes().length);
-                t.getResponseBody().write(response.getBytes());
+                t.sendResponseHeaders(200, response.length);
+                t.getResponseBody().write(response);
             } else {
                 String errorMessage = "File not found!";
                 t.sendResponseHeaders(404, errorMessage.length());
@@ -56,7 +59,7 @@ public class ResourceHandle implements HttpHandler {
         }
     }
 
-    private String getResponse(Path resource) throws IOException {
-        return Files.readString(resource);
+    private byte[] getResponse(Path resource) throws IOException {
+        return Files.readAllBytes(resource);
     }
 }

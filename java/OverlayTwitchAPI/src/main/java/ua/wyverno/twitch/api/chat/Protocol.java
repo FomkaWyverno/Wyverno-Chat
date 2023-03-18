@@ -30,6 +30,6 @@ public class Protocol {
     }
 
     public static enum TYPE {
-        videoPlayback,html
+        videoPlayback,html, messageHTML
     }
 }

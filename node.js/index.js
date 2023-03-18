@@ -49,6 +49,7 @@ function createMainWindow() {
 
     ipc.on('open-overlay', () => {
         if (overlay === null) {
+            console.log('Open overlay')
             overlay = createOverlay();
             overlay.on('close', () => {
                 overlay = null;
@@ -111,14 +112,15 @@ function createOverlay() {
         width: 800,
         height: 600,
         show: false,
+        minWidth: 600,
+        minHeight: 500,
         transparent: true, // прозорість бекграунда.
         frame: false, // Віключаємо елементи управління.
         alwaysOnTop: true, // вікно буде завжди поверх усіх
 
         webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            enableRemoteModule: false
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
 
@@ -131,6 +133,29 @@ function createOverlay() {
     win.once('ready-to-show', () => {
         win.show();
     });
+
+    // IPC
+
+    ipcMain.on('window.overlay.collapse', () => {
+        console.log('collapse')
+        win.minimize();
+    });
+
+    ipcMain.on('window.overlay.maximize-minimize', () => {
+        console.log('maximize-minimize')
+        if (win.isMaximized()) {
+            win.unmaximize();
+        } else {
+            win.maximize();
+        }
+    });
+
+    ipcMain.on('window.overlay.close',() => {
+        console.log('close')
+        win.close()
+    });
+
+    win.webContents.openDevTools();
 
     return win;
 }

@@ -21,7 +21,7 @@ public class HtmlHandle {
         if (response != null) {
             logger.debug("Handle HTML Response is found!");
             t.getResponseHeaders().add("Content-Type","text/html");
-            t.sendResponseHeaders(200,response.length());
+            t.sendResponseHeaders(200,response.getBytes().length);
             t.getResponseBody().write(response.getBytes());
         } else {
             logger.debug("Page not found!");

@@ -47,6 +47,7 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
         String title = reward.getTitle();
         String cost = String.valueOf(reward.getCost());
         String username = user.getDisplayName();
+        String urlRewardIcon = redemption.getReward().getDefaultImage().getUrl4x();
         boolean isUserInputRequired = reward.getIsUserInputRequired();
         String message;
 
@@ -55,6 +56,7 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
         logger.info("Title: " + title);
         logger.info("Cost: " + cost);
         logger.info("isUserInputRequired: " + isUserInputRequired);
+        logger.info("URL Reward Icon: " + urlRewardIcon);
 
         String htmlContext = "";
 
@@ -77,8 +79,9 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
         String username = redemption.getUser().getDisplayName();
         String title = redemption.getReward().getTitle();
         String cost = String.valueOf(redemption.getReward().getCost());
+        String urlRewardIcon = redemption.getReward().getDefaultImage().getUrl4x();
 
-        htmlContext = getDefaultMapping(htmlContext, username, title, cost);
+        htmlContext = getDefaultMapping(htmlContext, username, title, cost, urlRewardIcon);
 
         return htmlContext;
     }
@@ -91,17 +94,18 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
         String cost = String.valueOf(redemption.getReward().getCost());
         String message = redemption.getUserInput();
 
-        htmlContext = getDefaultMapping(htmlContext, username, title, cost);
+        htmlContext = getDefaultMapping(htmlContext, username, title, cost, "");
         htmlContext = htmlContext.replace("{message}",message);
 
         return htmlContext;
     }
 
     @NotNull
-    private String getDefaultMapping(String htmlContext, String username, String title, String cost) {
+    private String getDefaultMapping(String htmlContext, String username, String reward_name, String cost, String urlRewardIcon) {
         htmlContext = htmlContext.replace("{username}", username);
-        htmlContext = htmlContext.replace("{title}", title);
-        htmlContext = htmlContext.replace("{cost}", cost);
+        htmlContext = htmlContext.replace("{reward-name}", reward_name);
+        htmlContext = htmlContext.replace("{reward-cost}", cost);
+        htmlContext = htmlContext.replace("{url-reward-icon}", urlRewardIcon);
         return htmlContext;
     }
 }

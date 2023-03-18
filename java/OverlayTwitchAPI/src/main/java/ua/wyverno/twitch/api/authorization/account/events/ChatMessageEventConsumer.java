@@ -43,18 +43,19 @@ public class ChatMessageEventConsumer implements Consumer<ChannelMessageEvent> {
 
         logger.info("MessageEvent: " + username + " > " + message + " | " + color);
 
-        String htmlContext = getHTMLContext(username, message);
+        String htmlContext = getHTMLContext(username, message, color);
 
         logger.debug("HTML Context\n"+htmlContext);
 
-        ChatWebSocketServer.getInstance().messageEvent(new Protocol(Protocol.TYPE.html, htmlContext));
+        ChatWebSocketServer.getInstance().messageEvent(new Protocol(Protocol.TYPE.messageHTML, htmlContext));
     }
 
-    private String getHTMLContext(String username, String message) {
+    private String getHTMLContext(String username, String message, String color) {
         String htmlContext = TEMPLATE;
 
+        htmlContext = htmlContext.replace("{color-user}",color);
         htmlContext = htmlContext.replace("{username}",username);
-        htmlContext = htmlContext.replace("{content}",message);
+        htmlContext = htmlContext.replace("{message}",message);
 
         return htmlContext;
     }
