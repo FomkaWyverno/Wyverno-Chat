@@ -17,7 +17,7 @@ public class AuthorizationStatusHandle implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
         ConfigHandler config = ConfigHandler.getInstance();
-        boolean isHasAccessToken = config.getAccessToken() != null && !config.getAccessToken().isEmpty();
+        boolean isHasAccessToken = config.getAccessToken() != null && !config.getAccessToken().isEmpty() && config.isValidAccessToken();
 
         String value = String.valueOf(isHasAccessToken);
 

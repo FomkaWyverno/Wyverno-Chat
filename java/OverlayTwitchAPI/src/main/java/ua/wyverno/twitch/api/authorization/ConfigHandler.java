@@ -20,7 +20,7 @@ public class ConfigHandler {
 
     private final Properties properties;
 
-    private String accessToken;
+    private volatile String accessToken;
 
     private static final String clientID = "znxb14or3tj0cm6e1pixh7zijlsgua";
 
