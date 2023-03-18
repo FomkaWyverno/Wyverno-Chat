@@ -1,5 +1,5 @@
 * {
-    margin:0;
+    margin: 0;
     padding: 0;
     border-color: transparent;
     box-sizing: border-box;
@@ -10,7 +10,8 @@
     scroll-behavior: smooth;
 }
 
-html, body {
+html,
+body {
     width: 100%;
     height: 100%;
 }
@@ -28,11 +29,30 @@ main {
     overflow-y: auto;
 
     &::-webkit-scrollbar {
-        display: none;
+        width: 10px;
+        background-color: #ee6aff0c;
+        border-radius: 10px;
+
+        transition: 1s ease background-color;
+        &:hover {
+            background-color: #ee6aff;
+        }
+    }
+
+    &::-webkit-scrollbar-thumb {
+        width: 15px;
+        background-color: #e735ff10;
+        border-radius: 10px;
+
+        transition: 1s ease background-color;
+        &:hover {
+            background-color: #df12fa;
+        }
     }
 }
 
-ul, li {
+ul,
+li {
     list-style: none;
 }
 
