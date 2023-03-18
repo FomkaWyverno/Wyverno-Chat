@@ -19,7 +19,7 @@ public class Main {
             logger.info("Start main class");
             HttpServer httpServer = new HttpServer();
             httpServer.start();
-            startUI(args[2]);
+            //startUI(args[2]);
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
         }
