@@ -39,11 +39,15 @@ public class ChatMessageEventConsumer implements Consumer<ChannelMessageEvent> {
 
         String username = event.getMessageEvent().getTagValue("display-name").orElse(event.getUser().getName());
         String message = event.getMessage();
-        String color = event.getMessageEvent().getTagValue("color").orElse("NO COLOR");
+        String color = event.getMessageEvent().getTagValue("color").orElse("#bb00ff");
 
         logger.info("MessageEvent: " + username + " > " + message + " | " + color);
 
         String htmlContext = getHTMLContext(username, message, color);
+
+        if (!event.isHighlightedMessage()) { // Якщо не виділине повідомленя тоді прибираємо класс з виділліням
+            htmlContext = htmlContext.replace("message__container__content--highlight","");
+        }
 
         logger.debug("HTML Context\n"+htmlContext);
 

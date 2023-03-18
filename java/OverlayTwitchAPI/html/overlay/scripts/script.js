@@ -20,6 +20,18 @@ socket.addEventListener('message', e=> {
         messageElement.innerHTML = data.content;
         chat.appendChild(messageElement);
         messageElement.scrollIntoView();
+    } else if (data.type === 'reward_block') {
+        const reward_block = document.createElement('div');
+        reward_block.classList.add('reward-block')
+        reward_block.innerHTML = data.content;
+        chat.appendChild(reward_block);
+        reward_block.scrollIntoView();
+    } else if (data.type === 'reward_message') {
+        const reward_message = document.createElement('div');
+        reward_message.classList.add('reward-message')
+        reward_message.innerHTML = data.content;
+        chat.appendChild(reward_message);
+        reward_message.scrollIntoView();
     } else if (data.type === 'videoPlayback') {
         const videoPlayback = JSON.parse(data.content);
         

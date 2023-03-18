@@ -6,11 +6,9 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.Follow;
-import com.github.twitch4j.helix.domain.InboundFollow;
-import com.github.twitch4j.helix.domain.InboundFollowers;
+import com.github.twitch4j.helix.domain.ChatUserColor;
 import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.pubsub.events.FollowingEvent;
+import com.github.twitch4j.helix.domain.UserChatColorList;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.github.twitch4j.pubsub.events.VideoPlaybackEvent;
 import org.slf4j.Logger;
@@ -28,6 +26,8 @@ public class Account {
 
     private static final Map<String, String> userNamesMapByIds = new HashMap<>(); // Кэш відображаємих нік-неймів
     private static final Map<String, Integer> followersCountMapByIds = new HashMap<>(); // Кєш кількість фолловерів по айді
+
+    private static final Map<String, String> colorMapByIds = new HashMap<>(); // Кєш кольорів користувачів чату.
     private final String accessToken;
 
     private final TwitchClient twitchClient;
@@ -145,6 +145,39 @@ public class Account {
         return countFollowers;
     }
 
+    public String getUserChatColorByIds(String userId, String ifNullColor) { // ifNullColor - якщо у користовача нема коліра то встановлюему в кеш цей колір.
+        logger.debug("User get color chat by id: " + userId);
+
+        if (colorMapByIds.containsKey(userId)) {
+            logger.debug("User color is have in map");
+
+            String color = colorMapByIds.get(userId);
+
+            logger.debug("User Color: " + color);
+
+            return color;
+        }
+        logger.debug("User color not has in map colors");
+        List<ChatUserColor> userColorList =
+                this.twitchClient.getHelix()
+                        .getUserChatColor(this.accessToken,
+                                Collections.singletonList(userId))
+                        .execute()
+                        .getData();
+
+        if (userColorList.isEmpty()) {
+            logger.debug("User dont have color!");
+            colorMapByIds.put(userId,ifNullColor);
+            return ifNullColor;
+        }
+
+        logger.debug("User is has color.");
+
+        String color = userColorList.get(0).getColor();
+        logger.debug("User color: " + color);
+
+        return color;
+    }
     public void closeAccount() {
         if (this.twitchClient != null) {
             logger.info("Leave from Account!");

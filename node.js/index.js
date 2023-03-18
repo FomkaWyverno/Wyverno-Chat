@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain} = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const http = require('http');
 const child_process = require("child_process")
 
@@ -36,7 +36,7 @@ function createMainWindow() {
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
     });
 
-    const keyboard = new NativeKeyboardListener('Left Control',pressButton,releasedButton)
+    const keyboard = new NativeKeyboardListener('Left Control', pressButton, releasedButton)
 
     // IPC
 
@@ -93,7 +93,7 @@ function createMainWindow() {
         }
     });
 
-    ipcMain.on('window.main.close',() => {
+    ipcMain.on('window.main.close', () => {
         console.log('close')
         win.close()
     });
@@ -101,9 +101,39 @@ function createMainWindow() {
     win.on('maximize', () => {
         win.webContents.send('window.main.maximize');
     });
-    
+
     win.on('unmaximize', () => {
         win.webContents.send('window.main.minimize')
+    });
+
+    // IPC-OVERLAY 
+
+    ipcMain.on('window.overlay.collapse', () => {
+        if (overlay != null) {
+            console.log('overlay collapse')
+            overlay.minimize();
+        }
+
+    });
+
+    ipcMain.on('window.overlay.maximize-minimize', () => {
+        if (overlay != null) {
+            console.log('overlay maximize-minimize')
+            if (win.isMaximized()) {
+                overlay.unmaximize();
+            } else {
+                overlay.maximize();
+            }
+        }
+
+    });
+
+    ipcMain.on('window.overlay.close', () => {
+        if (overlay != null) {
+            console.log('overlay close')
+            overlay.close()
+        }
+
     });
 }
 
@@ -132,27 +162,6 @@ function createOverlay() {
 
     win.once('ready-to-show', () => {
         win.show();
-    });
-
-    // IPC
-
-    ipcMain.on('window.overlay.collapse', () => {
-        console.log('collapse')
-        win.minimize();
-    });
-
-    ipcMain.on('window.overlay.maximize-minimize', () => {
-        console.log('maximize-minimize')
-        if (win.isMaximized()) {
-            win.unmaximize();
-        } else {
-            win.maximize();
-        }
-    });
-
-    ipcMain.on('window.overlay.close',() => {
-        console.log('close')
-        win.close()
     });
 
     win.webContents.openDevTools();

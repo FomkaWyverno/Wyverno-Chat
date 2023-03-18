@@ -7,8 +7,11 @@ import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.twitch.api.authorization.AccessTokenNoLongerValidException;
+import ua.wyverno.twitch.api.authorization.Authorization;
 import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 import ua.wyverno.twitch.api.chat.Protocol;
+import ua.wyverno.util.ExceptionToString;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,28 +63,27 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
 
         String htmlContext = "";
 
+        Protocol.TYPE type;
+
         if (isUserInputRequired) {
             message = redemption.getUserInput();
             logger.info("Message: " + message);
             htmlContext = this.getRewardWithTextHtmlContext(redemption);
+            type = Protocol.TYPE.reward_message;
         } else {
             htmlContext = this.getDefaultRewardHtmlContext(redemption);
+            type = Protocol.TYPE.reward_block;
         }
 
         logger.debug("HTML Context\n" + htmlContext);
 
-        ChatWebSocketServer.getInstance().messageEvent(new Protocol(Protocol.TYPE.html, htmlContext));
+        ChatWebSocketServer.getInstance().messageEvent(new Protocol(type, htmlContext));
     }
 
     private String getDefaultRewardHtmlContext(ChannelPointsRedemption redemption) {
         String htmlContext = TEMPLATE_DEFAULT;
 
-        String username = redemption.getUser().getDisplayName();
-        String title = redemption.getReward().getTitle();
-        String cost = String.valueOf(redemption.getReward().getCost());
-        String urlRewardIcon = redemption.getReward().getDefaultImage().getUrl4x();
-
-        htmlContext = getDefaultMapping(htmlContext, username, title, cost, urlRewardIcon);
+        htmlContext = getDefaultMapping(htmlContext, redemption);
 
         return htmlContext;
     }
@@ -89,19 +91,32 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
     private String getRewardWithTextHtmlContext(ChannelPointsRedemption redemption) {
         String htmlContext = TEMPLATE_TEXT;
 
-        String username = redemption.getUser().getDisplayName();
-        String title = redemption.getReward().getTitle();
-        String cost = String.valueOf(redemption.getReward().getCost());
-        String message = redemption.getUserInput();
+        htmlContext = getDefaultMapping(htmlContext, redemption);
 
-        htmlContext = getDefaultMapping(htmlContext, username, title, cost, "");
+        String message = redemption.getUserInput();
+        String color = "";
+        try {
+            color = Authorization.getAccountInstance().getUserChatColorByIds(redemption.getUser().getId(),"#bb00ff");
+        } catch (AccessTokenNoLongerValidException e) {
+            logger.error(ExceptionToString.getString(e));
+        }
+
         htmlContext = htmlContext.replace("{message}",message);
+        htmlContext = htmlContext.replace("{color-user}", color);
 
         return htmlContext;
     }
 
     @NotNull
-    private String getDefaultMapping(String htmlContext, String username, String reward_name, String cost, String urlRewardIcon) {
+    private String getDefaultMapping(String htmlContext, ChannelPointsRedemption redemption) {
+
+        String username = redemption.getUser().getDisplayName();
+        String reward_name = redemption.getReward().getTitle();
+        String cost = String.valueOf(redemption.getReward().getCost());
+        String urlRewardIcon = redemption.getReward().getImage() != null ?
+                redemption.getReward().getImage().getUrl1x() :
+                redemption.getReward().getDefaultImage().getUrl1x();
+
         htmlContext = htmlContext.replace("{username}", username);
         htmlContext = htmlContext.replace("{reward-name}", reward_name);
         htmlContext = htmlContext.replace("{reward-cost}", cost);

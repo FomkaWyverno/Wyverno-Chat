@@ -1,3 +1,9 @@
+.messages .message:not(:first-of-type),
+.messages .reward-block:not(:first-of-type),
+.messages .reward-message:not(:first-child) {
+    margin-top: 50px;
+}
+
 .message {
     display: flex;
 
@@ -90,6 +96,11 @@
     &__points-icon {
         width: 20px;
         height: 20px;
+
+        display: inline-block;
+        vertical-align: middle;
+
+        background: url('/overlay/icons/channel-points.svg') no-repeat;
     }
 }
 
@@ -123,6 +134,11 @@
             }
             span {
                 user-select: text;
+            }
+
+            &__points-icon {
+                display: inline-block;
+                background: url('/overlay/icons/channel-points.svg');
             }
         }
         &__content {
