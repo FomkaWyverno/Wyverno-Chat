@@ -9,7 +9,9 @@ import ua.wyverno.util.ExceptionToString;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 @HttpHandle(path = "/authorization")
@@ -21,8 +23,9 @@ public class AuthorizationHandle implements HttpHandler {
 
     static {
         String tmp;
-        try {
-            tmp = Files.readString(new File("html/authorization/url.txt").toPath());
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("html/authorization/url.txt")) {
+            assert is != null;
+            tmp = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             logger.info("Authorization URL loaded successfully");
         } catch (IOException e) {
             logger.debug(ExceptionToString.getString(e));

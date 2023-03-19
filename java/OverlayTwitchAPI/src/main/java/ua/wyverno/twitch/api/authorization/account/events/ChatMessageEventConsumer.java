@@ -8,7 +8,9 @@ import ua.wyverno.twitch.api.chat.Protocol;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChatMessageEventConsumer implements Consumer<ChannelMessageEvent> {
@@ -21,7 +23,9 @@ public class ChatMessageEventConsumer implements Consumer<ChannelMessageEvent> {
         File templateMessage = new File("html/overlay/elements/message.html");
         String tmp;
         try {
-            tmp = Files.readString(templateMessage.toPath());
+            byte[] bytes = Objects.requireNonNull(ChatMessageEventConsumer.class.getClassLoader()
+                    .getResourceAsStream("html/overlay/elements/message.html")).readAllBytes();
+            tmp = new String(bytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
             tmp = "BAD LOAD TEMPLATE!";
         }

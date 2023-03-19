@@ -15,8 +15,10 @@ import ua.wyverno.util.ExceptionToString;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEvent> {
@@ -29,8 +31,13 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
     static {
         String tmp1, tmp2;
         try {
-            tmp1 = Files.readString(Paths.get("html/overlay/elements/reward_default.html"));
-            tmp2 = Files.readString(Paths.get("html/overlay/elements/reward_text.html"));
+
+            ClassLoader classLoader = RewardRedemptionEventConsumer.class.getClassLoader();
+
+            byte[] bytes1 = Objects.requireNonNull(classLoader.getResourceAsStream("html/overlay/elements/reward_default.html")).readAllBytes();
+            byte[] bytes2 = Objects.requireNonNull(classLoader.getResourceAsStream("html/overlay/elements/reward_text.html")).readAllBytes();
+            tmp1 = new String(bytes1, StandardCharsets.UTF_8);
+            tmp2 = new String(bytes2, StandardCharsets.UTF_8);
         } catch (IOException e) {
             tmp1 = "DEFAULT TEMPLATE FOR REWARD NOT LOADED!";
             tmp2 = "TEMPLATE WITH TEXT FOR REWARD NOT LOADED!";

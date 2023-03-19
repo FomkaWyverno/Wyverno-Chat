@@ -1,10 +1,13 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const http = require('http');
 const child_process = require("child_process")
+const { spawn } = require('node:child_process')
 
 const { NativeKeyboardListener } = require('./keyboardlistener.js')
 
 const ipc = ipcMain;
+
+startServer();
 
 function createMainWindow() {
     const win = new BrowserWindow({
@@ -36,6 +39,8 @@ function createMainWindow() {
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
     });
 
+    //win.webContents.openDevTools();
+
     const keyboard = new NativeKeyboardListener('Left Control', pressButton, releasedButton)
 
     // IPC
@@ -56,8 +61,6 @@ function createMainWindow() {
             });
         }
     })
-
-    win.webContents.openDevTools();
 
     function pressButton() {
         //console.log('Press Control')
@@ -164,8 +167,6 @@ function createOverlay() {
         win.show();
     });
 
-    win.webContents.openDevTools();
-
     return win;
 }
 
@@ -176,6 +177,36 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     closeServer()
 });
+
+function startServer() {
+    // Шлях до java.exe відносно index.js
+    const javaPath = './core/java/bin/java.exe';
+
+    // Шлях до jar-файлу відносно index.js
+    const jarPath = './core/JTwitchChat-1.0.jar';
+
+    // Аргументи для запуску jar-файлу
+    const jarArgs = ['-jar', jarPath];
+
+    // Створення процесу
+    const child = spawn(javaPath, jarArgs);
+
+    // Виведення повідомлень в консоль
+    child.stdout.on('data', (data) => {
+        process.stdout.write(`Java: ${data}`)
+        //console.log(`stdout: ${data}`);
+    });
+
+    child.stderr.on('data', (data) => {
+        //console.error(`stderr: ${data}`);
+        process.stderr.write(`Java: ${data}`)
+    });
+
+    // Обробка завершення процесу
+    child.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+    });
+}
 
 function closeServer() {
     console.log('Try close server');

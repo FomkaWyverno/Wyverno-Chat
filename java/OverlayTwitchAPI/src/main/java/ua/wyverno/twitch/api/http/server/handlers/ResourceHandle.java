@@ -6,12 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
 import ua.wyverno.twitch.api.http.server.handlers.main.page.MainHandle;
+import ua.wyverno.util.ExceptionToString;
+import ua.wyverno.util.ResourceLoader;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Objects;
 
 @HttpHandle(path = "/")
 public class ResourceHandle implements HttpHandler {
@@ -20,46 +22,50 @@ public class ResourceHandle implements HttpHandler {
 
     @Override
     public void handle(HttpExchange t) throws IOException {
-        byte[] response = null;
-        String contentType = "text/plain";
-
         String path = t.getRequestURI().getPath();
         logger.debug("Resource Handler PATH: " + path);
 
         if (path.equals("/")) {
             new MainHandle().handle(t);
         } else {
-            Path resource = Paths.get("./html/" + path);
-            if (path.endsWith(".css")) {
-                response = getResponse(resource);
-                contentType = "text/css";
-            } else if (path.endsWith(".js")) {
-                response = getResponse(resource);
-                contentType = "application/javascript";
-            } else if (path.endsWith(".svg")){
-                response = getResponse(resource);
-                contentType = "image/svg+xml";
-            } else if (path.endsWith(".ttf")) {
-                response = getResponse(resource);
-                contentType = "font/ttf";
-            }
+            Path resource = Paths.get("html/" + path);
 
-            if (response != null) {
-                logger.trace("Length bytes response: " + response.length);
-                t.getResponseHeaders().add("Content-Type", contentType);
-                t.sendResponseHeaders(200, response.length);
-                t.getResponseBody().write(response);
-            } else {
-                String errorMessage = "File not found!";
-                t.sendResponseHeaders(404, errorMessage.length());
-                t.getResponseBody().write(errorMessage.getBytes());
-            }
-
+            final String contentType = this.getContentType(path);
+            ResourceLoader.getResourceAsBytes(resource.toString())
+                    .ifPresentOrElse(response -> {
+                        try {
+                            logger.trace("Length bytes response: " + response.length);
+                            t.getResponseHeaders().add("Content-Type", contentType);
+                            t.sendResponseHeaders(200, response.length);
+                            t.getResponseBody().write(response);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, () -> {
+                        try {
+                            String errorMessage = "File not found!";
+                            t.sendResponseHeaders(404, errorMessage.length());
+                            t.getResponseBody().write(errorMessage.getBytes());
+                        } catch (IOException e) {
+                            logger.error(ExceptionToString.getString(e));
+                        }
+                    });
             t.close();
         }
     }
 
-    private byte[] getResponse(Path resource) throws IOException {
-        return Files.readAllBytes(resource);
+    private String getContentType(String path) {
+        String contentType = "text/plain";
+        if (path.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (path.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (path.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        } else if (path.endsWith(".ttf")) {
+            contentType = "font/ttf";
+        }
+
+        return contentType;
     }
 }

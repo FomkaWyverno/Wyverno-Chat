@@ -3,13 +3,16 @@
 **/.idea/**
 **/css/**
 **/*.iml
+**/logs/**
 
 #Node.js
 node.js/node_modules
 node.js/style
 node.js/package-lock.json
+node.js/dist
+node.js/core
+node.js/twitch
 
 #Java
 java/OverlayTwitchAPI/target
-java/OverlayTwitchAPI/logs
 java/OverlayTwitchAPI/twitch

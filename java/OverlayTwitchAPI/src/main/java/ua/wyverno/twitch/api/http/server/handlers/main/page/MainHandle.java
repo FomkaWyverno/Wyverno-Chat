@@ -15,6 +15,6 @@ public class MainHandle implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
         logger.debug("MainHandler handle()");
-        new HtmlHandle().handle(t, Paths.get("./html/main/index.html"));
+        new HtmlHandle().handle(t, Paths.get("html/main/index.html"));
     }
 }

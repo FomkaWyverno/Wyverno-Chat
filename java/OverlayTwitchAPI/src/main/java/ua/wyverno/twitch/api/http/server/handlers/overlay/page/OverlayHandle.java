@@ -20,7 +20,7 @@ public class OverlayHandle implements HttpHandler {
         logger.debug("Start Overlay GET Handle");
         String path = t.getRequestURI().getPath();
         if (path.equals("/overlay")) {
-            new HtmlHandle().handle(t, Paths.get("./html/overlay/index.html"));
+            new HtmlHandle().handle(t, Paths.get("/html/overlay/index.html"));
         } else {
             new ResourceHandle().handle(t);
         }

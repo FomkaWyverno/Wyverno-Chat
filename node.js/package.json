@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,38 @@
   },
   "homepage": "https://github.com/FomkaWyverno/OverlayJS#readme",
   "dependencies": {
-    "gkm": "^0.2.0",
-    "electron": "^23.1.2"
+    "gkm": "^0.2.0"
+  },
+  "devDependencies": {
+    "electron": "^23.1.2",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "ua.wyverno",
+    "productName": "Wyverno Chat",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "core/**/*",
+      "index.js",
+      "keyboardlistener.js"
+    ],
+    "extraFiles": [
+      "core"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "uninstallDisplayName": "WyvernoChat",
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico"
+    }
   }
 }
