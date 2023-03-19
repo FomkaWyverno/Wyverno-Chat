@@ -37,7 +37,7 @@ function createMainWindow() {
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
     });
 
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     // IPC
 
@@ -159,7 +159,7 @@ function createOverlay() {
     });
 
 
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
     return win;
 }
 

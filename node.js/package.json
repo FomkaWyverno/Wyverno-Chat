@@ -36,8 +36,7 @@
     },
     "files": [
       "core/**/*",
-      "index.js",
-      "keyboardlistener.js"
+      "index.js"
     ],
     "extraFiles": [
       "core"
@@ -46,6 +45,7 @@
       "target": [
         "nsis"
       ],
+      "createDirectory": true,
       "icon": "icon.ico"
     },
     "nsis": {
@@ -53,7 +53,8 @@
       "uninstallDisplayName": "WyvernoChat",
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "icon.ico",
-      "uninstallerIcon": "icon.ico"
+      "uninstallerIcon": "icon.ico",
+      "createDirectory": true
     }
   }
 }
