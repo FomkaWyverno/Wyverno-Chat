@@ -1,8 +1,9 @@
 package ua.wyverno;
 
+import com.github.kwhat.jnativehook.GlobalScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.twitch.api.http.server.HttpServer;
+import ua.wyverno.natives.keyboard.NativeKeyboard;
 import ua.wyverno.util.ExceptionToString;
 
 import java.io.BufferedReader;
@@ -17,9 +18,12 @@ public class Main {
     public static void main(String[] args) {
         try {
             logger.info("Start main class");
-            HttpServer httpServer = new HttpServer();
-            httpServer.start();
-            startUI(args[2]);
+            GlobalScreen.registerNativeHook();
+
+            GlobalScreen.addNativeKeyListener(new NativeKeyboard());
+//            HttpServer httpServer = new HttpServer();
+//            httpServer.start();
+//            startUI(args[2]);
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
         }
