@@ -28,3 +28,11 @@ ipcRenderer.on('window.overlay.minimize',() =>
     console.log('Minimize')
     maximize_minimize_button.firstElementChild.classList.remove('minimize')
 });
+
+ipcRenderer.on('button.press', () => {
+    console.log('Press button')
+});
+
+ipcRenderer.on('button.released', () => {
+    console.log('Button release')
+})

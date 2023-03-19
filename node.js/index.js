@@ -3,8 +3,6 @@ const http = require('http');
 const child_process = require("child_process")
 const { spawn } = require('node:child_process')
 
-const { NativeKeyboardListener } = require('./keyboardlistener.js')
-
 const ipc = ipcMain;
 
 startServer();
@@ -39,9 +37,7 @@ function createMainWindow() {
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
     });
 
-    //win.webContents.openDevTools();
-
-    const keyboard = new NativeKeyboardListener('Left Control', pressButton, releasedButton)
+    win.webContents.openDevTools();
 
     // IPC
 
@@ -61,24 +57,6 @@ function createMainWindow() {
             });
         }
     })
-
-    function pressButton() {
-        //console.log('Press Control')
-        if (overlay != null) {
-            console.log('Overlay is drag!')
-            overlay.setIgnoreMouseEvents(false);
-            overlay.setAlwaysOnTop(false);
-        }
-    }
-
-    function releasedButton() {
-        //console.log('Released Control')
-        if (overlay != null) {
-            console.log('Overylay is now not drag')
-            overlay.setIgnoreMouseEvents(true)
-            overlay.setAlwaysOnTop(true)
-        }
-    }
 
     // Frame manipulation
 
@@ -167,6 +145,8 @@ function createOverlay() {
         win.show();
     });
 
+
+    win.webContents.openDevTools();
     return win;
 }
 
