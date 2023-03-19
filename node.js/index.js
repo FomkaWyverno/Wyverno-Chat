@@ -5,7 +5,7 @@ const { spawn } = require('node:child_process')
 
 const ipc = ipcMain;
 
-startServer();
+//startServer();
 
 function createMainWindow() {
     const win = new BrowserWindow({
@@ -115,6 +115,19 @@ function createMainWindow() {
             overlay.close()
         }
 
+    });
+
+    ipcMain.on('overlay.button.press', () => {
+        if (overlay != null) {
+            console.log('Overlay dragable')
+            overlay.setIgnoreMouseEvents(false)
+        }
+    });
+    ipcMain.on('overlay.button.released', () => {
+        if (overlay != null) {
+            console.log('Overlay now not dragable');
+            overlay.setIgnoreMouseEvents(true);
+        }
     });
 }
 

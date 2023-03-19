@@ -30,6 +30,6 @@ public class Protocol {
     }
 
     public static enum TYPE {
-        videoPlayback,html, messageHTML, reward_block, reward_message
+        videoPlayback,html, messageHTML, reward_block, reward_message, pressButton, releasedButton
     }
 }

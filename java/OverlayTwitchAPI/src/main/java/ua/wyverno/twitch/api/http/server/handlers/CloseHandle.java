@@ -1,5 +1,7 @@
 package ua.wyverno.twitch.api.http.server.handlers;
 
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import ua.wyverno.twitch.api.authorization.AccessTokenNoLongerValidException;
 import ua.wyverno.twitch.api.authorization.Authorization;
 import ua.wyverno.twitch.api.chat.ChatWebSocketServer;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
+import ua.wyverno.util.ExceptionToString;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,6 +43,12 @@ public class CloseHandle implements HttpHandler {
             logger.trace("Account is not logged");
         }
 
+        try {
+            GlobalScreen.unregisterNativeHook();
+            logger.debug("Unregister native hook");
+        } catch (NativeHookException e) {
+            logger.error(ExceptionToString.getString(e));
+        }
         ChatWebSocketServer.stopWSS();
         logger.info("HTTP Server - is stop");
     }

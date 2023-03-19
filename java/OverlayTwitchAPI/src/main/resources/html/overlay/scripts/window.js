@@ -1,5 +1,3 @@
-const { ipcRenderer } = require('electron');
-
 const collapse_button = document.querySelector('.list-control-panel__collapse')
 const maximize_minimize_button = document.querySelector('.list-control-panel__maximize-minimize')
 const close_button = document.querySelector('.list-control-panel__close')
@@ -28,11 +26,3 @@ ipcRenderer.on('window.overlay.minimize',() =>
     console.log('Minimize')
     maximize_minimize_button.firstElementChild.classList.remove('minimize')
 });
-
-ipcRenderer.on('button.press', () => {
-    console.log('Press button')
-});
-
-ipcRenderer.on('button.released', () => {
-    console.log('Button release')
-})

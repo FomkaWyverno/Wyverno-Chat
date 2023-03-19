@@ -2,11 +2,15 @@ package ua.wyverno.twitch.api.chat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.natives.keyboard.NativeKeyboard;
+import ua.wyverno.natives.keyboard.NativeKeyboardPressScript;
+import ua.wyverno.natives.keyboard.NativeKeyboardReleasedScript;
 import ua.wyverno.util.ExceptionToString;
 
 import java.net.InetSocketAddress;
@@ -20,11 +24,31 @@ public class ChatWebSocketServer extends WebSocketServer {
     private final static ObjectMapper mapper = new ObjectMapper();
     private final Set<WebSocket> webSocketSet = new HashSet<>();
 
+    private final NativeKeyboard keyboard;
+
     private ChatWebSocketServer(int port) {
         super(new InetSocketAddress(port));
+        this.keyboard = NativeKeyboard.getInstance();
+        initialScriptForKeyboard();
     }
 
     private static final Logger logger = LoggerFactory.getLogger(ChatWebSocketServer.class);
+
+    private void initialScriptForKeyboard() {
+        this.keyboard.addScript((NativeKeyboardPressScript) e -> {
+            if (e.getKeyCode() == NativeKeyEvent.VC_CONTROL) {
+                logger.trace("Press Control");
+                this.messageEvent(new Protocol(Protocol.TYPE.pressButton,"Control"));
+            }
+        });
+
+        this.keyboard.addScript((NativeKeyboardReleasedScript) e -> {
+            if (e.getKeyCode() == NativeKeyEvent.VC_CONTROL) {
+                logger.trace("Released Control");
+                this.messageEvent(new Protocol(Protocol.TYPE.releasedButton, "Control"));
+            }
+        });
+    }
 
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {

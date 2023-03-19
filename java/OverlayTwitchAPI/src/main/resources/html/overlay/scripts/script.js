@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+
 const chat = document.querySelector('.messages');
 const viewers = document.querySelector('.viewers__count')
 const status_stream = document.querySelector('.stream-status__status-text')
@@ -56,6 +58,10 @@ socket.addEventListener('message', e=> {
             console.log('Stream offline!')
             changeStreamStatus(videoPlayback.type)
         }
+    } else if (data.type === 'pressButton') {
+        ipcRenderer.send('overlay.button.press')
+    } else if (data.type === 'releasedButton') {
+        ipcRenderer.send('overlay.button.released')
     }
 })
 

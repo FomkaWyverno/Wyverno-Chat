@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.natives.keyboard.NativeKeyboard;
 import ua.wyverno.natives.keyboard.NativeKeyboardPressScript;
 import ua.wyverno.natives.keyboard.NativeKeyboardReleasedScript;
+import ua.wyverno.twitch.api.http.server.HttpServer;
 import ua.wyverno.util.ExceptionToString;
 
 import java.io.BufferedReader;
@@ -22,9 +23,9 @@ public class Main {
         try {
             logger.info("Start main class");
 
-//            HttpServer httpServer = new HttpServer();
-//            httpServer.start();
-//            startUI(args[2]);
+            HttpServer httpServer = new HttpServer();
+            httpServer.start();
+            startUI(args[2]);
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
         }
