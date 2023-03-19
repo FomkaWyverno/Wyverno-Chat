@@ -1,9 +1,12 @@
 package ua.wyverno;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.natives.keyboard.NativeKeyboard;
+import ua.wyverno.natives.keyboard.NativeKeyboardPressScript;
+import ua.wyverno.natives.keyboard.NativeKeyboardReleasedScript;
 import ua.wyverno.util.ExceptionToString;
 
 import java.io.BufferedReader;
@@ -18,9 +21,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             logger.info("Start main class");
-            GlobalScreen.registerNativeHook();
 
-            GlobalScreen.addNativeKeyListener(new NativeKeyboard());
 //            HttpServer httpServer = new HttpServer();
 //            httpServer.start();
 //            startUI(args[2]);

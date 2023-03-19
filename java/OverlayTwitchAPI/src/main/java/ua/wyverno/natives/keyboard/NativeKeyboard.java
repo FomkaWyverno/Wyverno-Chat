@@ -12,11 +12,19 @@ public class NativeKeyboard implements NativeKeyListener {
 
     private static final Logger logger = LoggerFactory.getLogger(NativeKeyboard.class);
 
-
-
     private final Set<Integer> buttonPressedSet = new HashSet<>();
 
-    private final Set<NativeKeyboardScript> nativeKeyboardFunctions = new HashSet<>();
+    private final Set<NativeKeyboardPressScript> keyPressScripts = new HashSet<>();
+    private final Set<NativeKeyboardReleasedScript> keyReleasedScripts = new HashSet<>();
+
+    private static NativeKeyboard instance;
+
+    private NativeKeyboard() {}
+
+    public static NativeKeyboard getInstance() {
+        if (instance == null) instance = new NativeKeyboard();
+        return instance;
+    }
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent event) {
@@ -24,7 +32,7 @@ public class NativeKeyboard implements NativeKeyListener {
         if (!buttonPressedSet.contains(keyCode)) {
             logger.trace("NativeKeyPressed: " + NativeKeyEvent.getKeyText(keyCode));
             buttonPressedSet.add(keyCode);
-            nativeKeyboardFunctions.forEach(e -> e.keyPress(event));
+            keyPressScripts.forEach(e -> e.keyPress(event));
         }
     }
 
@@ -34,9 +42,23 @@ public class NativeKeyboard implements NativeKeyListener {
         if (buttonPressedSet.contains(keyCode)) {
             logger.trace("NativeKeyReleased: " + NativeKeyEvent.getKeyText(keyCode));
             buttonPressedSet.remove(keyCode);
-            nativeKeyboardFunctions.forEach(e -> e.keyRelease(event));
+            keyReleasedScripts.forEach(e -> e.keyReleased(event));
         }
     }
 
+    public void addScript(NativeKeyboardPressScript script) {
+        this.keyPressScripts.add(script);
+    }
 
+    public void addScript(NativeKeyboardReleasedScript script) {
+        this.keyReleasedScripts.add(script);
+    }
+
+    public void removeScript(NativeKeyboardPressScript script) {
+        this.keyPressScripts.remove(script);
+    }
+
+    public void removeScript(NativeKeyboardReleasedScript script) {
+        this.keyReleasedScripts.remove(script);
+    }
 }
