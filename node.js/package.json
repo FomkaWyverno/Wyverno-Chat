@@ -30,7 +30,7 @@
   },
   "build": {
     "appId": "ua.wyverno",
-    "productName": "Wyverno Chat",
+    "productName": "W-Chat",
     "directories": {
       "output": "dist"
     },
@@ -45,16 +45,15 @@
       "target": [
         "nsis"
       ],
-      "createDirectory": true,
       "icon": "icon.ico"
     },
     "nsis": {
       "oneClick": false,
-      "uninstallDisplayName": "WyvernoChat",
+      "uninstallDisplayName": "uninstall",
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "icon.ico",
-      "uninstallerIcon": "icon.ico",
-      "createDirectory": true
+      "multiLanguageInstaller": true,
+      "displayLanguageSelector": true
     }
   }
 }
