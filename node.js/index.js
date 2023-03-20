@@ -152,6 +152,8 @@ function createOverlay() {
 
     win.setMenu(null)
 
+    win.setAlwaysOnTop(true,'pop-up-menu');
+
     win.setIgnoreMouseEvents(true); // Відключаємо взаємодію з вікном.
 
     win.once('ready-to-show', () => {
@@ -164,7 +166,7 @@ function createOverlay() {
 }
 
 app.whenReady().then(() => {
-    createMainWindow()
+    setTimeout(() => {createMainWindow();},2000);
 })
 
 app.on('window-all-closed', () => {

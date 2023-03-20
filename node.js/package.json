@@ -45,13 +45,12 @@
       "target": [
         "nsis"
       ],
-      "icon": "icon.ico"
+      "icon": "icon-app.ico"
     },
     "nsis": {
       "oneClick": false,
-      "uninstallDisplayName": "uninstall",
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "icon.ico",
+      "installerIcon": "icon-app.ico",
       "multiLanguageInstaller": true,
       "displayLanguageSelector": true
     }
