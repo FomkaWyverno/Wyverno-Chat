@@ -8,17 +8,18 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.*;
 import ua.wyverno.twitch.api.authorization.account.Account;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
+import ua.wyverno.twitch.api.http.server.handlers.AbstractHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 @HttpHandle(path = "/logging")
-public class LoggingHandle implements HttpHandler {
+public class LoggingHandle extends AbstractHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingHandle.class);
 
     @Override
-    public void handle(HttpExchange t) throws IOException {
+    protected void handleHttp(HttpExchange t) throws IOException {
         logger.debug("Start LoggingHandle");
 
         boolean isValid = ConfigHandler.getInstance().isValidAccessToken();

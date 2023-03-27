@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
+import ua.wyverno.twitch.api.http.server.handlers.AbstractHandler;
 import ua.wyverno.util.ExceptionToString;
 
 import java.io.File;
@@ -15,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 @HttpHandle(path = "/authorization")
-public class AuthorizationHandle implements HttpHandler {
+public class AuthorizationHandle extends AbstractHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationHandle.class);
 
@@ -36,7 +37,7 @@ public class AuthorizationHandle implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange t) throws IOException {
+    protected void handleHttp(HttpExchange t) throws IOException {
         logger.debug("Start Authorization GET Handler");
 
         if (authorizationURL.isEmpty()) {

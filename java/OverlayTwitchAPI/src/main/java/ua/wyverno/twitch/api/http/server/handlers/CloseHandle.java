@@ -16,12 +16,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 @HttpHandle(path = "/close")
-public class CloseHandle implements HttpHandler {
+public class CloseHandle extends AbstractHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CloseHandle.class);
 
     @Override
-    public void handle(HttpExchange t) throws IOException {
+    protected void handleHttp(HttpExchange t) throws IOException {
         logger.debug("Close POST!");
 
         String response = "CLOSE SERVER";

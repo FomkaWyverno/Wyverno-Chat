@@ -6,16 +6,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.ConfigHandler;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
+import ua.wyverno.twitch.api.http.server.handlers.AbstractHandler;
 
 import java.io.IOException;
 
 @HttpHandle(path = "/authorization-status")
-public class AuthorizationStatusHandle implements HttpHandler {
+public class AuthorizationStatusHandle extends AbstractHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationHandle.class);
 
     @Override
-    public void handle(HttpExchange t) throws IOException {
+    protected void handleHttp(HttpExchange t) throws IOException {
         ConfigHandler config = ConfigHandler.getInstance();
         boolean isHasAccessToken = config.getAccessToken() != null && !config.getAccessToken().isEmpty() && config.isValidAccessToken();
 

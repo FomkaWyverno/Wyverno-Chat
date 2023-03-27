@@ -7,16 +7,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.twitch.api.authorization.ConfigHandler;
 import ua.wyverno.twitch.api.http.server.HttpHandle;
+import ua.wyverno.twitch.api.http.server.handlers.AbstractHandler;
 
 import java.io.*;
 
 @HttpHandle(path = "/processData")
-public class ProcessDataHandle implements HttpHandler {
+public class ProcessDataHandle extends AbstractHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessDataHandle.class);
     
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    protected void handleHttp(HttpExchange exchange) throws IOException {
         logger.debug("POST /processData");
         InputStream inputStream = exchange.getRequestBody();
         logger.debug("Get accessTokenJSON");
