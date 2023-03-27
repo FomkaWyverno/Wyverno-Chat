@@ -5,7 +5,7 @@ const { spawn } = require('node:child_process')
 
 const ipc = ipcMain;
 
-startServer();
+//startServer();
 
 function createMainWindow() {
     const win = new BrowserWindow({
