@@ -12,12 +12,12 @@ import ua.wyverno.twitch.api.http.server.handlers.AbstractHandler;
 import java.io.*;
 
 @HttpHandle(path = "/processData")
-public class ProcessDataHandle extends AbstractHandler {
+public class ProcessDataHandle implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessDataHandle.class);
-    
+
     @Override
-    protected void handleHttp(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
         logger.debug("POST /processData");
         InputStream inputStream = exchange.getRequestBody();
         logger.debug("Get accessTokenJSON");

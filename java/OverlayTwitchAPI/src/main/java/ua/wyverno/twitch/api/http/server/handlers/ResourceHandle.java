@@ -16,12 +16,12 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 @HttpHandle(path = "/")
-public class ResourceHandle extends AbstractHandler {
+public class ResourceHandle implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceHandle.class);
 
     @Override
-    protected void handleHttp(HttpExchange t) throws IOException {
+    public void handle(HttpExchange t) throws IOException {
         String path = t.getRequestURI().getPath();
         logger.debug("Resource Handler PATH: " + path);
 

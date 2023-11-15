@@ -12,12 +12,11 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 @HttpHandle(path = "/access")
-public class AccessHandle extends AbstractHandler
-{
+public class AccessHandle implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(AccessHandle.class);
 
     @Override
-    protected void handleHttp(HttpExchange t) throws IOException {
+    public void handle(HttpExchange t) throws IOException {
         logger.debug("Client AccessToken GET method");
         new HtmlHandle().handle(t, Paths.get("/html/authorization/index.html"));
     }
