@@ -1,11 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const http = require('http');
 const child_process = require("child_process")
-const { spawn } = require('node:child_process')
+const { spawn } = require('node:child_process');
+const { clear, time } = require('console');
 
 const ipc = ipcMain;
 
-//startServer();
+startServer();
 
 function createMainWindow() {
     const win = new BrowserWindow({
@@ -22,11 +23,33 @@ function createMainWindow() {
         }
     });
 
-    win.loadURL('http://localhost:2828');
+    let isLoadApp = false;
+    let readyToShow = false;
+    let url = 'http://localhost:2828'
+
+    win.loadURL(url);
 
     win.setMenu(null);
 
+
+    let countTry = 0;
+    //Відстеження події 'did-fail-load'
+    win.webContents.on('did-fail-load', () => { // Коли не завантажилась сторірнка сайту для мейн фрейму
+        console.log('Web-App is not load again try connect to internal server');
+        isLoadApp = true;
+        if (countTry < 30) {
+            setTimeout(() => {
+                win.loadURL(url);
+                countTry++;
+                console.log(`Try connect to internal server #${countTry}`);
+            }, 500);
+            
+        }
+
+    });
+
     win.once('ready-to-show', () => {
+        console.log('Electron ready to show');
         win.show();
     });
 
@@ -36,7 +59,10 @@ function createMainWindow() {
         if (overlay != null && !overlay.isDestroyed()) overlay.close();
     });
 
-    //win.webContents.openDevTools();
+
+
+
+    win.webContents.openDevTools();
 
     // IPC
 
@@ -151,7 +177,7 @@ function createOverlay() {
 
     win.setMenu(null)
 
-    win.setAlwaysOnTop(true,'pop-up-menu');
+    win.setAlwaysOnTop(true, 'pop-up-menu');
 
     win.setIgnoreMouseEvents(true); // Відключаємо взаємодію з вікном.
 
@@ -165,7 +191,8 @@ function createOverlay() {
 }
 
 app.whenReady().then(() => {
-    setTimeout(() => {createMainWindow();},2000);
+    createMainWindow();
+    //setTimeout(() => {createMainWindow();},5000);
 })
 
 app.on('window-all-closed', () => {
@@ -177,10 +204,14 @@ function startServer() {
     const javaPath = './core/java/bin/java.exe';
 
     // Шлях до jar-файлу відносно index.js
-    const jarPath = './core/JTwitchChat-1.0.jar';
+    const jarPath = './core/JTwitchChat-1.0.1.jar';
 
     // Аргументи для запуску jar-файлу
     const jarArgs = ['-jar', jarPath];
+
+    setTimeout(() => {
+
+    }, 10000)
 
     // Створення процесу
     const child = spawn(javaPath, jarArgs);
