@@ -1,12 +1,7 @@
 package ua.wyverno;
 
-import com.github.kwhat.jnativehook.GlobalScreen;
-import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.natives.keyboard.NativeKeyboard;
-import ua.wyverno.natives.keyboard.NativeKeyboardPressScript;
-import ua.wyverno.natives.keyboard.NativeKeyboardReleasedScript;
 import ua.wyverno.twitch.api.http.server.HttpServer;
 import ua.wyverno.util.ExceptionToString;
 
@@ -25,7 +20,7 @@ public class Main {
 
             HttpServer httpServer = new HttpServer();
             httpServer.start();
-            startUI(args[2]);
+            //startUI(args[2]);
         } catch (Exception e) {
             logger.error(ExceptionToString.getString(e));
         }

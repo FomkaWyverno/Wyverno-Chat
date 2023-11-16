@@ -6,13 +6,8 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.util.ExceptionToString;
 import ua.wyverno.util.ResourceLoader;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 
 public class HtmlHandle {
 

@@ -10,7 +10,7 @@ const channel_logo = document.querySelector('.channel-description__logo')
 const channel_username = document.querySelector('.channel-description__username');
 const channel_followers = document.querySelector('.channel-description__followers');
 
-setTimeout(() =>{ loggin(); },1000);
+loggin();
 
 loginButton.addEventListener('click', () => {
     authorization();
