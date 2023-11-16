@@ -1,6 +1,6 @@
 {
   "name": "Overlay",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Overlay for stream twitch",
   "main": "index.js",
   "scripts": {
