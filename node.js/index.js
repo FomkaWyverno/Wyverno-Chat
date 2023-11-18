@@ -23,8 +23,6 @@ function createMainWindow() {
         }
     });
 
-    let isLoadApp = false;
-    let readyToShow = false;
     let url = 'http://localhost:2828'
 
     win.loadURL(url);
@@ -62,7 +60,7 @@ function createMainWindow() {
 
 
 
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     // IPC
 
