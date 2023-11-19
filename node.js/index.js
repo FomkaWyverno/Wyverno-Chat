@@ -46,10 +46,28 @@ function createMainWindow() {
 
     });
 
+    let finishLoad = false;
+    let readyToShow = false;
+
+    //Відстеження події 'did-finish-load'
+    win.webContents.on('did-finish-load', () => {
+        console.log("Finish load dom")
+        finishLoad = true;
+        tryShowWin();
+    })
+
     win.once('ready-to-show', () => {
         console.log('Electron ready to show');
-        win.show();
+        readyToShow = true;
+        tryShowWin();
     });
+
+    function tryShowWin() {
+        if (finishLoad && readyToShow && !win.isVisible()) {
+            console.log('Frame start show!');
+            win.show();
+        }
+    }
 
     let overlay = null;
 
