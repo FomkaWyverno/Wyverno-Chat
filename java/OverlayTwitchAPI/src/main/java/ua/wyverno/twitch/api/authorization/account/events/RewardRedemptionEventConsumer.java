@@ -74,7 +74,7 @@ public class RewardRedemptionEventConsumer implements Consumer<RewardRedeemedEve
 
         if (isUserInputRequired) {
             message = redemption.getUserInput();
-            logger.info("Message: " + message);
+            logger.info("MessageElement: " + message);
             htmlContext = this.getRewardWithTextHtmlContext(redemption);
             type = Protocol.TYPE.reward_message;
         } else {
