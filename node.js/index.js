@@ -220,7 +220,7 @@ function startServer() {
     const javaPath = './core/java/bin/java.exe';
 
     // Шлях до jar-файлу відносно index.js
-    const jarPath = './core/JTwitchChat-1.0.1.jar';
+    const jarPath = './core/JTwitchChat-1.0.2.jar';
 
     // Аргументи для запуску jar-файлу
     const jarArgs = ['-jar', jarPath];
