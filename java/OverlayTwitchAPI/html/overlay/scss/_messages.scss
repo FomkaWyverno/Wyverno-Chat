@@ -7,17 +7,20 @@
 .message {
     display: flex;
 
-    &__icons-users {
-        &__tw-icon {
-            margin-top: 3px;
-            display: block;
-            width: 15px;
-            height: 17px;
-            background: url('/overlay/icons/tw-icon.svg');
-        }
-    }
-
     &__container {
+
+        &__icons-users {
+            display: inline-block;
+            vertical-align: middle;
+            &__tw-icon {
+                //margin-top: 3px;
+                display: block;
+                width: 15px;
+                height: 17px;
+                background: url('/overlay/icons/tw-icon.svg');
+            }
+        }
+
         margin-left: 5px;
 
         &__username,
@@ -107,20 +110,21 @@
 .reward-message {
     display: flex;
 
-    &__icons-users {
-        &__tw-icon {
-            margin-top: 4px;
-            display: block;
-            width: 15px;
-            height: 17px;
-            background: url('/overlay/icons/tw-icon.svg');
-        }
-    }
-
     &__container {
         margin-left: 5px;
         display: inline-block;
         vertical-align: middle;
+
+        &__icons-users {
+            &__tw-icon {
+                margin-top: 4px;
+                display: block;
+                width: 15px;
+                height: 17px;
+                background: url('/overlay/icons/tw-icon.svg');
+            }
+        }
+
         &__reward {
             color: #c9c9c9;
             font-family: 'Montserrat';
