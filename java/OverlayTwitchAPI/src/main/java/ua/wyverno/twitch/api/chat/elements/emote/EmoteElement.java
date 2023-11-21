@@ -7,8 +7,6 @@ public class EmoteElement extends AbstractElement {
         super("html/overlay/elements/emote.html");
         this.emoteID = emoteID;
         this.emoteName = emoteName;
-
-        this.setTag("url-tag", this.getEmoteSrc());
     }
 
     public String getEmoteID() {
@@ -23,6 +21,10 @@ public class EmoteElement extends AbstractElement {
         return "https://static-cdn.jtvnw.net/emoticons/v2/" + this.emoteID + "/default/dark/1.0";
     }
 
+    @Override
+    public void compileHtml() {
+        this.setTag("url-tag", this.getEmoteSrc());
+    }
     @Override
     public String toString() {
         return this.getEmoteSrc();
