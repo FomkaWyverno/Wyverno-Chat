@@ -1,4 +1,6 @@
-package ua.wyverno.twitch.api.chat.elements;
+package ua.wyverno.twitch.api.chat.elements.emote;
+
+import ua.wyverno.twitch.api.chat.elements.AbstractElement;
 
 public class EmoteElement extends AbstractElement {
     private final String emoteID;
@@ -22,8 +24,9 @@ public class EmoteElement extends AbstractElement {
     }
 
     @Override
-    public void compileHtml() {
-        this.setTag("url-tag", this.getEmoteSrc());
+    public EmoteElement compileHTML() {
+        this.setTag("url-emoteElement", this.getEmoteSrc());
+        return this;
     }
     @Override
     public String toString() {
