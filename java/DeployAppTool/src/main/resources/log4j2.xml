@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">[%d{HH:mm:ss}] [%t/%p] [%class{1}] - %m%n</Property>
+        <Property name="HOME_LOG">logs/</Property>
+        <Property name="NAME_LOG_FILE">latest.log</Property>
+    </Properties>
+
+    <Appenders>
+
+        <Console name="console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="file_log" fileName="${HOME_LOG}${NAME_LOG_FILE}"
+                     filePattern="${HOME_LOG}%d{yyyy-MM-dd}-%i.log.gz"
+                     append="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- Если уже есть лог файл, и он старше чем запуск программы и соотвествует атрибутам политики он будет отправлен на архивацию-->
+                <OnStartupTriggeringPolicy minSize="0"/>
+                <!-- Каждые 6 часа делается архивация, и выравнивается от 00:00 -->
+                <TimeBasedTriggeringPolicy interval="6" modulate="true"/>
+                <!-- Максимальный размер файла -->
+                <SizeBasedTriggeringPolicy size="5MB"/>
+            </Policies>
+            <!-- Архивация старых логов // максимально количество логов 60 -->
+            <DefaultRolloverStrategy max="60"/>
+        </RollingFile>
+
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="ua.wyverno" additivity="false" level="TRACE">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Logger>
+
+        <Logger name="ua.wyverno.files.FileCollectorVisitor" additivity="false" level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Logger>
+
+        <Root level="ALL">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </Root>
+    </Loggers>
+</Configuration>

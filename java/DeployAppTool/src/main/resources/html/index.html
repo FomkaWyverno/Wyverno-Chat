@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Auth</title>
+</head>
+
+<body>
+    <span class="auth">Authorization...</span>
+    <script defer>
+        async function fetchOAuth2() {
+            const span = document.querySelector('.auth');
+
+            console.log("GET App Tokens")
+            const appTokens = await fetch('/tokens')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error in App Tokens! Status: ${response.status}`)
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(`App Tokens:`);
+                    console.log(data);
+                    return data;
+                })
+                .catch(error => {
+                    console.log(`Error: ${error}`);
+                });
+
+            console.log('POST OAuth2');
+
+            const urlParameters = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+
+            const postParams =
+                `code=${urlParameters.code}&grant_type=authorization_code&redirect_uri=${window.location.origin}/&client_id=${appTokens.client_id}&client_secret=${appTokens.client_secret}`
+
+            const oAuth2Result = await fetch(`https://api.dropbox.com/oauth2/token?${postParams}`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error in OAuth2! Status: ${response.status}`);
+                }
+                return response.json();
+            }).then(json => {
+                console.log('OAuth2 Result:');
+                console.log(json);
+                return json;
+            });
+
+            const jsonOAuth2 = JSON.stringify(oAuth2Result);
+
+            console.log(`JsonOAuth2: ${jsonOAuth2}`);
+
+            fetch(`/accesstoken`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(oAuth2Result)
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP Error in POST AccessToken! Status: ${response.status}`)
+                }
+                span.textContent = 'You can close this!'
+            }).catch(error => {
+                console.log(`Error POST AccessToken:`);
+                console.log(error);
+            });
+        }
+
+        fetchOAuth2();
+    </script>
+</body>
+
+</html>

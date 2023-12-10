@@ -3,6 +3,7 @@
 **/.idea/**
 **/*.iml
 **/logs/**
+**/target/**
 
 #Node.js
 node.js/node_modules
@@ -13,6 +14,5 @@ node.js/core
 node.js/twitch
 
 #Java
-java/OverlayTwitchAPI/target
 java/OverlayTwitchAPI/twitch
 java/OverlayTwitchAPI/html/**/css/
