@@ -15,14 +15,20 @@ public class FileCollectorVisitor implements FileVisitor<Path> {
     private static final Logger logger = LoggerFactory.getLogger(FileCollectorVisitor.class);
 
     private final List<Path> filesPath = new ArrayList<>();
+    private final List<Path> folderPath = new ArrayList<>();
 
     public List<Path> getFilesPath() {
         return filesPath;
     }
 
+    public List<Path> getFolderPath() {
+        return folderPath;
+    }
+
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         logger.trace("Pre visit Directory: {}",dir.toString());
+        this.folderPath.add(dir);
         return FileVisitResult.CONTINUE;
     }
 
