@@ -16,3 +16,5 @@ node.js/twitch
 #Java
 java/OverlayTwitchAPI/twitch
 java/OverlayTwitchAPI/html/**/css/
+java/DeployAppTool/setting.properties
+java/DeployAppTool/cloud-files.json
