@@ -22,6 +22,7 @@ public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    private static final Path pathCloudFiles = Paths.get("./cloud-files.json");
     public static void main(String[] args) {
         try {
 
@@ -32,11 +33,11 @@ public class Main {
 
             FileCollectorVisitor fileCollectorVisitor = collectFilesApplication(config);
 
-            HashSumFiles sumFiles = hashSumApplication(config,fileCollectorVisitor);
+            HashSumFiles sumFiles = new HashSumFiles(config.getPathApplication(), fileCollectorVisitor.getFilesPath());
 
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sumFiles);
-            logger.info("{}\n Generated json with Hash-Sum for Application files",json);
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sumFiles.getRelativizeRootFilesHashInfo());
+            logger.info("\n{}\n Generated json with Hash-Sum for Application files",json);
 
             dropBoxAPI.deleteAllFromFolder("");
 
@@ -90,10 +91,9 @@ public class Main {
         return new DropBoxAPI(accessTokenDbX);
     }
 
-    private static HashSumFiles hashSumApplication(Config config, FileCollectorVisitor fileCollector) throws IOException {
-        HashSumFiles hashSumFiles = new HashSumFiles(config.getPathApplication(), fileCollector.getFilesPath());
-        logger.info("Start hashing application files!");
-        hashSumFiles.toHashFiles();
-        return hashSumFiles;
+    private static HashSumFiles loadCloudFilesHashSum(Path path) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        return mapper.readValue(path.toFile(), HashSumFiles.class);
     }
 }

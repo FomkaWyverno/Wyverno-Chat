@@ -4,43 +4,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.CRC32;
 
 public class HashSumFiles {
 
     private static final Logger logger = LoggerFactory.getLogger(HashSumFiles.class);
 
-    private final HashMap<Path, Long> hashs = new HashMap<>();
-
     private final Path root;
-    private final List<Path> files;
+    private List<Path> originalFiles;
+    private List<FileHashInfo> filesHashInfo;
+    private List<FileHashInfo> relativizeRootFilesHashInfo;
+
     public HashSumFiles(Path root, List<Path> files) {
         this.root = root;
-        this.files = files;
+        this.originalFiles = files;
     }
 
-    public void toHashFiles() throws IOException {
-        for (Path file : this.files) {
-            logger.debug("Hashing file - {}", file);
-            byte[] bytesFile = Files.readAllBytes(file);
-            logger.trace("Read bytes file!");
+    private void calculateFilesHashInfo() throws IOException {
+        logger.debug("Start calculate for files hash info");
+        List<FileHashInfo> calculatedFilesHash = new ArrayList<>();
 
-
-            CRC32 crc32 = new CRC32();
-            crc32.update(bytesFile);
-            logger.debug("Calculate CRC32 for file = 0x{}", Long.toHexString(crc32.getValue()));
-
-            Path relativePath = this.root.relativize(file);
-
-            this.hashs.put(relativePath, crc32.getValue());
+        for (Path p : this.originalFiles) {
+            FileHashInfo fileHashInfo = new FileHashInfo(p);
+            fileHashInfo.calculateChecksum();
+            calculatedFilesHash.add(fileHashInfo);
         }
+        this.filesHashInfo = calculatedFilesHash;
     }
 
-    public HashMap<Path, Long> getHashs() {
-        return this.hashs;
+    public List<FileHashInfo> getOriginalFiles() {
+        return this.filesHashInfo;
+    }
+
+    public List<FileHashInfo> getFilesHashInfo() throws IOException {
+        if (this.filesHashInfo != null) return filesHashInfo;
+        this.calculateFilesHashInfo();
+        return this.filesHashInfo;
+    }
+
+    public List<FileHashInfo> getRelativizeRootFilesHashInfo() throws IOException {
+        if (this.relativizeRootFilesHashInfo != null) return this.relativizeRootFilesHashInfo;
+
+        this.relativizeRootFilesHashInfo = new ArrayList<>();
+
+        for (FileHashInfo fileHashInfo : this.getFilesHashInfo()) {
+            Path relativizeRootPath = this.root.relativize(fileHashInfo.getPathFile());
+
+            FileHashInfo relativizeFileHashInfo = new FileHashInfo(relativizeRootPath, fileHashInfo.getHash());
+
+            this.relativizeRootFilesHashInfo.add(relativizeFileHashInfo);
+        }
+
+        return relativizeRootFilesHashInfo;
     }
 }
