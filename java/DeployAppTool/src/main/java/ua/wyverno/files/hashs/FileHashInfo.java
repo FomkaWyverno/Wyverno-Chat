@@ -50,4 +50,12 @@ public class FileHashInfo {
     public long getHash() {
         return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof FileHashInfo otherFile)) return false;
+        return this.hash == otherFile.getHash()
+               &&
+               this.pathFile.equals(otherFile.getPathFile());
+    }
 }

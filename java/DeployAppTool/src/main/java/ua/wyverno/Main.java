@@ -1,12 +1,15 @@
 package ua.wyverno;
 
 import com.dropbox.core.DbxException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
 import ua.wyverno.files.FileCollectorVisitor;
+import ua.wyverno.files.SyncCloudStorage;
+import ua.wyverno.files.hashs.FileHashInfo;
 import ua.wyverno.files.hashs.HashSumFiles;
 
 import java.io.FileNotFoundException;
@@ -15,7 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -36,8 +41,30 @@ public class Main {
             HashSumFiles sumFiles = new HashSumFiles(config.getPathApplication(), fileCollectorVisitor.getFilesPath());
 
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sumFiles.getRelativizeRootFilesHashInfo());
-            logger.info("\n{}\n Generated json with Hash-Sum for Application files",json);
+
+            List<FileHashInfo> filesApplication = sumFiles.getRelativizeRootFilesHashInfo();
+            List<FileHashInfo> cloudFiles = mapper.readValue(pathCloudFiles.toFile(), new TypeReference<>() {});
+
+            SyncCloudStorage syncCloudStorage = new SyncCloudStorage(filesApplication, cloudFiles);
+
+            Set<FileHashInfo> deletedFiles = syncCloudStorage.getDeletedFiles();
+            Set<FileHashInfo> addedFiles = syncCloudStorage.getAddedFiles();
+            Set<Path> deletedFolders = syncCloudStorage.getDeletedFolders();
+            Set<Path> cloudFolders = syncCloudStorage.getCloudFolders();
+            for (FileHashInfo hashInfo : deletedFiles) {
+                logger.info("Deleted:\nFile: {}\nHash: {}", hashInfo.getPathFile(),hashInfo.getHash());
+            }
+
+            for (FileHashInfo hashInfo : addedFiles) {
+                logger.info("Added:\nFile: {}\nHash: {}", hashInfo.getPathFile(), hashInfo.getHash());
+            }
+            for (Path cloudFolder : cloudFolders) {
+                logger.info("CloudFolder: {}", cloudFolder);
+            }
+
+            for (Path deletedFolder : deletedFolders) {
+                logger.info("Deleted folder: {}", deletedFolder);
+            }
 
             dropBoxAPI.deleteAllFromFolder("");
 
