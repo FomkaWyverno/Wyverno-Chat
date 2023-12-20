@@ -1,11 +1,10 @@
-package ua.wyverno.files;
+package ua.wyverno.files.cloud;
 
 import ua.wyverno.files.hashs.FileHashInfo;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SyncCloudStorage {
@@ -54,6 +53,37 @@ public class SyncCloudStorage {
     public Set<Path> getDeletedFolders() {
         if (this.deletedFolders != null) return this.deletedFolders;
 
+        Set<Path> checkedFolders = new HashSet<>();
+
+        this.deletedFolders = new HashSet<>();
+        this.getCloudFolders()
+                .forEach(cloudFolder -> {
+
+                    boolean isPathStartDeletedFolder = deletedFolders
+                            .stream()
+                            .anyMatch(cloudFolder::startsWith); // True if - path start when folder in DeletedSet
+
+                    if (isPathStartDeletedFolder) return;
+
+
+                    Path notCheckedRoot = cloudFolder;
+                    while (notCheckedRoot.getParent() != null && !deletedFolders.contains(notCheckedRoot.getParent())
+                            &&
+                            !checkedFolders.contains(notCheckedRoot.getParent())) {
+                        notCheckedRoot = notCheckedRoot.getParent();
+                    }
+
+                    final Path finalNotCheckedRoot = notCheckedRoot;
+                    boolean notHasFileInFolder =  this.getApplicationFiles()
+                            .stream()
+                            .noneMatch(file -> file.getPathFile().startsWith(finalNotCheckedRoot));
+
+                    checkedFolders.add(finalNotCheckedRoot);
+                    if (notHasFileInFolder) deletedFolders.add(finalNotCheckedRoot);
+                });
+
+
+
         return this.deletedFolders;
     }
 
@@ -77,5 +107,13 @@ public class SyncCloudStorage {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         return this.cloudFolders;
+    }
+
+    public List<FileHashInfo> getApplicationFiles() {
+        return applicationFiles;
+    }
+
+    public List<FileHashInfo> getCloudFiles() {
+        return cloudFiles;
     }
 }

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
 import ua.wyverno.files.FileCollectorVisitor;
-import ua.wyverno.files.SyncCloudStorage;
+import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.hashs.FileHashInfo;
 import ua.wyverno.files.hashs.HashSumFiles;
 
@@ -17,11 +17,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Main {
 
@@ -34,7 +32,7 @@ public class Main {
             Config config = loadConfig();//loading Configuration Application
             if (config == null) return;
 
-            DropBoxAPI dropBoxAPI = connectToDropBoxAPI(config);//Connect to API
+            //DropBoxAPI dropBoxAPI = connectToDropBoxAPI(config);//Connect to API
 
             FileCollectorVisitor fileCollectorVisitor = collectFilesApplication(config);
 
@@ -51,31 +49,29 @@ public class Main {
             Set<FileHashInfo> addedFiles = syncCloudStorage.getAddedFiles();
             Set<Path> deletedFolders = syncCloudStorage.getDeletedFolders();
             Set<Path> cloudFolders = syncCloudStorage.getCloudFolders();
-            for (FileHashInfo hashInfo : deletedFiles) {
-                logger.info("Deleted:\nFile: {}\nHash: {}", hashInfo.getPathFile(),hashInfo.getHash());
-            }
+            Set<Path> appFolders = syncCloudStorage.getApplicationFolders();
 
-            for (FileHashInfo hashInfo : addedFiles) {
-                logger.info("Added:\nFile: {}\nHash: {}", hashInfo.getPathFile(), hashInfo.getHash());
+            for (Path appFolder : appFolders) {
+                logger.info("App.Folder: {}", appFolder);
             }
             for (Path cloudFolder : cloudFolders) {
-                logger.info("CloudFolder: {}", cloudFolder);
+                logger.info("Cloud Folder: {}", cloudFolder);
             }
 
             for (Path deletedFolder : deletedFolders) {
-                logger.info("Deleted folder: {}", deletedFolder);
+                logger.info("Deleted Folder: {}",deletedFolder);
             }
 
-            dropBoxAPI.deleteAllFromFolder("");
+            //dropBoxAPI.deleteAllFromFolder("");
 
-            dropBoxAPI.uploadFiles("", Collections.emptyList(),
-                    fileCollectorVisitor
-                            .getFolderPath()
-                            .stream()
-                            .map(path -> "/"+config.getPathApplication().relativize(path))
-                            .filter(path -> !path.equals("/"))
-                            .map(path -> path.replace("\\","/"))
-                            .collect(Collectors.toList()));
+//            dropBoxAPI.uploadFiles("", Collections.emptyList(),
+//                    fileCollectorVisitor
+//                            .getFolderPath()
+//                            .stream()
+//                            .map(path -> "/"+config.getPathApplication().relativize(path))
+//                            .filter(path -> !path.equals("/"))
+//                            .map(path -> path.replace("\\","/"))
+//                            .collect(Collectors.toList()));
 
 
         } catch (Throwable e) {
