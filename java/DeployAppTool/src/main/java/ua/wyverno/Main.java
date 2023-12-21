@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class Main {
 
@@ -32,33 +31,22 @@ public class Main {
             Config config = loadConfig();//loading Configuration Application
             if (config == null) return;
 
-            //DropBoxAPI dropBoxAPI = connectToDropBoxAPI(config);//Connect to API
+            DropBoxAPI dropBoxAPI = connectToDropBoxAPI(config);//Connect to API
 
-            FileCollectorVisitor fileCollectorVisitor = collectFilesApplication(config);
+//            FileCollectorVisitor fileCollectorVisitor = collectFilesApplication(config);
+//
+//            HashSumFiles sumFiles = new HashSumFiles(config.getPathApplication(), fileCollectorVisitor.getFilesPath());
+//
+//            ObjectMapper mapper = new ObjectMapper();
+//
+//            List<FileHashInfo> filesApplication = sumFiles.getRelativizeRootFilesHashInfo();
+//            List<FileHashInfo> cloudFiles = mapper.readValue(pathCloudFiles.toFile(), new TypeReference<>() {});
+//
+//            SyncCloudStorage syncCloudStorage = new SyncCloudStorage(filesApplication, cloudFiles);
+//
+//            syncCloudStorage.synchronizedWithCloudStorage(null, pathCloudFiles);
 
-            HashSumFiles sumFiles = new HashSumFiles(config.getPathApplication(), fileCollectorVisitor.getFilesPath());
-
-            ObjectMapper mapper = new ObjectMapper();
-
-            List<FileHashInfo> filesApplication = sumFiles.getRelativizeRootFilesHashInfo();
-            List<FileHashInfo> cloudFiles = mapper.readValue(pathCloudFiles.toFile(), new TypeReference<>() {});
-
-            SyncCloudStorage syncCloudStorage = new SyncCloudStorage(filesApplication, cloudFiles);
-
-            syncCloudStorage.synchronizedWithCloudStorage(null, pathCloudFiles);
-
-            //dropBoxAPI.deleteAllFromFolder("");
-
-//            dropBoxAPI.uploadFiles("", Collections.emptyList(),
-//                    fileCollectorVisitor
-//                            .getFolderPath()
-//                            .stream()
-//                            .map(path -> "/"+config.getPathApplication().relativize(path))
-//                            .filter(path -> !path.equals("/"))
-//                            .map(path -> path.replace("\\","/"))
-//                            .collect(Collectors.toList()));
-
-
+            dropBoxAPI.createFolders(List.of("/folder/test1", "/folder1/test2", "/folder2/test4"));
         } catch (Throwable e) {
             logger.error("",e);
         }
