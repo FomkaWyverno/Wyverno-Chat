@@ -27,9 +27,13 @@ public class SyncCloudStorage {
 
     public Set<FileHashInfo> getDeletedFiles() {
         if (this.deletedFiles != null) return this.deletedFiles;
-        this.deletedFiles = this.cloudFiles
+        this.deletedFiles = this.getCloudFiles()
                 .stream()
-                .filter(file -> !this.applicationFiles.contains(file))
+                .filter(file ->
+                        this.getDeletedFolders()
+                                .stream()
+                                .noneMatch(deletedFolder -> file.getPathFile().startsWith(deletedFolder)))
+                .filter(file -> !this.getApplicationFiles().contains(file))
                 .collect(Collectors.toSet());
 
         return this.deletedFiles;
@@ -46,10 +50,6 @@ public class SyncCloudStorage {
         return this.addedFiles;
     }
 
-    /* TODO: Method not realize.
-    * TODO: METHOD Must do collect deleted (If need deleted core\java, so not need deleted core\java\bin - for optimization) folders from CloudFiles comparing them with ApplicationFiles
-    * TODO: Method must do return Set<Path> with size 1 if need remove root file CloudFiles and this once Path must be "./"
-    * */
     public Set<Path> getDeletedFolders() {
         if (this.deletedFolders != null) return this.deletedFolders;
 
@@ -57,17 +57,11 @@ public class SyncCloudStorage {
 
         this.deletedFolders = new HashSet<>();
         this.getCloudFolders()
+                .stream()
+                .filter(cloudFolder -> this.deletedFolders.stream().noneMatch(cloudFolder::startsWith))
                 .forEach(cloudFolder -> {
-
-                    boolean isPathStartDeletedFolder = deletedFolders
-                            .stream()
-                            .anyMatch(cloudFolder::startsWith); // True if - path start when folder in DeletedSet
-
-                    if (isPathStartDeletedFolder) return;
-
-
                     Path notCheckedRoot = cloudFolder;
-                    while (notCheckedRoot.getParent() != null && !deletedFolders.contains(notCheckedRoot.getParent())
+                    while (notCheckedRoot.getParent() != null && !this.deletedFolders.contains(notCheckedRoot.getParent())
                             &&
                             !checkedFolders.contains(notCheckedRoot.getParent())) {
                         notCheckedRoot = notCheckedRoot.getParent();
@@ -79,7 +73,7 @@ public class SyncCloudStorage {
                             .noneMatch(file -> file.getPathFile().startsWith(finalNotCheckedRoot));
 
                     checkedFolders.add(finalNotCheckedRoot);
-                    if (notHasFileInFolder) deletedFolders.add(finalNotCheckedRoot);
+                    if (notHasFileInFolder) this.deletedFolders.add(finalNotCheckedRoot);
                 });
 
 

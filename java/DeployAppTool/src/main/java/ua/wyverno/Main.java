@@ -62,6 +62,10 @@ public class Main {
                 logger.info("Deleted Folder: {}",deletedFolder);
             }
 
+            for (FileHashInfo file : deletedFiles) {
+                logger.info("\nDeleted files: {}\nHash: {}", file.getPathFile(), file.getHash());
+            }
+
             //dropBoxAPI.deleteAllFromFolder("");
 
 //            dropBoxAPI.uploadFiles("", Collections.emptyList(),
