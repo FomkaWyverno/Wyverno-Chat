@@ -45,26 +45,7 @@ public class Main {
 
             SyncCloudStorage syncCloudStorage = new SyncCloudStorage(filesApplication, cloudFiles);
 
-            Set<FileHashInfo> deletedFiles = syncCloudStorage.getDeletedFiles();
-            Set<FileHashInfo> addedFiles = syncCloudStorage.getAddedFiles();
-            Set<Path> deletedFolders = syncCloudStorage.getDeletedFolders();
-            Set<Path> cloudFolders = syncCloudStorage.getCloudFolders();
-            Set<Path> appFolders = syncCloudStorage.getApplicationFolders();
-
-            for (Path appFolder : appFolders) {
-                logger.info("App.Folder: {}", appFolder);
-            }
-            for (Path cloudFolder : cloudFolders) {
-                logger.info("Cloud Folder: {}", cloudFolder);
-            }
-
-            for (Path deletedFolder : deletedFolders) {
-                logger.info("Deleted Folder: {}",deletedFolder);
-            }
-
-            for (FileHashInfo file : deletedFiles) {
-                logger.info("\nDeleted files: {}\nHash: {}", file.getPathFile(), file.getHash());
-            }
+            syncCloudStorage.synchronizedWithCloudStorage(null, pathCloudFiles);
 
             //dropBoxAPI.deleteAllFromFolder("");
 
