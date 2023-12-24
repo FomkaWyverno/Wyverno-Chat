@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
+import ua.wyverno.dropbox.files.CloudLocalFile;
+import ua.wyverno.dropbox.files.upload.UploadFile;
 import ua.wyverno.files.FileCollectorVisitor;
 import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.hashs.FileHashInfo;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +28,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static final Path pathCloudFiles = Paths.get("./cloud-files.json");
+
     public static void main(String[] args) {
         try {
 
@@ -46,9 +50,19 @@ public class Main {
 //
 //            syncCloudStorage.synchronizedWithCloudStorage(null, pathCloudFiles);
 
-            dropBoxAPI.createFolders(List.of("/folder/test1", "/folder1/test2", "/folder2/test4"));
+            //dropBoxAPI.createFolders(List.of("/folder/test1", "/folder1/test2", "/folder2/test4"));
+
+            List<CloudLocalFile> list = new ArrayList<>(List.of(
+                    new CloudLocalFile(
+                            Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\src\\main\\java\\ua\\wyverno\\Main.java"),
+                            Paths.get("\\Main.java")),
+                    new CloudLocalFile(
+                            Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\src\\main\\java\\ua\\wyverno\\util\\http\\ParserParameters.java"),
+                            Paths.get("\\ParserParameters.java"))));
+
+            dropBoxAPI.uploadFiles(list);
         } catch (Throwable e) {
-            logger.error("",e);
+            logger.error("", e);
         }
     }
 
