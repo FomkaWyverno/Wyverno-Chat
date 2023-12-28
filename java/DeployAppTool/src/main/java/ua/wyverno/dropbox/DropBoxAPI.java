@@ -141,16 +141,14 @@ public class DropBoxAPI {
 
         if (sizeFile <= chunkSize) {
             logger.trace("Call to DropBox /upload endpoint");
-
             UploadUploader uploader = files.upload(fileUpload.getCloudFile().toString().replace("\\","/"));
-
             uploader.uploadAndFinish(Files.newInputStream(localFile.toPath()));
         } else {
             logger.trace("Call to DropBox /upload_session/start");
 
             UploadSessionStartUploader uploader = files.uploadSessionStart();
 
-            UploadFile uploadFile = new UploadFile(localFile.toPath(), chunkSize);
+            UploadFile uploadFile = new UploadFile(fileUpload, files, chunkSize);
             Queue<ChunkFile> chunks = uploadFile.getChunksFile();
             ChunkFile chunk = Objects.requireNonNull(chunks.poll());
 
@@ -159,15 +157,9 @@ public class DropBoxAPI {
 
             uploader.close();
 
-            String sessionId = uploadSessionStartResult.getSessionId();
-
-            this.uploadSessionAppend(sessionId, chunks);
-
-            this.finishSessionUpload(Objects.requireNonNull(chunks.poll()), sessionId, fileUpload.getCloudFile().toString());
+            uploadFile.upload(uploadSessionStartResult.getSessionId());
         }
     }
-
-
 
     public void uploadFiles(List<CloudLocalFile> filesUpload) throws DbxException, IOException {
         if (filesUpload.size() == 1) this.uploadFile(filesUpload.get(0));
@@ -179,13 +171,12 @@ public class DropBoxAPI {
 
         List<UploadSessionFinishArg> finishSessionArgs = new ArrayList<>();
 
-        int offset = 0;
         for (int i = 0; i < filesUpload.size(); i++) {
-            CloudLocalFile file = filesUpload.get(i);
+            CloudLocalFile fileUpload = filesUpload.get(i);
             String sessionId = uploaderStart.getSessionIds().get(i);
 
-            File localFile = file.getLocalFile().toFile();
-            File cloudFile = file.getCloudFile().toFile();
+            File localFile = fileUpload.getLocalFile().toFile();
+            File cloudFile = fileUpload.getCloudFile().toFile();
 
             long sizeFile = localFile.length();
 
@@ -195,13 +186,8 @@ public class DropBoxAPI {
                 logger.debug("Calls to uploadFiles()\nFile = {}\nFile size = {}KB", localFile, String.format("%.2f",(double) sizeFile/1024));
             }
 
-            UploadFile uploadFile = new UploadFile(file.getLocalFile(), chunkSize);
-            Queue<ChunkFile> chunks = uploadFile.getChunksFile();
-
-            this.uploadSessionAppend(sessionId, chunks);
-
-            ChunkFile latestChunk = Objects.requireNonNull(chunks.poll());
-            this.finishSessionUpload(latestChunk,sessionId,cloudFile.toString());
+            UploadFile uploadFile = new UploadFile(fileUpload, files, chunkSize);
+            uploadFile.upload(sessionId);
 
             CommitInfo commitInfo = new CommitInfo(cloudFile.toString().replace("\\","/"));
             UploadSessionCursor cursorFile = new UploadSessionCursor(sessionId,uploadFile.size());
@@ -214,43 +200,10 @@ public class DropBoxAPI {
         List<UploadSessionFinishBatchResultEntry> listEntries = files.uploadSessionFinishBatchV2(finishSessionArgs).getEntries();
 
         for (UploadSessionFinishBatchResultEntry entry : listEntries) {
-            logger.trace("Result Entry: {}", entry.toStringMultiline());
+            logger.trace("Result Upload files Batch Entry: {}", entry.toStringMultiline());
         }
     }
 
-    private void uploadSessionAppend(String sessionId, Queue<ChunkFile> chunks) throws DbxException, IOException {
-        DbxUserFilesRequests files = this.dbxClientV2.files();
-        while (chunks.size() > 1) {
-            logger.trace("Call to DropBox /upload_session/append_v2");
-            ChunkFile chunkFile = Objects.requireNonNull(chunks.poll());
-            UploadSessionCursor cursor = new UploadSessionCursor(sessionId, chunkFile.getOffset());
-
-            logger.trace("Append-Cursor: {}", cursor.toStringMultiline());
-
-            UploadSessionAppendV2Uploader uploaderAppend = files.uploadSessionAppendV2(cursor);
-            uploaderAppend.uploadAndFinish(Objects.requireNonNull(chunkFile).getInputStream());
-            uploaderAppend.close();
-            logger.trace("Append success - chunks left - {}", chunks.size());
-        }
-    }
-
-    private void finishSessionUpload(ChunkFile chunk, String sessionId, String pathFile) throws DbxException, IOException {
-        DbxUserFilesRequests files = this.dbxClientV2.files();
-
-        pathFile = pathFile.replace("\\","/");
-
-        UploadSessionCursor cursor = new UploadSessionCursor(sessionId, chunk.getOffset());
-        CommitInfo commitInfo = new CommitInfo(pathFile);
-        logger.trace("Call to DropBox /upload_session/finish");
-
-        logger.trace("Finish-Cursor: {}",cursor.toStringMultiline());
-        logger.trace("Finish-Commit: {}",commitInfo.toStringMultiline());
-        UploadSessionFinishUploader finishUploader = files.uploadSessionFinish(cursor, commitInfo);
-
-        finishUploader.uploadAndFinish(chunk.getInputStream());
-
-        finishUploader.close();
-    }
     private void waitUntilJobComplete(JobStatus jobStatus, String descriptionJob) throws DbxException {
         while (jobStatus.isInProgress()) {
             try {
