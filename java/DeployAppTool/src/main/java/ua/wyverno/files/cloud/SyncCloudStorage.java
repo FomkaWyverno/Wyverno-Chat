@@ -175,7 +175,7 @@ public class SyncCloudStorage {
         }
 
         for (FileHashInfo file : addedFiles) {
-            logger.info("\nAdded or Modify: {}\nHash: 0x{}", file.getPathFile(), Long.toHexString(file.getHash()));
+            logger.info("\nAdded or Modify: {}\nHash: 0x{}", file.getPathFile(), file.getHash());
         }
     }
 }

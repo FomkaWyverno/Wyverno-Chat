@@ -18,7 +18,7 @@ public class FileHashInfoSerializer extends StdSerializer<FileHashInfo> {
     public void serialize(FileHashInfo fileHashInfo, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("pathFile",fileHashInfo.getPathFile().toString());
-        jsonGenerator.writeNumberField("hash", fileHashInfo.getHash());
+        jsonGenerator.writeStringField("hash", fileHashInfo.getHash());
         jsonGenerator.writeEndObject();
     }
 }

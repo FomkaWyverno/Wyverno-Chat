@@ -8,8 +8,11 @@ import ua.wyverno.json.jackson.deserializer.FileHashInfoDeserializer;
 import ua.wyverno.json.jackson.serializer.FileHashInfoSerializer;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.zip.CRC32;
 
 @JsonSerialize(using = FileHashInfoSerializer.class)
@@ -19,43 +22,53 @@ public class FileHashInfo {
     private static final Logger logger = LoggerFactory.getLogger(FileHashInfo.class);
 
     private final Path pathFile;
-    private long hash;
+    private String hash;
 
     public FileHashInfo(Path pathFile) {
         this.pathFile = pathFile;
     }
 
-    public FileHashInfo(Path pathFile, long hash) {
+    public FileHashInfo(Path pathFile, String hash) {
         this.pathFile = pathFile;
         this.hash = hash;
     }
 
     protected void calculateChecksum() throws IOException {
-        logger.debug("Hashing file - {}", this.pathFile);
-        byte[] bytesFile = Files.readAllBytes(this.pathFile);
-        logger.trace("Read bytes file!");
+        try {
+            logger.debug("Hashing file - {}", this.pathFile);
+            byte[] data = Files.readAllBytes(this.pathFile);
+            logger.trace("Read bytes file!");
+            byte[] hash = MessageDigest.getInstance("SHA256").digest(data);
 
 
-        CRC32 crc32 = new CRC32();
-        crc32.update(bytesFile);
-        logger.debug("Calculate CRC32 for file = 0x{}", Long.toHexString(crc32.getValue()));
-
-        this.hash = crc32.getValue();
+            this.hash = new BigInteger(1,hash).toString(16);
+            logger.debug("Calculate SHA256 for file = 0x{}", this.hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Path getPathFile() {
         return pathFile;
     }
 
-    public long getHash() {
+    public String  getHash() {
         return hash;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof FileHashInfo otherFile)) return false;
-        return this.hash == otherFile.getHash()
+        return this.hash.equals(otherFile.getHash())
                &&
                this.pathFile.equals(otherFile.getPathFile());
+    }
+
+    @Override
+    public String toString() {
+        return "FileHashInfo{" +
+                "pathFile=" + pathFile +
+                ", hash='" + hash + '\'' +
+                '}';
     }
 }

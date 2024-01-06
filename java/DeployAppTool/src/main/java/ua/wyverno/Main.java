@@ -29,47 +29,41 @@ public class Main {
 
     private static final Path pathCloudFiles = Paths.get("./cloud-files.json");
 
+    private static final Config CONFIG;
+
+    static {
+        try {
+            CONFIG = loadConfig();
+        } catch (IOException e) {
+            logger.error("",e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) {
         try {
+            Path rootApp = CONFIG.getPathApplication();
 
-            Config config = loadConfig();//loading Configuration Application
-            if (config == null) return;
+            FileCollectorVisitor collector = new FileCollectorVisitor();
+            Files.walkFileTree(rootApp, collector);
 
-            DropBoxAPI dropBoxAPI = connectToDropBoxAPI(config);//Connect to API
+            List<Path> appFiles = collector.getFilesPath();
+            HashSumFiles hashSumFiles = new HashSumFiles(rootApp, appFiles);
 
-//            FileCollectorVisitor fileCollectorVisitor = collectFilesApplication(config);
-//
-//            HashSumFiles sumFiles = new HashSumFiles(config.getPathApplication(), fileCollectorVisitor.getFilesPath());
-//
-//            ObjectMapper mapper = new ObjectMapper();
-//
-//            List<FileHashInfo> filesApplication = sumFiles.getRelativizeRootFilesHashInfo();
-//            List<FileHashInfo> cloudFiles = mapper.readValue(pathCloudFiles.toFile(), new TypeReference<>() {});
-//
-//            SyncCloudStorage syncCloudStorage = new SyncCloudStorage(filesApplication, cloudFiles);
-//
-//            syncCloudStorage.synchronizedWithCloudStorage(null, pathCloudFiles);
+            List<FileHashInfo> listFileHash = hashSumFiles.getRelativizeRootFilesHashInfo();
 
-            //dropBoxAPI.createFolders(List.of("/folder/test1", "/folder1/test2", "/folder2/test4"));
-
-            List<CloudLocalFile> list = new ArrayList<>(List.of(
-                    new CloudLocalFile(
-                            Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\src\\main\\java\\ua\\wyverno\\Main.java"),
-                            Paths.get("\\Main.java")),
-                    new CloudLocalFile(
-                            Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\src\\main\\java\\ua\\wyverno\\util\\http\\ParserParameters.java"),
-                            Paths.get("\\ParserParameters.java"))));
-
-            dropBoxAPI.uploadFiles(list);
+            for (FileHashInfo fileHashInfo : listFileHash) {
+                logger.info(fileHashInfo.toString());
+            }
         } catch (Throwable e) {
             logger.error("", e);
         }
     }
 
-    private static FileCollectorVisitor collectFilesApplication(Config config) throws IOException {
+    private static FileCollectorVisitor collectFilesApplication() throws IOException {
         logger.info("Start collect files!");
         FileCollectorVisitor fileCollectorVisitor = new FileCollectorVisitor();
-        Files.walkFileTree(config.getPathApplication(), fileCollectorVisitor);
+        Files.walkFileTree(CONFIG.getPathApplication(), fileCollectorVisitor);
         logger.info("End collect files!");
         return fileCollectorVisitor;
     }
@@ -88,12 +82,12 @@ public class Main {
         return config;
     }
 
-    private static DropBoxAPI connectToDropBoxAPI(Config config) throws DbxException, IOException {
-        String accessTokenDbX = config.getAccessTokenDropBox();
+    private static DropBoxAPI connectToDropBoxAPI() throws DbxException, IOException {
+        String accessTokenDbX = CONFIG.getAccessTokenDropBox();
         if (Objects.isNull(accessTokenDbX) || !new DropBoxAPI(accessTokenDbX).isValidAccessToken()) {
             logger.debug("Access Token is not valid or not present! Updating...");
-            config.updateDbxAccessToken();
-            accessTokenDbX = config.getAccessTokenDropBox();
+            CONFIG.updateDbxAccessToken();
+            accessTokenDbX = CONFIG.getAccessTokenDropBox();
         } else {
             logger.debug("Access Token is valid!");
         }

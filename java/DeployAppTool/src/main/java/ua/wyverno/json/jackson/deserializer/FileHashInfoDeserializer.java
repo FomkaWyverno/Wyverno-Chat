@@ -32,7 +32,7 @@ public class FileHashInfoDeserializer extends StdDeserializer<FileHashInfo> {
         }
 
         Path path = Paths.get(pathNode.asText());
-        long hash = hashNode.asLong();
+        String hash = hashNode.asText();
 
         return new FileHashInfo(path, hash);
     }
