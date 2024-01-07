@@ -7,6 +7,7 @@ import com.dropbox.core.InvalidAccessTokenException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import ua.wyverno.dropbox.files.upload.ChunkFile;
 import ua.wyverno.dropbox.files.upload.UploadFile;
 import ua.wyverno.dropbox.job.progress.JobStatus;
 import ua.wyverno.dropbox.job.progress.WrapperDeleteBatchJobStatus;
+import ua.wyverno.dropbox.metadata.FolderMetadata;
 
 import java.io.File;
 import java.io.IOException;
@@ -202,6 +204,37 @@ public class DropBoxAPI {
         for (UploadSessionFinishBatchResultEntry entry : listEntries) {
             logger.trace("Result Upload files Batch Entry: {}", entry.toStringMultiline());
         }
+    }
+
+    public List<FolderMetadata> getListWithAllFolders(String path) throws DbxException, JsonProcessingException {
+        DbxUserFilesRequests files = this.dbxClientV2.files();
+
+        List<FolderMetadata> resultFoldersList = new ArrayList<>();
+
+        logger.debug("Collect path to folders in path \"{}\". Call to DropBox API Endpoint /list_folder",path);
+        ListFolderResult result = files.listFolder(path);
+
+        ObjectMapper mapper = new ObjectMapper();
+        while (true) {
+            for (Metadata metadata : result.getEntries()) {
+
+                JsonNode metadataNode = mapper.readTree(metadata.toStringMultiline());
+
+                if (metadataNode.path(".tag").asText().equals("folder")) {
+                    logger.trace("API Endpoint /list_folder(\"{}\") result entry path: {}", path, metadata.getPathDisplay());
+
+                    FolderMetadata folderMetadata = mapper.treeToValue(metadataNode, FolderMetadata.class);
+                    resultFoldersList.add(folderMetadata);
+                    resultFoldersList.addAll(this.getListWithAllFolders(folderMetadata.getPathLower()));
+                }
+
+            }
+
+            if (!result.getHasMore()) break;
+            result = files.listFolderContinue(result.getCursor());
+        }
+
+        return resultFoldersList;
     }
 
     private void waitUntilJobComplete(JobStatus jobStatus, String descriptionJob) throws DbxException {

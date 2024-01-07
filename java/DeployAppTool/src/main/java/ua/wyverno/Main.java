@@ -1,6 +1,7 @@
 package ua.wyverno;
 
 import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.files.Metadata;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
 import ua.wyverno.dropbox.files.CloudLocalFile;
 import ua.wyverno.dropbox.files.upload.UploadFile;
+import ua.wyverno.dropbox.metadata.FolderMetadata;
 import ua.wyverno.files.FileCollectorVisitor;
 import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.hashs.FileHashInfo;
@@ -42,18 +44,12 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            Path rootApp = CONFIG.getPathApplication();
+            DropBoxAPI dropBoxAPI = connectToDropBoxAPI();
 
-            FileCollectorVisitor collector = new FileCollectorVisitor();
-            Files.walkFileTree(rootApp, collector);
+            List<FolderMetadata> folders = dropBoxAPI.getListWithAllFolders("");
 
-            List<Path> appFiles = collector.getFilesPath();
-            HashSumFiles hashSumFiles = new HashSumFiles(rootApp, appFiles);
-
-            List<FileHashInfo> listFileHash = hashSumFiles.getRelativizeRootFilesHashInfo();
-
-            for (FileHashInfo fileHashInfo : listFileHash) {
-                logger.info(fileHashInfo.toString());
+            for (FolderMetadata metadata : folders) {
+                logger.info("Folder in application: {}",metadata.getPathDisplay());
             }
         } catch (Throwable e) {
             logger.error("", e);
