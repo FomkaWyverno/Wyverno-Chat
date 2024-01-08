@@ -1,19 +1,14 @@
 package ua.wyverno;
 
 import com.dropbox.core.DbxException;
-import com.dropbox.core.v2.files.Metadata;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
-import ua.wyverno.dropbox.files.CloudLocalFile;
-import ua.wyverno.dropbox.files.upload.UploadFile;
 import ua.wyverno.dropbox.metadata.FolderMetadata;
+import ua.wyverno.dropbox.metadata.MetadataContainer;
 import ua.wyverno.files.FileCollectorVisitor;
-import ua.wyverno.files.cloud.SyncCloudStorage;
-import ua.wyverno.files.hashs.FileHashInfo;
 import ua.wyverno.files.hashs.HashSumFiles;
 
 import java.io.FileNotFoundException;
@@ -21,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,9 +40,9 @@ public class Main {
         try {
             DropBoxAPI dropBoxAPI = connectToDropBoxAPI();
 
-            List<FolderMetadata> folders = dropBoxAPI.getListWithAllFolders("");
+            MetadataContainer containerMetadata = dropBoxAPI.collectAllContentFromPath("");
 
-            for (FolderMetadata metadata : folders) {
+            for (FolderMetadata metadata : containerMetadata.getFolderMetadataList()) {
                 logger.info("Folder in application: {}",metadata.getPathDisplay());
             }
         } catch (Throwable e) {
