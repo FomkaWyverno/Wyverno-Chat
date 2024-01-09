@@ -17,6 +17,7 @@ import ua.wyverno.dropbox.files.CloudLocalFile;
 import ua.wyverno.dropbox.files.upload.ChunkFile;
 import ua.wyverno.dropbox.files.upload.UploadFile;
 import ua.wyverno.dropbox.job.progress.JobStatus;
+import ua.wyverno.dropbox.job.progress.WrapperCreateFolderBatchJobStatus;
 import ua.wyverno.dropbox.job.progress.WrapperDeleteBatchJobStatus;
 import ua.wyverno.dropbox.metadata.FileMetadata;
 import ua.wyverno.dropbox.metadata.FolderMetadata;
@@ -72,7 +73,7 @@ public class DropBoxAPI {
     public void deleteFiles(List<String> foldersPath) throws DbxException {
         this.deletePaths(foldersPath
                 .stream()
-                .map(DeleteArg::new)
+                .map(folderPath -> new DeleteArg(folderPath.replace("\\","/")))
                 .toList());
     }
 
@@ -116,18 +117,40 @@ public class DropBoxAPI {
     public void createFolders(List<String> foldersUpload) throws DbxException, JsonProcessingException {
         DbxUserFilesRequests filesRequest = this.dbxClientV2.files();
 
+        foldersUpload = foldersUpload
+                .stream()
+                .map(folderPath -> folderPath.replace("\\", "/"))
+                .toList();
+
+        foldersUpload.forEach(folder -> logger.trace("Try create folder: {}", folder));
         CreateFolderBatchLaunch apiCreateFolders = filesRequest.createFolderBatch(foldersUpload);
 
 
-        logger.info("Created files");
-
         ObjectMapper mapper = new ObjectMapper();
 
-        for (CreateFolderBatchResultEntry entry : apiCreateFolders.getCompleteValue().getEntries()) {
-            WrapperCreateFolderResult result = mapper.readValue(entry.toStringMultiline(), WrapperCreateFolderResult.class);
+        CreateFolderBatchResult result;
+        if (apiCreateFolders.isAsyncJobId()) {
+            logger.debug("Creating folder is async!");
+            String asyncID = apiCreateFolders.getAsyncJobIdValue();
+            WrapperCreateFolderBatchJobStatus createFolderJobProgress = new WrapperCreateFolderBatchJobStatus(filesRequest, asyncID);
+            waitUntilJobComplete(createFolderJobProgress, "/create_folder_batch/check");
 
-            logger.info("Create folder: {}", result.getMetadata().getPathDisplay());
+            if (createFolderJobProgress.isComplete()) {
+                result = createFolderJobProgress.getOriginal().getCompleteValue();
+            } else {
+                throw new DbxException("Not complete async method!\n{}", createFolderJobProgress.getOriginal().toStringMultiline());
+            }
+        } else {
+            result = apiCreateFolders.getCompleteValue();
         }
+
+        logger.info("Created folders!");
+        for (CreateFolderBatchResultEntry entry : result.getEntries()) {
+            WrapperCreateFolderResult resultEntry = mapper.readValue(entry.toStringMultiline(), WrapperCreateFolderResult.class);
+
+            logger.info("Create folder: {}", resultEntry.getMetadata().getPathDisplay());
+        }
+
 
     }
 
@@ -136,17 +159,17 @@ public class DropBoxAPI {
         File localFile = fileUpload.getLocalFile().toFile();
         long sizeFile = localFile.length();
 
-        if (sizeFile >= 1024*1024) {
-            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}MB", fileUpload.getLocalFile(), String.format("%.2f", (double) sizeFile/1024/1024));
+        if (sizeFile >= 1024 * 1024) {
+            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}MB", fileUpload.getLocalFile(), String.format("%.2f", (double) sizeFile / 1024 / 1024));
         } else {
-            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}KB", fileUpload.getLocalFile(), String.format("%.2f",(double) sizeFile/1024));
+            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}KB", fileUpload.getLocalFile(), String.format("%.2f", (double) sizeFile / 1024));
         }
 
-        int chunkSize = 150*1024*1024; // 150 MB
+        int chunkSize = 150 * 1024 * 1024; // 150 MB
 
         if (sizeFile <= chunkSize) {
             logger.trace("Call to DropBox /upload endpoint");
-            UploadUploader uploader = files.upload(fileUpload.getCloudFile().toString().replace("\\","/"));
+            UploadUploader uploader = files.upload(fileUpload.getCloudFile().toString().replace("\\", "/"));
             uploader.uploadAndFinish(Files.newInputStream(localFile.toPath()));
         } else {
             logger.trace("Call to DropBox /upload_session/start");
@@ -185,17 +208,17 @@ public class DropBoxAPI {
 
             long sizeFile = localFile.length();
 
-            if (sizeFile >= 1024*1024) {
-                logger.debug("Calls to uploadFiles()\nFile = {}\nFile size = {}MB", localFile, String.format("%.2f", (double) sizeFile/1024/1024));
+            if (sizeFile >= 1024 * 1024) {
+                logger.debug("Calls to uploadFiles()\nFile = {}\nFile size = {}MB", localFile, String.format("%.2f", (double) sizeFile / 1024 / 1024));
             } else {
-                logger.debug("Calls to uploadFiles()\nFile = {}\nFile size = {}KB", localFile, String.format("%.2f",(double) sizeFile/1024));
+                logger.debug("Calls to uploadFiles()\nFile = {}\nFile size = {}KB", localFile, String.format("%.2f", (double) sizeFile / 1024));
             }
 
             UploadFile uploadFile = new UploadFile(fileUpload, files, chunkSize);
             uploadFile.upload(sessionId);
 
-            CommitInfo commitInfo = new CommitInfo(cloudFile.toString().replace("\\","/"));
-            UploadSessionCursor cursorFile = new UploadSessionCursor(sessionId,uploadFile.size());
+            CommitInfo commitInfo = new CommitInfo(cloudFile.toString().replace("\\", "/"));
+            UploadSessionCursor cursorFile = new UploadSessionCursor(sessionId, uploadFile.size());
 
 
             UploadSessionFinishArg sessionFinishArg = new UploadSessionFinishArg(cursorFile, commitInfo);
@@ -207,6 +230,12 @@ public class DropBoxAPI {
         for (UploadSessionFinishBatchResultEntry entry : listEntries) {
             logger.trace("Result Upload files Batch Entry: {}", entry.toStringMultiline());
         }
+    }
+
+    public void getMetadata(String path) throws DbxException {
+        DbxUserFilesRequests files = this.dbxClientV2.files();
+        Metadata metadata = files.getMetadata(path);
+        logger.info(metadata.toStringMultiline());
     }
 
     public MetadataContainer getListFolder(String path) throws DbxException, JsonProcessingException {
@@ -227,11 +256,11 @@ public class DropBoxAPI {
                     FolderMetadata folderMetadata = mapper.treeToValue(metadataNode, FolderMetadata.class);
                     container.addFolderMetadata(folderMetadata);
                 } else {
-                    throw new UnknownMetadataTypeException("Unknown Metadata type! Json response:\n"+metadata.toStringMultiline());
+                    throw new UnknownMetadataTypeException("Unknown Metadata type! Json response:\n" + metadata.toStringMultiline());
                 }
             }
             if (!result.getHasMore()) break;
-            logger.trace("Content in folder \"{}\" has more. Call to DropBox API Endpoint /list_folder/continue",path);
+            logger.trace("Content in folder \"{}\" has more. Call to DropBox API Endpoint /list_folder/continue", path);
             result = files.listFolderContinue(result.getCursor());
         }
 
@@ -239,7 +268,7 @@ public class DropBoxAPI {
     }
 
     public MetadataContainer collectAllContentFromPath(String path) throws DbxException, JsonProcessingException {
-        logger.debug("Collect path to folders in path \"{}\".",path);
+        logger.debug("Collect path to folders in path \"{}\".", path);
         MetadataContainer container = this.getListFolder(path);
 
         MetadataContainer resultContainer = new MetadataContainer();
@@ -249,7 +278,7 @@ public class DropBoxAPI {
             resultContainer.addMetadataContainer(folderContainer);
         }
 
-        logger.debug("Collect to end path to folders in path\"{}\"",path);
+        logger.debug("Collect to end path to folders in path - \"{}\"", path);
         return resultContainer;
     }
 

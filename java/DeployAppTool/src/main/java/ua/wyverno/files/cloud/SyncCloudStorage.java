@@ -1,11 +1,15 @@
 package ua.wyverno.files.cloud;
 
+import com.dropbox.core.DbxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.dropbox.DropBoxAPI;
+import ua.wyverno.dropbox.files.CloudLocalFile;
 import ua.wyverno.files.hashs.FileHashInfo;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,19 +18,27 @@ public class SyncCloudStorage {
     private static final Logger logger = LoggerFactory.getLogger(SyncCloudStorage.class);
 
     private final List<FileHashInfo> applicationFiles;
+    private final List<FileHashInfo> applicationRelativizedPathFiles;
     private final List<FileHashInfo> cloudFiles;
 
-    private Set<Path> applicationFolders;
-    private Set<Path> cloudFolders;
+    private final Set<Path> applicationFoldersRelativized;
+    private final Set<Path> cloudFolders;
 
     private Set<Path> deletedFolders;
     private Set<Path> addedFolders;
     private Set<FileHashInfo> deletedFiles;
     private Set<FileHashInfo> addedOrModifyFiles;
 
-    public SyncCloudStorage(List<FileHashInfo> applicationFiles, List<FileHashInfo> cloudFiles) {
-        this.applicationFiles = applicationFiles;
+    protected SyncCloudStorage(List<FileHashInfo> applicationAbsolutePathFiles,
+                            List<FileHashInfo> relativizedAppPathFiles,
+                            Set<Path> applicationRelativizedPathFolders,
+                            List<FileHashInfo> cloudFiles,
+                            Set<Path> cloudFolders) {
+        this.applicationFiles = applicationAbsolutePathFiles;
+        this.applicationRelativizedPathFiles = relativizedAppPathFiles;
+        this.applicationFoldersRelativized = applicationRelativizedPathFolders;
         this.cloudFiles = cloudFiles;
+        this.cloudFolders = cloudFolders;
     }
 
     /**
@@ -40,7 +52,7 @@ public class SyncCloudStorage {
                         this.getDeletedFolders()
                                 .stream()
                                 .noneMatch(deletedFolder -> file.getPathFile().startsWith(deletedFolder)))
-                .filter(file -> !this.getApplicationFiles().contains(file))
+                .filter(file -> !this.getApplicationRelativizedPathFiles().contains(file))
                 .collect(Collectors.toSet());
 
         return Collections.unmodifiableSet(this.deletedFiles);
@@ -52,7 +64,7 @@ public class SyncCloudStorage {
     public Set<FileHashInfo> getAddedOrModifyFiles() {
         if (this.addedOrModifyFiles != null) return Collections.unmodifiableSet(this.addedOrModifyFiles);
 
-        this.addedOrModifyFiles = this.getApplicationFiles()
+        this.addedOrModifyFiles = this.getApplicationRelativizedPathFiles()
                 .stream()
                 .filter(file -> !this.getCloudFiles().contains(file))
                 .collect(Collectors.toSet());
@@ -63,7 +75,7 @@ public class SyncCloudStorage {
     public Set<Path> getAddedFolders() {
         if (this.addedFolders != null) return Collections.unmodifiableSet(this.addedFolders);
 
-        this.addedFolders = this.getApplicationFolders()
+        this.addedFolders = this.getApplicationFoldersRelativized()
                 .stream()
                 .filter(appFolder -> !this.getCloudFolders().contains(appFolder))
                 .collect(Collectors.toSet());
@@ -92,7 +104,7 @@ public class SyncCloudStorage {
                     }
 
                     final Path finalNotCheckedRoot = notCheckedRoot;
-                    boolean notHasFileInFolder =  this.getApplicationFiles()
+                    boolean notHasFileInFolder =  this.getApplicationRelativizedPathFiles()
                             .stream()
                             .noneMatch(file -> file.getPathFile().startsWith(finalNotCheckedRoot));
 
@@ -108,34 +120,39 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link java.nio.file.Path} - Application folders with Files
      */
-    public Set<Path> getApplicationFolders() {
-        if (this.applicationFolders != null) return Collections.unmodifiableSet(applicationFolders);
-
-        this.applicationFolders = this.applicationFiles
-                .stream()
-                .map(file -> file.getPathFile().getParent())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        return Collections.unmodifiableSet(this.applicationFolders);
+    public Set<Path> getApplicationFoldersRelativized() {
+//        if (this.applicationFoldersRelativized != null) return Collections.unmodifiableSet(applicationFoldersRelativized);
+//
+//        this.applicationFoldersRelativized = this.getApplicationRelativizedPathFiles()
+//                .stream()
+//                .map(file -> file.getPathFile().getParent())
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toSet());
+//        this.applicationFoldersRelativized.remove(Paths.get("/"));
+        return Collections.unmodifiableSet(this.applicationFoldersRelativized);
     }
 
     /**
      * @return Set with {@link java.nio.file.Path} - Cloud Storage Folders with Files
      */
     public Set<Path> getCloudFolders() {
-        if (this.cloudFolders != null) return Collections.unmodifiableSet(this.cloudFolders);
-
-        this.cloudFolders = this.cloudFiles
-                .stream()
-                .map(file -> file.getPathFile().getParent())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+//        if (this.cloudFolders != null) return Collections.unmodifiableSet(this.cloudFolders);
+//
+//        this.cloudFolders = this.cloudFiles
+//                .stream()
+//                .map(file -> file.getPathFile().getParent())
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toSet());
+//        this.cloudFolders.remove(Paths.get("/"));
         return Collections.unmodifiableSet(this.cloudFolders);
     }
 
     /**
      * @return List with {@link ua.wyverno.files.hashs.FileHashInfo} - Application Files
      */
+    public List<FileHashInfo> getApplicationRelativizedPathFiles() {
+        return Collections.unmodifiableList(applicationRelativizedPathFiles);
+    }
     public List<FileHashInfo> getApplicationFiles() {
         return Collections.unmodifiableList(this.applicationFiles);
     }
@@ -147,13 +164,13 @@ public class SyncCloudStorage {
         return Collections.unmodifiableList(this.cloudFiles);
     }
 
-    public synchronized void synchronizedWithCloudStorage(DropBoxAPI dropBoxAPI, Path pathCloudFilesJson) {
+    public synchronized void synchronizedWithCloudStorage(DropBoxAPI dropBoxAPI, Path root) throws DbxException, IOException {
         Set<FileHashInfo> deletedFiles = this.getDeletedFiles();
         Set<FileHashInfo> addedFiles = this.getAddedOrModifyFiles();
         Set<Path> addedFolders = this.getAddedFolders();
         Set<Path> deletedFolders = this.getDeletedFolders();
         Set<Path> cloudFolders = this.getCloudFolders();
-        Set<Path> appFolders = this.getApplicationFolders();
+        Set<Path> appFolders = this.getApplicationFoldersRelativized();
 
         for (Path appFolder : appFolders) {
             logger.info("App.Folder: {}", appFolder);
@@ -165,17 +182,55 @@ public class SyncCloudStorage {
         for (Path deletedFolder : deletedFolders) {
             logger.info("Deleted Folder: {}",deletedFolder);
         }
+        if (!deletedFolders.isEmpty()) {
+            dropBoxAPI.deleteFiles(deletedFolders
+                    .stream()
+                    .map(Path::toString)
+                    .toList());
+        } else {
+            logger.info("Not need delete folders in cloud storage!");
+        }
 
         for (FileHashInfo file : deletedFiles) {
             logger.info("\nDeleted files: {}\nHash: {}", file.getPathFile(), file.getHash());
+        }
+        if (!deletedFiles.isEmpty()) {
+            dropBoxAPI.deleteFiles(deletedFiles
+                    .stream()
+                    .map(file -> file.getPathFile().toString())
+                    .toList());
+        } else {
+            logger.info("Not need delete file in cloud storage!");
         }
 
         for (Path addedFolder : addedFolders) {
             logger.info("Added folder: {}", addedFolder);
         }
+        if (!addedFolders.isEmpty()) {
+            dropBoxAPI.createFolders(addedFolders
+                    .stream()
+                    .map(Path::toString)
+                    .toList());
+        } else {
+            logger.info("Not need add folders in cloud storage!");
+        }
 
         for (FileHashInfo file : addedFiles) {
-            logger.info("\nAdded or Modify: {}\nHash: 0x{}", file.getPathFile(), file.getHash());
+            logger.info("\nAdded or Modify: {}\nHash: {}", file.getPathFile(), file.getHash());
         }
+        if (!addedFiles.isEmpty()) {
+            dropBoxAPI.uploadFiles(addedFiles
+                    .stream()
+                    .map(file -> {
+                        Path cloudFile = file.getPathFile();
+                        Path originalPath = root.resolve(Paths.get("/").relativize(cloudFile));
+                        return new CloudLocalFile(originalPath, cloudFile);
+                    }).toList());
+        } else {
+            logger.info("Not need add files in cloud storage!");
+        }
+
+
+        logger.info("Synchronized with Cloud Storage is complete!");
     }
 }

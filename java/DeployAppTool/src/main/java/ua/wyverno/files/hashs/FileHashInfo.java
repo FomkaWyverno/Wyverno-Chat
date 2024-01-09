@@ -6,8 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.json.jackson.deserializer.FileHashInfoDeserializer;
 import ua.wyverno.json.jackson.serializer.FileHashInfoSerializer;
+import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
+import ua.wyverno.util.dropbox.hasher.HexUtils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,26 +37,28 @@ public class FileHashInfo {
         this.hash = hash;
     }
 
-    protected void calculateChecksum() throws IOException {
-        try {
-            logger.debug("Hashing file - {}", this.pathFile);
-            byte[] data = Files.readAllBytes(this.pathFile);
-            logger.trace("Read bytes file!");
-            byte[] hash = MessageDigest.getInstance("SHA256").digest(data);
+    public void calculateChecksum() throws IOException {
+        logger.debug("Hashing file for method DropBox SHA256 - {}", this.pathFile);
 
-
-            this.hash = new BigInteger(1,hash).toString(16);
-            logger.debug("Calculate SHA256 for file = 0x{}", this.hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+        MessageDigest hasher = new DropboxContentHasher();
+        byte[] buf = new byte[1024];
+        try (InputStream in = new FileInputStream(this.pathFile.toFile())) {
+            while (true) {
+                int n = in.read(buf);
+                if (n < 0) break;  // EOF
+                hasher.update(buf, 0, n);
+            }
         }
+        this.hash = HexUtils.hex(hasher.digest());
+
+        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.pathFile, this.hash);
     }
 
     public Path getPathFile() {
         return pathFile;
     }
 
-    public String  getHash() {
+    public String getHash() {
         return hash;
     }
 
@@ -60,8 +66,8 @@ public class FileHashInfo {
     public boolean equals(Object obj) {
         if (!(obj instanceof FileHashInfo otherFile)) return false;
         return this.hash.equals(otherFile.getHash())
-               &&
-               this.pathFile.equals(otherFile.getPathFile());
+                &&
+                this.pathFile.equals(otherFile.getPathFile());
     }
 
     @Override

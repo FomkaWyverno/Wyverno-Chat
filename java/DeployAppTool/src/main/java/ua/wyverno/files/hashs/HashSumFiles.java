@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,9 @@ public class HashSumFiles {
         this.relativizeRootFilesHashInfo = new ArrayList<>();
 
         for (FileHashInfo fileHashInfo : this.getFilesHashInfo()) {
-            Path relativizeRootPath = this.root.relativize(fileHashInfo.getPathFile());
+            Path relativizeRootPath = Paths.get("/")
+                    .resolve(this.root
+                            .relativize(fileHashInfo.getPathFile()));
 
             FileHashInfo relativizeFileHashInfo = new FileHashInfo(relativizeRootPath, fileHashInfo.getHash());
 
