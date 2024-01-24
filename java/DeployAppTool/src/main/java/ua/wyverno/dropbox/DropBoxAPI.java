@@ -114,7 +114,7 @@ public class DropBoxAPI {
         logger.debug("Create folder: {}", createFolderResult.getMetadata().getPathDisplay());
     }
 
-    public void createFolders(List<String> foldersUpload) throws DbxException, JsonProcessingException {
+    public void createFolders(List<String> foldersUpload) throws DbxException {
         DbxUserFilesRequests filesRequest = this.dbxClientV2.files();
 
         foldersUpload = foldersUpload
@@ -145,13 +145,15 @@ public class DropBoxAPI {
         }
 
         logger.info("Created folders!");
-        for (CreateFolderBatchResultEntry entry : result.getEntries()) {
-            WrapperCreateFolderResult resultEntry = mapper.readValue(entry.toStringMultiline(), WrapperCreateFolderResult.class);
+        try {
+            for (CreateFolderBatchResultEntry entry : result.getEntries()) {
+                WrapperCreateFolderResult resultEntry = mapper.readValue(entry.toStringMultiline(), WrapperCreateFolderResult.class);
 
-            logger.info("Create folder: {}", resultEntry.getMetadata().getPathDisplay());
+                logger.info("Create folder: {}", resultEntry.getMetadata().getPathDisplay());
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("When create resultEntry throws exception",e);
         }
-
-
     }
 
     public void uploadFile(CloudLocalFile fileUpload) throws DbxException, IOException {

@@ -1,6 +1,7 @@
 package ua.wyverno.files.cloud;
 
 import com.dropbox.core.DbxException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.dropbox.DropBoxAPI;
@@ -169,52 +170,39 @@ public class SyncCloudStorage {
         Set<FileHashInfo> addedFiles = this.getAddedOrModifyFiles();
         Set<Path> addedFolders = this.getAddedFolders();
         Set<Path> deletedFolders = this.getDeletedFolders();
-        Set<Path> cloudFolders = this.getCloudFolders();
-        Set<Path> appFolders = this.getApplicationFoldersRelativized();
 
+        this.printInformationAboutFiles();
+        this.synchronizedDeletedFolders(dropBoxAPI, deletedFolders);
+        this.synchronizedDeletedFiles(dropBoxAPI, deletedFiles);
+        this.synchronizedAddedFolders(dropBoxAPI, addedFolders);
+        this.synchronizedAddedFiles(dropBoxAPI, root, addedFiles);
+
+        logger.info("Synchronized with Cloud Storage is complete!");
+    }
+
+    /**
+     * Print information about path to folders Application and Cloud Folder!
+     */
+    private void printInformationAboutFiles() {
+        Set<Path> appFolders = this.getApplicationFoldersRelativized();
+        Set<Path> cloudFolders = this.getCloudFolders();
         for (Path appFolder : appFolders) {
-            logger.info("App.Folder: {}", appFolder);
+            logger.info("Application Folder: {}", appFolder);
         }
         for (Path cloudFolder : cloudFolders) {
             logger.info("Cloud Folder: {}", cloudFolder);
         }
+    }
 
-        for (Path deletedFolder : deletedFolders) {
-            logger.info("Deleted Folder: {}",deletedFolder);
-        }
-        if (!deletedFolders.isEmpty()) {
-            dropBoxAPI.deleteFiles(deletedFolders
-                    .stream()
-                    .map(Path::toString)
-                    .toList());
-        } else {
-            logger.info("Not need delete folders in cloud storage!");
-        }
-
-        for (FileHashInfo file : deletedFiles) {
-            logger.info("\nDeleted files: {}\nHash: {}", file.getPathFile(), file.getHash());
-        }
-        if (!deletedFiles.isEmpty()) {
-            dropBoxAPI.deleteFiles(deletedFiles
-                    .stream()
-                    .map(file -> file.getPathFile().toString())
-                    .toList());
-        } else {
-            logger.info("Not need delete file in cloud storage!");
-        }
-
-        for (Path addedFolder : addedFolders) {
-            logger.info("Added folder: {}", addedFolder);
-        }
-        if (!addedFolders.isEmpty()) {
-            dropBoxAPI.createFolders(addedFolders
-                    .stream()
-                    .map(Path::toString)
-                    .toList());
-        } else {
-            logger.info("Not need add folders in cloud storage!");
-        }
-
+    /**
+     * Synchronize added files locally with the cloud
+     * @param dropBoxAPI Authorized account DropBox API
+     * @param root local Root files application
+     * @param addedFiles {@link java.util.Set}<{@link ua.wyverno.files.hashs.FileHashInfo}> - Paths to files which need to added
+     * @throws DbxException DropBox API problems - when upload file
+     * @throws IOException DropBox API problems - when upload file
+     */
+    private void synchronizedAddedFiles(DropBoxAPI dropBoxAPI, Path root, Set<FileHashInfo> addedFiles) throws DbxException, IOException {
         for (FileHashInfo file : addedFiles) {
             logger.info("\nAdded or Modify: {}\nHash: {}", file.getPathFile(), file.getHash());
         }
@@ -229,8 +217,64 @@ public class SyncCloudStorage {
         } else {
             logger.info("Not need add files in cloud storage!");
         }
+    }
 
+    /**
+     * Synchronize added folders locally with the cloud
+     * @param dropBoxAPI Authorized account DropBox API
+     * @param addedFolders {@link java.util.Set}<{@link java.nio.file.Path}> - Paths to folders which need to added
+     * @throws DbxException DropBox API problems - when upload file
+     */
+    private void synchronizedAddedFolders(DropBoxAPI dropBoxAPI, Set<Path> addedFolders) throws DbxException {
+        for (Path addedFolder : addedFolders) {
+            logger.info("Added folder: {}", addedFolder);
+        }
+        if (!addedFolders.isEmpty()) {
+            dropBoxAPI.createFolders(addedFolders
+                    .stream()
+                    .map(Path::toString)
+                    .toList());
+        } else {
+            logger.info("Not need add folders in cloud storage!");
+        }
+    }
 
-        logger.info("Synchronized with Cloud Storage is complete!");
+    /**
+     * Synchronize deleted folders locally with the cloud
+     * @param dropBoxAPI Authorized account DropBox API
+     * @param deletedFiles {@link java.util.Set}<{@link ua.wyverno.files.hashs.FileHashInfo}> - Paths to deleted files which need to add
+     * @throws DbxException DropBox API problems - when upload file
+     */
+    private void synchronizedDeletedFiles(DropBoxAPI dropBoxAPI, Set<FileHashInfo> deletedFiles) throws DbxException {
+        for (FileHashInfo file : deletedFiles) {
+            logger.info("\nDeleted files: {}\nHash: {}", file.getPathFile(), file.getHash());
+        }
+        if (!deletedFiles.isEmpty()) {
+            dropBoxAPI.deleteFiles(deletedFiles
+                    .stream()
+                    .map(file -> file.getPathFile().toString())
+                    .toList());
+        } else {
+            logger.info("Not need delete file in cloud storage!");
+        }
+    }
+    /**
+     * Synchronize deleted folders locally with the cloud
+     * @param dropBoxAPI Authorized account DropBox API
+     * @param deletedFolders {@link java.util.Set}<{@link java.nio.file.Path}> - Paths to folders which need to delete
+     * @throws DbxException DropBox API problems - when upload file
+     */
+    private void synchronizedDeletedFolders(DropBoxAPI dropBoxAPI, Set<Path> deletedFolders) throws DbxException {
+        for (Path deletedFolder : deletedFolders) {
+            logger.info("Deleted Folder: {}",deletedFolder);
+        }
+        if (!deletedFolders.isEmpty()) {
+            dropBoxAPI.deleteFiles(deletedFolders
+                    .stream()
+                    .map(Path::toString)
+                    .toList());
+        } else {
+            logger.info("Not need delete folders in cloud storage!");
+        }
     }
 }
