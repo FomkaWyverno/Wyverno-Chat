@@ -3,6 +3,9 @@ package ua.wyverno.dropbox.job.progress;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.DbxUserFilesRequests;
 
+/**
+ * Wrapper for JobStatus to generalize and make synchronization easier
+ */
 public abstract class JobStatus {
 
     protected final DbxUserFilesRequests filesRequests;

@@ -1,7 +1,6 @@
 package ua.wyverno.files.cloud;
 
 import com.dropbox.core.DbxException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.dropbox.DropBoxAPI;
@@ -14,6 +13,10 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Class for need synchronized Application Local directory with Cloud Storage
+ * Cloud storage must be as local.
+ */
 public class SyncCloudStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncCloudStorage.class);
@@ -45,7 +48,7 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link ua.wyverno.files.hashs.FileHashInfo} that are required delete from Cloud Storage
      */
-    public Set<FileHashInfo> getDeletedFiles() {
+    private Set<FileHashInfo> getDeletedFiles() {
         if (this.deletedFiles != null) return Collections.unmodifiableSet(this.deletedFiles);
         this.deletedFiles = this.getCloudFiles()
                 .stream()
@@ -62,7 +65,7 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link ua.wyverno.files.hashs.FileHashInfo} that are required add files to Cloud Storage
      */
-    public Set<FileHashInfo> getAddedOrModifyFiles() {
+    private Set<FileHashInfo> getAddedOrModifyFiles() {
         if (this.addedOrModifyFiles != null) return Collections.unmodifiableSet(this.addedOrModifyFiles);
 
         this.addedOrModifyFiles = this.getApplicationRelativizedPathFiles()
@@ -73,7 +76,7 @@ public class SyncCloudStorage {
         return Collections.unmodifiableSet(this.addedOrModifyFiles);
     }
 
-    public Set<Path> getAddedFolders() {
+    private Set<Path> getAddedFolders() {
         if (this.addedFolders != null) return Collections.unmodifiableSet(this.addedFolders);
 
         this.addedFolders = this.getApplicationFoldersRelativized()
@@ -87,7 +90,7 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link java.nio.file.Path} that are required delete folder from Cloud Storage
      */
-    public Set<Path> getDeletedFolders() {
+    private Set<Path> getDeletedFolders() {
         if (this.deletedFolders != null) return Collections.unmodifiableSet(this.deletedFolders);
 
         Set<Path> checkedFolders = new HashSet<>();
@@ -121,50 +124,41 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link java.nio.file.Path} - Application folders with Files
      */
-    public Set<Path> getApplicationFoldersRelativized() {
-//        if (this.applicationFoldersRelativized != null) return Collections.unmodifiableSet(applicationFoldersRelativized);
-//
-//        this.applicationFoldersRelativized = this.getApplicationRelativizedPathFiles()
-//                .stream()
-//                .map(file -> file.getPathFile().getParent())
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.toSet());
-//        this.applicationFoldersRelativized.remove(Paths.get("/"));
+    private Set<Path> getApplicationFoldersRelativized() {
         return Collections.unmodifiableSet(this.applicationFoldersRelativized);
     }
 
     /**
      * @return Set with {@link java.nio.file.Path} - Cloud Storage Folders with Files
      */
-    public Set<Path> getCloudFolders() {
-//        if (this.cloudFolders != null) return Collections.unmodifiableSet(this.cloudFolders);
-//
-//        this.cloudFolders = this.cloudFiles
-//                .stream()
-//                .map(file -> file.getPathFile().getParent())
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.toSet());
-//        this.cloudFolders.remove(Paths.get("/"));
+    private Set<Path> getCloudFolders() {
         return Collections.unmodifiableSet(this.cloudFolders);
     }
 
     /**
      * @return List with {@link ua.wyverno.files.hashs.FileHashInfo} - Application Files
      */
-    public List<FileHashInfo> getApplicationRelativizedPathFiles() {
+    private List<FileHashInfo> getApplicationRelativizedPathFiles() {
         return Collections.unmodifiableList(applicationRelativizedPathFiles);
     }
-    public List<FileHashInfo> getApplicationFiles() {
+    private List<FileHashInfo> getApplicationFiles() {
         return Collections.unmodifiableList(this.applicationFiles);
     }
 
     /**
      * @return List with {@link ua.wyverno.files.hashs.FileHashInfo} - Cloud Storage Files
      */
-    public List<FileHashInfo> getCloudFiles() {
+    private List<FileHashInfo> getCloudFiles() {
         return Collections.unmodifiableList(this.cloudFiles);
     }
 
+    /**
+     * Synchronizes cloud storage with local storage
+     * @param dropBoxAPI authorized DropBox API account
+     * @param root root local path directory which need synchronize
+     * @throws DbxException generate when calling to Dropbox API
+     * @throws IOException generate when work with Dropbox API upload/download/get info about file
+     */
     public synchronized void synchronizedWithCloudStorage(DropBoxAPI dropBoxAPI, Path root) throws DbxException, IOException {
         Set<FileHashInfo> deletedFiles = this.getDeletedFiles();
         Set<FileHashInfo> addedFiles = this.getAddedOrModifyFiles();

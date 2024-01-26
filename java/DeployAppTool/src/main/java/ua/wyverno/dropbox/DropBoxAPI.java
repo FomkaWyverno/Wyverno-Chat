@@ -158,20 +158,20 @@ public class DropBoxAPI {
 
     public void uploadFile(CloudLocalFile fileUpload) throws DbxException, IOException {
         DbxUserFilesRequests files = this.dbxClientV2.files();
-        File localFile = fileUpload.getLocalFile().toFile();
+        File localFile = fileUpload.localFile().toFile();
         long sizeFile = localFile.length();
 
         if (sizeFile >= 1024 * 1024) {
-            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}MB", fileUpload.getLocalFile(), String.format("%.2f", (double) sizeFile / 1024 / 1024));
+            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}MB", fileUpload.localFile(), String.format("%.2f", (double) sizeFile / 1024 / 1024));
         } else {
-            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}KB", fileUpload.getLocalFile(), String.format("%.2f", (double) sizeFile / 1024));
+            logger.debug("Calls to uploadFile()\nFile = {}\nFile size = {}KB", fileUpload.localFile(), String.format("%.2f", (double) sizeFile / 1024));
         }
 
         int chunkSize = 150 * 1024 * 1024; // 150 MB
 
         if (sizeFile <= chunkSize) {
             logger.trace("Call to DropBox /upload endpoint");
-            UploadUploader uploader = files.upload(fileUpload.getCloudFile().toString().replace("\\", "/"));
+            UploadUploader uploader = files.upload(fileUpload.cloudFile().toString().replace("\\", "/"));
             uploader.uploadAndFinish(Files.newInputStream(localFile.toPath()));
         } else {
             logger.trace("Call to DropBox /upload_session/start");
@@ -205,8 +205,8 @@ public class DropBoxAPI {
             CloudLocalFile fileUpload = filesUpload.get(i);
             String sessionId = uploaderStart.getSessionIds().get(i);
 
-            File localFile = fileUpload.getLocalFile().toFile();
-            File cloudFile = fileUpload.getCloudFile().toFile();
+            File localFile = fileUpload.localFile().toFile();
+            File cloudFile = fileUpload.cloudFile().toFile();
 
             long sizeFile = localFile.length();
 

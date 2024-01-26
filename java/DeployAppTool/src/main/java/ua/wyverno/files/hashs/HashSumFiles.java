@@ -9,6 +9,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Generate content hash for list files
+ */
 public class HashSumFiles {
 
     private static final Logger logger = LoggerFactory.getLogger(HashSumFiles.class);
@@ -23,6 +26,10 @@ public class HashSumFiles {
         this.originalFiles = files;
     }
 
+    /**
+     * Calculate for files content hash
+     * @throws IOException generating when has problem reading file
+     */
     private void calculateFilesHashInfo() throws IOException {
         logger.debug("Start calculate for files hash info");
         List<FileHashInfo> calculatedFilesHash = new ArrayList<>();

@@ -11,6 +11,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Collects file and folder paths
+ */
 public class FileCollectorVisitor implements FileVisitor<Path> {
     private static final Logger logger = LoggerFactory.getLogger(FileCollectorVisitor.class);
 

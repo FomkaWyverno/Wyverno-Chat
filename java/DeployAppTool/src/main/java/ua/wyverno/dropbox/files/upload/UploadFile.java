@@ -14,20 +14,37 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
+/**
+ * {@link ua.wyverno.dropbox.files.upload.UploadFile} class - its purpose is to upload file to DropBox
+ * <p style="color: #ff4fbe; font-weight: bold;">Fields:</p>
+ * <p><span style="color:#d6676f;"> <span style="color:#b9a670">Queue&lt;ChunkFile&gt;</span> chunksFile</span> - it a queue necessary for storing file chunks and will be used for uploading it the future</p>
+ * <p><span style="color:#d6676f;"> <span style="color:#b9a670">String</span> sessionID</span> - DropBox uploading session id</p>
+ * <p><span style="color:#d6676f;"> <span style="color:#b9a670">DbxUserFilesRequests</span> files</span> - Object for managing requests for file management in DropBox</p>
+ * <p><span style="color:#d6676f;"> <span style="color:#b9a670">String</span> cloudFile</span> - Path to Cloud File in DropBox</p>
+ * <p><span style="color:#d6676f;"> <span style="color:#b9a670">int</span> sizeFile</span> - Size File</p>
+ */
 public class UploadFile {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadFile.class);
 
-    private Queue<ChunkFile> chunksFile;
+    private final Queue<ChunkFile> chunksFile;
     private String sessionID;
     private final DbxUserFilesRequests files;
     private final String cloudFile;
 
     private int sizeFile;
+
+    /**
+     *
+     * @param uploadFile object with local file and cloud file path in DropboxAPI
+     * @param files Object for managing requests for file management in DropBox
+     * @param chunkSize max size for chunk file
+     * @throws IOException problem in reading local file
+     */
     public UploadFile(CloudLocalFile uploadFile, DbxUserFilesRequests files, int chunkSize) throws IOException {
         this.files = files;
-        this.cloudFile = uploadFile.getCloudFile().toString().replace("\\","/");;
-        try (FileInputStream fileIStream = new FileInputStream(uploadFile.getLocalFile().toFile())) {
+        this.cloudFile = uploadFile.cloudFile().toString().replace("\\","/");;
+        try (FileInputStream fileIStream = new FileInputStream(uploadFile.localFile().toFile())) {
             LinkedList<ChunkFile> linkedList = new LinkedList<>();
             int offset = 0;
             int readBytes;
@@ -69,6 +86,13 @@ public class UploadFile {
         this.finishSessionUpload();
     }
 
+    /**
+     * Called to endpoint DropBox API /upload_session/append_v2
+     * And uploading file to Dropbox API by chunk file
+     * @throws DbxException creating when uploading file to Dropbox or creating UploadSessionAppendV2Uploader object
+     * UploadSessionAppendV2Uploader uploaderAppend = files.uploadSessionAppendV2(cursor);
+     * @throws IOException creating when uploading file
+     */
     private void uploadSessionAppend() throws DbxException, IOException {
         while (this.chunksFile.size() > 1) {
             logger.trace("Call to DropBox /upload_session/append_v2");
@@ -84,6 +108,11 @@ public class UploadFile {
         }
     }
 
+    /**
+     * Finish uploading file and close session for upload
+     * @throws DbxException can throw when creating UploadSessionFinishUploader
+     * @throws IOException generate when have problem with upload file
+     */
     private void finishSessionUpload() throws DbxException, IOException {
         ChunkFile lastChunk = Objects.requireNonNull(this.chunksFile.poll());
         UploadSessionCursor cursor = new UploadSessionCursor(this.sessionID, lastChunk.getOffset());

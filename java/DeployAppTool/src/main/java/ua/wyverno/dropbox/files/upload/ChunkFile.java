@@ -2,6 +2,11 @@ package ua.wyverno.dropbox.files.upload;
 
 import java.io.InputStream;
 
+/**
+ * Chunk file
+ * offset - offset for Dropbox API is needed to mark where its first byte is located
+ * sizeChunke - size Chunk
+ */
 public class ChunkFile {
     private int offset;
     private int sizeChunk;

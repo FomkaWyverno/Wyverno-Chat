@@ -19,6 +19,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.CRC32;
 
+/**
+ * Class just have Path File and its content hash
+ */
 @JsonSerialize(using = FileHashInfoSerializer.class)
 @JsonDeserialize(using = FileHashInfoDeserializer.class)
 public class FileHashInfo {

@@ -10,6 +10,10 @@ import ua.wyverno.dropbox.auth.handlers.HttpAuthHandler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+/**
+ * Http server for authorization in DropBox
+ * In general, you need in order to get an access token
+ */
 public class DropBoxAuthServer {
 
     private static final Logger logger = LoggerFactory.getLogger(DropBoxAuthServer.class);
