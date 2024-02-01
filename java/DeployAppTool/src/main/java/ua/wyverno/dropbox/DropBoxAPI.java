@@ -270,6 +270,13 @@ public class DropBoxAPI {
     }
 
     public MetadataContainer collectAllContentFromPath(String path) throws DbxException, JsonProcessingException {
+        boolean isRootPath = path.equals("");
+
+        if (isRootPath) {
+            logger.info("Start collect all content from root path in DropBox");
+        } else {
+            logger.info("Start collect all content from {} path in DropBox",path);
+        }
         logger.debug("Collect path to folders in path \"{}\".", path);
         MetadataContainer container = this.getListFolder(path);
 
@@ -280,7 +287,11 @@ public class DropBoxAPI {
             resultContainer.addMetadataContainer(folderContainer);
         }
 
-        logger.debug("Collect to end path to folders in path - \"{}\"", path);
+        if (isRootPath) {
+            logger.info("End collect all content from root path in DropBox");
+        } else {
+            logger.info("End collect all content from {} path in DropBox",path);
+        }
         return resultContainer;
     }
 

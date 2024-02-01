@@ -26,8 +26,6 @@ public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static final Path pathCloudFiles = Paths.get("./cloud-files.json");
-
     private static Config CONFIG;
 
     public static void main(String[] args) {
@@ -35,57 +33,62 @@ public class Main {
             CONFIG = loadConfig();
             if (CONFIG == null) return;
             DropBoxAPI dropBoxAPI = connectToDropBoxAPI();
+            logger.info("Connect to DropBox API!");
 
-            FileCollectorVisitor visitor = new FileCollectorVisitor();
-            Files.walkFileTree(CONFIG.getPathApplication(), visitor);
-            HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
-
-            List<FileHashInfo> appFilesHashInfo = hashSumFiles.getFilesHashInfo();
-            List<FileHashInfo> appRelativizedPathFiles = hashSumFiles.getRelativizeRootFilesHashInfo();
-            Set<Path> appRelativizedPathFolders = visitor.getFolderPath()
-                    .stream()
-                    .map(pathFolder -> Paths.get("/").resolve(CONFIG.getPathApplication().relativize(pathFolder)))
-                    .collect(Collectors.toSet());
-            appRelativizedPathFolders.remove(Paths.get("/"));
-
+            FileCollectorVisitor visitor = collectLocalFileAndFolders();
+            logger.info("Start collect all content from root path in DropBox");
             MetadataContainer container = dropBoxAPI.collectAllContentFromPath("");
-            List<FileHashInfo> cloudFiles = container.getFileMetadataList()
-                    .stream()
-                    .map(metadata -> {
-                        Path path = Paths.get(metadata.getPathDisplay());
-                        String hash = metadata.getContentHash();
-                        return new FileHashInfo(path, hash);
-                    }).toList();
-
-            SyncCloudStorage syncCloudStorage = new SyncCloudStorageBuilder()
-                    .applicationAbsolutePathFiles(appFilesHashInfo)
-                    .applicationRelativizedPathFiles(appRelativizedPathFiles)
-                    .applicationFoldersRelativized(appRelativizedPathFolders)
-                    .cloudFiles(cloudFiles)
-                    .cloudFolders(container
-                            .getFolderMetadataList()
-                            .stream()
-                            .map(metadata -> Paths.get(metadata.getPathDisplay()))
-                            .collect(Collectors.toSet()))
-                    .createSyncCloudStorage();
+            
+            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(visitor, container);
             syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
-
-            //syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI, CONFIG.getPathApplication());
-
         } catch (Throwable e) {
             logger.error("", e);
         }
     }
 
-    private static FileCollectorVisitor collectFilesApplication() throws IOException {
-        logger.info("Start collect files!");
-        FileCollectorVisitor fileCollectorVisitor = new FileCollectorVisitor();
-        Files.walkFileTree(CONFIG.getPathApplication(), fileCollectorVisitor);
-        logger.info("End collect files!");
-        return fileCollectorVisitor;
+    private static SyncCloudStorage buildSyncCloudStorage(FileCollectorVisitor visitor, MetadataContainer allContentMetadata) throws IOException {
+        List<FileHashInfo> cloudFiles = mapMetadataToFileHashInfo(allContentMetadata);
+
+        HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
+
+        List<FileHashInfo> appFilesHashInfo = hashSumFiles.getFilesHashInfo();
+        List<FileHashInfo> appRelativizedPathFiles = hashSumFiles.getRelativizeRootFilesHashInfo();
+        Set<Path> appRelativizedPathFolders = visitor.getFolderPath()
+                .stream()
+                .map(pathFolder -> Paths.get("/").resolve(CONFIG.getPathApplication().relativize(pathFolder)))
+                .collect(Collectors.toSet());
+        appRelativizedPathFolders.remove(Paths.get("/"));
+
+        return new SyncCloudStorageBuilder()
+                .applicationAbsolutePathFiles(appFilesHashInfo)
+                .applicationRelativizedPathFiles(appRelativizedPathFiles)
+                .applicationFoldersRelativized(appRelativizedPathFolders)
+                .cloudFiles(cloudFiles)
+                .cloudFolders(allContentMetadata
+                        .getFolderMetadataList()
+                        .stream()
+                        .map(metadata -> Paths.get(metadata.getPathDisplay()))
+                        .collect(Collectors.toSet()))
+                .createSyncCloudStorage();
     }
 
+    private static FileCollectorVisitor collectLocalFileAndFolders() throws IOException {
+        logger.info("Start collect files and folder from {}", CONFIG.getPathApplication().toAbsolutePath());
+        FileCollectorVisitor visitor = new FileCollectorVisitor();
+        Files.walkFileTree(CONFIG.getPathApplication(), visitor);
+        logger.info("Finish collect files and folder from {}", CONFIG.getPathApplication().toAbsolutePath());
+        return visitor;
+    }
 
+    private static List<FileHashInfo> mapMetadataToFileHashInfo(MetadataContainer container) {
+        return container.getFileMetadataList()
+                .stream()
+                .map(metadata -> {
+                    Path path = Paths.get(metadata.getPathDisplay());
+                    String hash = metadata.getContentHash();
+                    return new FileHashInfo(path, hash);
+                }).toList();
+    }
     private static Config loadConfig() throws IOException {
         Path pathConfig = Paths.get("./setting.properties");
         try {
@@ -101,7 +104,6 @@ public class Main {
             return null;
         }
     }
-
     private static DropBoxAPI connectToDropBoxAPI() throws DbxException, IOException {
         String accessTokenDbX = CONFIG.getAccessTokenDropBox();
         if (Objects.isNull(accessTokenDbX) || !new DropBoxAPI(accessTokenDbX).isValidAccessToken()) {
