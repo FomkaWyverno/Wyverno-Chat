@@ -6,6 +6,7 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.InvalidAccessTokenException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.*;
+import com.dropbox.core.v2.sharing.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -249,7 +250,9 @@ public class DropBoxAPI {
         ObjectMapper mapper = new ObjectMapper();
         while (true) {
             for (Metadata metadata : result.getEntries()) {
-                JsonNode metadataNode = mapper.readTree(metadata.toStringMultiline());
+                String metadataJsonString = metadata.toStringMultiline();
+                logger.trace("Entry Json-metadata: {}", metadataJsonString);
+                JsonNode metadataNode = mapper.readTree(metadataJsonString);
                 String tag = metadataNode.path(".tag").asText();
                 if (tag.equals("file")) {
                     FileMetadata fileMetadata = mapper.treeToValue(metadataNode, FileMetadata.class);
@@ -258,7 +261,7 @@ public class DropBoxAPI {
                     FolderMetadata folderMetadata = mapper.treeToValue(metadataNode, FolderMetadata.class);
                     container.addFolderMetadata(folderMetadata);
                 } else {
-                    throw new UnknownMetadataTypeException("Unknown Metadata type! Json response:\n" + metadata.toStringMultiline());
+                    throw new UnknownMetadataTypeException("Unknown Metadata type! Json response:\n" + metadataJsonString);
                 }
             }
             if (!result.getHasMore()) break;
@@ -272,12 +275,8 @@ public class DropBoxAPI {
     public MetadataContainer collectAllContentFromPath(String path) throws DbxException, JsonProcessingException {
         boolean isRootPath = path.equals("");
 
-        if (isRootPath) {
-            logger.info("Start collect all content from root path in DropBox");
-        } else {
-            logger.info("Start collect all content from {} path in DropBox",path);
-        }
-        logger.debug("Collect path to folders in path \"{}\".", path);
+        logger.info("Start collect all content from {} path in DropBox", isRootPath ? "root" : path);
+
         MetadataContainer container = this.getListFolder(path);
 
         MetadataContainer resultContainer = new MetadataContainer();
@@ -287,14 +286,38 @@ public class DropBoxAPI {
             resultContainer.addMetadataContainer(folderContainer);
         }
 
-        if (isRootPath) {
-            logger.info("End collect all content from root path in DropBox");
-        } else {
-            logger.info("End collect all content from {} path in DropBox",path);
-        }
+        logger.info("End collect all content from {} path in DropBox",isRootPath ? "root" : path);
         return resultContainer;
     }
 
+    public List<SharedLinkMetadata> listSharedLinks(ListSharedLinksBuilder listSharedLinksBuilder) throws DbxException {
+        logger.info("Call to DropBox API Endpoint /list_shared_links");
+        DbxUserSharingRequests sharing = this.dbxClientV2.sharing();
+        ListSharedLinksResult resultListLinks = listSharedLinksBuilder.start();
+        List<SharedLinkMetadata> listSharedLinkMetadata = resultListLinks.getLinks();
+        while (resultListLinks.getHasMore()) {
+            resultListLinks = sharing.listSharedLinksBuilder().withCursor(resultListLinks.getCursor()).start();
+            listSharedLinkMetadata.addAll(resultListLinks.getLinks());
+        }
+        return listSharedLinkMetadata;
+    }
+
+    public List<SharedLinkMetadata> listSharedLinks() throws DbxException {
+        return this.listSharedLinks(this.dbxClientV2.sharing().listSharedLinksBuilder());
+    }
+
+    public SharedLinkMetadata createSharedLink(String path) throws DbxException {
+        logger.info("Call to DropBox API Endpoint /create_shared_link_with_settings \nParameters: \n path: {}", path);
+        DbxUserSharingRequests sharing = this.dbxClientV2.sharing();
+        return sharing.createSharedLinkWithSettings(path);
+    }
+
+    public SharedLinkMetadata createSharedLink(String path, SharedLinkSettings sharedLinkSettings) throws DbxException {
+        logger.info("Call to DropBox API Endpoint /create_shared_link_with_settings \nParameters: \n path: {},\nsettings: {}",
+                path, sharedLinkSettings.toStringMultiline());
+        DbxUserSharingRequests sharing = this.dbxClientV2.sharing();
+        return sharing.createSharedLinkWithSettings(path, sharedLinkSettings);
+    }
     private void waitUntilJobComplete(JobStatus jobStatus, String descriptionJob) throws DbxException {
         while (jobStatus.isInProgress()) {
             try {
@@ -306,4 +329,6 @@ public class DropBoxAPI {
             }
         }
     }
+
+
 }

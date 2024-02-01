@@ -180,11 +180,26 @@ public class SyncCloudStorage {
     private void printInformationAboutFiles() {
         Set<Path> appFolders = this.getApplicationFoldersRelativized();
         Set<Path> cloudFolders = this.getCloudFolders();
+        Set<Path> appFiles = this.getApplicationRelativizedPathFiles()
+                .stream()
+                .map(FileHashInfo::getPathFile)
+                .collect(Collectors.toSet());
+        Set<Path> cloudFiles = this.getCloudFiles()
+                .stream()
+                .map(FileHashInfo::getPathFile)
+                .collect(Collectors.toSet());
+
         for (Path appFolder : appFolders) {
-            logger.info("Application Folder: {}", appFolder);
+            logger.info("Application local Folder: {}", appFolder);
+        }
+        for (Path appFile : appFiles) {
+            logger.info("Application local File: {}", appFile);
         }
         for (Path cloudFolder : cloudFolders) {
-            logger.info("Cloud Folder: {}", cloudFolder);
+            logger.info("Application cloud Folder: {}", cloudFolder);
+        }
+        for (Path cloudFile : cloudFiles) {
+            logger.info("Application cloud File: {}", cloudFile);
         }
     }
 
