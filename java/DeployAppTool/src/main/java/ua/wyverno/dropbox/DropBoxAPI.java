@@ -241,38 +241,42 @@ public class DropBoxAPI {
         logger.info(metadata.toStringMultiline());
     }
 
-    public MetadataContainer getListFolder(String path) throws DbxException, JsonProcessingException {
+    public MetadataContainer getListFolder(String path) throws DbxException {
         DbxUserFilesRequests files = this.dbxClientV2.files();
         MetadataContainer container = new MetadataContainer();
 
         logger.debug("Call to DropBox API Endpoint /list_folder path: {}", path);
         ListFolderResult result = files.listFolder(path);
         ObjectMapper mapper = new ObjectMapper();
-        while (true) {
-            for (Metadata metadata : result.getEntries()) {
-                String metadataJsonString = metadata.toStringMultiline();
-                logger.trace("Entry Json-metadata: {}", metadataJsonString);
-                JsonNode metadataNode = mapper.readTree(metadataJsonString);
-                String tag = metadataNode.path(".tag").asText();
-                if (tag.equals("file")) {
-                    FileMetadata fileMetadata = mapper.treeToValue(metadataNode, FileMetadata.class);
-                    container.addFileMetadata(fileMetadata);
-                } else if (tag.equals("folder")) {
-                    FolderMetadata folderMetadata = mapper.treeToValue(metadataNode, FolderMetadata.class);
-                    container.addFolderMetadata(folderMetadata);
-                } else {
-                    throw new UnknownMetadataTypeException("Unknown Metadata type! Json response:\n" + metadataJsonString);
+        try {
+            while (true) {
+                for (Metadata metadata : result.getEntries()) {
+                    String metadataJsonString = metadata.toStringMultiline();
+                    logger.trace("Entry Json-metadata: {}", metadataJsonString);
+                    JsonNode metadataNode = mapper.readTree(metadataJsonString);
+                    String tag = metadataNode.path(".tag").asText();
+                    if (tag.equals("file")) {
+                        FileMetadata fileMetadata = mapper.treeToValue(metadataNode, FileMetadata.class);
+                        container.addFileMetadata(fileMetadata);
+                    } else if (tag.equals("folder")) {
+                        FolderMetadata folderMetadata = mapper.treeToValue(metadataNode, FolderMetadata.class);
+                        container.addFolderMetadata(folderMetadata);
+                    } else {
+                        throw new UnknownMetadataTypeException("Unknown Metadata type! Json response:\n" + metadataJsonString);
+                    }
                 }
+                if (!result.getHasMore()) break;
+                logger.trace("Content in folder \"{}\" has more. Call to DropBox API Endpoint /list_folder/continue", path);
+                result = files.listFolderContinue(result.getCursor());
             }
-            if (!result.getHasMore()) break;
-            logger.trace("Content in folder \"{}\" has more. Call to DropBox API Endpoint /list_folder/continue", path);
-            result = files.listFolderContinue(result.getCursor());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
         return container;
     }
 
-    public MetadataContainer collectAllContentFromPath(String path) throws DbxException, JsonProcessingException {
+    public MetadataContainer collectAllContentFromPath(String path) throws DbxException {
         boolean isRootPath = path.equals("");
 
         logger.info("Start collect all content from {} path in DropBox", isRootPath ? "root" : path);

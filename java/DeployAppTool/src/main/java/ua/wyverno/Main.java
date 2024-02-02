@@ -13,6 +13,7 @@ import ua.wyverno.dropbox.DropBoxAPI;
 import ua.wyverno.dropbox.metadata.FileMetadata;
 import ua.wyverno.dropbox.metadata.FolderMetadata;
 import ua.wyverno.dropbox.metadata.MetadataContainer;
+import ua.wyverno.dropbox.sharing.DbxSharingLinkManager;
 import ua.wyverno.files.FileCollectorVisitor;
 import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.cloud.SyncCloudStorageBuilder;
@@ -49,39 +50,11 @@ public class Main {
 //            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
 //            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
 //
-            MetadataContainer dropboxContentAfterUpload = dropBoxAPI.collectAllContentFromPath("");
-            List<SharedLinkMetadata> sharedLinkMetadataList = dropBoxAPI.listSharedLinks();
+            DbxSharingLinkManager sharingLinkManager = new DbxSharingLinkManager(dropBoxAPI);
+            Set<SharedLinkMetadata> links = sharingLinkManager.getShareLinks();
 
-            Set<String> setPathWithoutShareLink = Stream.concat(
-                            dropboxContentAfterUpload.getFolderMetadataList()
-                                                        .stream()
-                                                        .map(FolderMetadata::getPathLower),
-                            dropboxContentAfterUpload.getFileMetadataList()
-                                                        .stream()
-                                                        .map(FileMetadata::getPathLower))
-                            .filter(cloudPathLower -> sharedLinkMetadataList
-                                                        .stream()
-                                                        .noneMatch(sharedLinkMetadata ->
-                                                                sharedLinkMetadata.getPathLower().equals(cloudPathLower)))
-                            .collect(Collectors.toSet());
+            links.forEach(link -> logger.info("Share path: {} url: {}", link.getPathLower(), link.getUrl()));
 
-
-            setPathWithoutShareLink.forEach(path -> logger.info("Path without share link: {}", path));
-
-            Set<SharedLinkMetadata> sharedLinkMetadataSet = setPathWithoutShareLink.
-                    stream()
-                    .map(path -> {
-                        try {
-                            return dropBoxAPI.createSharedLink(path);
-                        } catch (DbxException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .collect(Collectors.toSet());
-
-            sharedLinkMetadataSet.addAll(sharedLinkMetadataList);
-
-            sharedLinkMetadataSet.forEach(sharedLink -> logger.info("SharedLink: {} Link: {}", sharedLink.getPathLower(), sharedLink.getUrl()));
         } catch (InvalidAccessTokenException e) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
