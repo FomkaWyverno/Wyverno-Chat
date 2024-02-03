@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
-import ua.wyverno.dropbox.metadata.FileMetadata;
-import ua.wyverno.dropbox.metadata.FolderMetadata;
 import ua.wyverno.dropbox.metadata.MetadataContainer;
 import ua.wyverno.dropbox.sharing.DbxSharingLinkManager;
 import ua.wyverno.files.FileCollectorVisitor;
@@ -29,19 +27,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static Config CONFIG;
+    public static Config CONFIG;
 
     public static void main(String[] args) {
         try {
             CONFIG = loadConfig();
             if (CONFIG == null) return;
-            DropBoxAPI dropBoxAPI = connectToDropBoxAPI();
+            DropBoxAPI dropBoxAPI = new DropBoxAPI(CONFIG.getAccessTokenDropBox());
             logger.info("Connect to DropBox API!");
 
 //            FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
@@ -54,24 +51,6 @@ public class Main {
             Set<SharedLinkMetadata> links = sharingLinkManager.getShareLinks();
 
             links.forEach(link -> logger.info("Share path: {} url: {}", link.getPathLower(), link.getUrl()));
-
-        } catch (InvalidAccessTokenException e) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode jsonNode = mapper.readTree(e.getMessage());
-                boolean isExpiredAccessToken = jsonNode
-                        .path("error")
-                        .path(".tag")
-                        .asText()
-                        .equals("expired_access_token");
-
-                if (isExpiredAccessToken) {
-                    logger.warn("Access Token is expired. Restart program!");
-                }
-            } catch (JacksonException ex) {
-                logger.error("Error in parsing JSON!", ex);
-            }
-
         } catch (Throwable e) {
             logger.error("", e);
         }
@@ -135,18 +114,5 @@ public class Main {
             Config.createDefaultPropertiesFile(pathConfig);
             return null;
         }
-    }
-
-    private static DropBoxAPI connectToDropBoxAPI() throws DbxException, IOException {
-        String accessTokenDbX = CONFIG.getAccessTokenDropBox();
-        if (Objects.isNull(accessTokenDbX) || !new DropBoxAPI(accessTokenDbX).isValidAccessToken()) {
-            logger.debug("Access Token is not valid or not present! Updating...");
-            CONFIG.updateDbxAccessToken();
-            accessTokenDbX = CONFIG.getAccessTokenDropBox();
-        } else {
-            logger.debug("Access Token is valid!");
-        }
-
-        return new DropBoxAPI(accessTokenDbX);
     }
 }

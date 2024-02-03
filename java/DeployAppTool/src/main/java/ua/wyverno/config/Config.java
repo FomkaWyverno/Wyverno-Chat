@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ua.wyverno.dropbox.auth.DropBoxAuthServer;
 
 import java.awt.*;
+import java.awt.desktop.SystemEventListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -18,7 +19,7 @@ public class Config {
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
-    private Path pathConfig;
+    private final Path pathConfig;
 
     private final Path pathApplication;
     private String accessTokenDropBox;
