@@ -41,16 +41,16 @@ public class Main {
             DropBoxAPI dropBoxAPI = new DropBoxAPI(CONFIG.getAccessTokenDropBox());
             logger.info("Connect to DropBox API!");
 
-//            FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
-//            MetadataContainer dropboxContentContainer = dropBoxAPI.collectAllContentFromPath("");
-//
-//            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
-//            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
-//
+            FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
+            MetadataContainer dropboxContentContainer = dropBoxAPI.collectAllContentFromPath("");
+
+            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
+            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
+
             DbxSharingLinkManager sharingLinkManager = new DbxSharingLinkManager(dropBoxAPI);
             Set<SharedLinkMetadata> links = sharingLinkManager.getShareLinks();
-
             links.forEach(link -> logger.info("Share path: {} url: {}", link.getPathLower(), link.getUrl()));
+
         } catch (Throwable e) {
             logger.error("", e);
         }
