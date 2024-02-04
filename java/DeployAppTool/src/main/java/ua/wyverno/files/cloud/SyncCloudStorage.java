@@ -48,7 +48,7 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link ua.wyverno.files.hashs.FileHashInfo} that are required delete from Cloud Storage
      */
-    private Set<FileHashInfo> getDeletedFiles() {
+    public Set<FileHashInfo> getDeletedFiles() {
         if (this.deletedFiles != null) return Collections.unmodifiableSet(this.deletedFiles);
         this.deletedFiles = this.getCloudFiles()
                 .stream()
@@ -65,7 +65,7 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link ua.wyverno.files.hashs.FileHashInfo} that are required add files to Cloud Storage
      */
-    private Set<FileHashInfo> getAddedOrModifyFiles() {
+    public Set<FileHashInfo> getAddedOrModifyFiles() {
         if (this.addedOrModifyFiles != null) return Collections.unmodifiableSet(this.addedOrModifyFiles);
 
         this.addedOrModifyFiles = this.getApplicationRelativizedPathFiles()
@@ -76,7 +76,7 @@ public class SyncCloudStorage {
         return Collections.unmodifiableSet(this.addedOrModifyFiles);
     }
 
-    private Set<Path> getAddedFolders() {
+    public Set<Path> getAddedFolders() {
         if (this.addedFolders != null) return Collections.unmodifiableSet(this.addedFolders);
 
         this.addedFolders = this.getApplicationFoldersRelativized()
@@ -90,7 +90,7 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link java.nio.file.Path} that are required delete folder from Cloud Storage
      */
-    private Set<Path> getDeletedFolders() {
+    public Set<Path> getDeletedFolders() {
         if (this.deletedFolders != null) return Collections.unmodifiableSet(this.deletedFolders);
 
         Set<Path> checkedFolders = new HashSet<>();
@@ -124,31 +124,31 @@ public class SyncCloudStorage {
     /**
      * @return Set with {@link java.nio.file.Path} - Application folders with Files
      */
-    private Set<Path> getApplicationFoldersRelativized() {
+    public Set<Path> getApplicationFoldersRelativized() {
         return Collections.unmodifiableSet(this.applicationFoldersRelativized);
     }
 
     /**
      * @return Set with {@link java.nio.file.Path} - Cloud Storage Folders with Files
      */
-    private Set<Path> getCloudFolders() {
+    public Set<Path> getCloudFolders() {
         return Collections.unmodifiableSet(this.cloudFolders);
     }
 
     /**
      * @return List with {@link ua.wyverno.files.hashs.FileHashInfo} - Application Files
      */
-    private List<FileHashInfo> getApplicationRelativizedPathFiles() {
+    public List<FileHashInfo> getApplicationRelativizedPathFiles() {
         return Collections.unmodifiableList(applicationRelativizedPathFiles);
     }
-    private List<FileHashInfo> getApplicationFiles() {
+    public List<FileHashInfo> getApplicationFiles() {
         return Collections.unmodifiableList(this.applicationFiles);
     }
 
     /**
      * @return List with {@link ua.wyverno.files.hashs.FileHashInfo} - Cloud Storage Files
      */
-    private List<FileHashInfo> getCloudFiles() {
+    public List<FileHashInfo> getCloudFiles() {
         return Collections.unmodifiableList(this.cloudFiles);
     }
 

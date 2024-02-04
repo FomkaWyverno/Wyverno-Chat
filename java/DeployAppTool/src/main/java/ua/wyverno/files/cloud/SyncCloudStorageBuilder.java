@@ -40,7 +40,7 @@ public class SyncCloudStorageBuilder {
         return this;
     }
 
-    public SyncCloudStorage createSyncCloudStorage() {
+    public SyncCloudStorage build() {
         return new SyncCloudStorage(
                 applicationAbsolutePathFiles,
                 applicationRelativizedPathFiles,

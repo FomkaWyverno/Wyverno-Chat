@@ -1,11 +1,6 @@
 package ua.wyverno;
 
-import com.dropbox.core.DbxException;
-import com.dropbox.core.InvalidAccessTokenException;
 import com.dropbox.core.v2.sharing.SharedLinkMetadata;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
@@ -24,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,7 +73,7 @@ public class Main {
                         .stream()
                         .map(metadata -> Paths.get(metadata.getPathDisplay()))
                         .collect(Collectors.toSet()))
-                .createSyncCloudStorage();
+                .build();
     }
 
     private static FileCollectorVisitor collectLocalApplicationFilesAndFolders() throws IOException {

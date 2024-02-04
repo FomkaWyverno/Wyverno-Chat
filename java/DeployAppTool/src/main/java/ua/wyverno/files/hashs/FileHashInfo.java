@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.files.exceptions.FolderCalculationException;
 import ua.wyverno.json.jackson.deserializer.FileHashInfoDeserializer;
 import ua.wyverno.json.jackson.serializer.FileHashInfoSerializer;
 import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
 import ua.wyverno.util.dropbox.hasher.HexUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,28 +26,40 @@ import java.util.zip.CRC32;
  */
 @JsonSerialize(using = FileHashInfoSerializer.class)
 @JsonDeserialize(using = FileHashInfoDeserializer.class)
-public class FileHashInfo {
+public class FileHashInfo extends File {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashInfo.class);
-
-    private final Path pathFile;
     private String hash;
-
+    private boolean isCloudFile = false;
+    private boolean isCloudDirectory = false;
     public FileHashInfo(Path pathFile) {
-        this.pathFile = pathFile;
+        super(pathFile.toUri());
     }
 
     public FileHashInfo(Path pathFile, String hash) {
-        this.pathFile = pathFile;
+        super(pathFile.toUri());
+        this.hash = hash;
+    }
+
+    public FileHashInfo(String pathname) {
+        super(pathname);
+    }
+
+    public FileHashInfo(String pathname, String hash) {
+        super(pathname);
         this.hash = hash;
     }
 
     public void calculateChecksum() throws IOException {
-        logger.debug("Hashing file for method DropBox SHA256 - {}", this.pathFile);
+        if (this.isDirectory()) {
+            logger.warn("Try hashing file which is directory! Path: {}", this.toPath());
+            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.toPath());
+        }
 
+        logger.debug("Hashing file for method DropBox SHA256 - {}", this.getPathFile());
         MessageDigest hasher = new DropboxContentHasher();
         byte[] buf = new byte[1024];
-        try (InputStream in = new FileInputStream(this.pathFile.toFile())) {
+        try (InputStream in = new FileInputStream(this)) {
             while (true) {
                 int n = in.read(buf);
                 if (n < 0) break;  // EOF
@@ -53,16 +67,41 @@ public class FileHashInfo {
             }
         }
         this.hash = HexUtils.hex(hasher.digest());
+        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.toPath(), this.hash);
 
-        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.pathFile, this.hash);
     }
 
     public Path getPathFile() {
-        return pathFile;
+        return super.toPath();
     }
 
     public String getHash() {
         return hash;
+    }
+
+    public void setCloudFile(boolean cloudFile) {
+        this.isCloudFile = cloudFile;
+        this.isCloudDirectory = !this.isCloudFile;
+    }
+
+    public void setCloudDirectory(boolean cloudDirectory) {
+        this.isCloudDirectory = cloudDirectory;
+        this.isCloudFile = !this.isCloudDirectory;
+    }
+
+    @Override
+    public boolean isDirectory() {
+        if (!this.isCloudFile && this.isCloudDirectory) return true;
+        return super.isDirectory();
+    }
+    @Override
+    public boolean isFile() {
+        if (this.isCloudFile && !this.isCloudDirectory) return true;
+        return super.isFile();
+    }
+
+    public boolean isCloud() {
+        return this.isCloudFile || this.isCloudDirectory;
     }
 
     @Override
@@ -70,13 +109,13 @@ public class FileHashInfo {
         if (!(obj instanceof FileHashInfo otherFile)) return false;
         return this.hash.equals(otherFile.getHash())
                 &&
-                this.pathFile.equals(otherFile.getPathFile());
+                this.getPathFile().equals(otherFile.getPathFile());
     }
 
     @Override
     public String toString() {
         return "FileHashInfo{" +
-                "pathFile=" + pathFile +
+                "pathFile=" + this.getPathFile() +
                 ", hash='" + hash + '\'' +
                 '}';
     }
