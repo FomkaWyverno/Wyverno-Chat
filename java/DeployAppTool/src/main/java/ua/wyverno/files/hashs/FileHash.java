@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.files.exceptions.FolderCalculationException;
-import ua.wyverno.json.jackson.deserializer.FileHashInfoDeserializer;
-import ua.wyverno.json.jackson.serializer.FileHashInfoSerializer;
+import ua.wyverno.json.jackson.deserializer.FileHashDeserializer;
+import ua.wyverno.json.jackson.serializer.FileHashSerializer;
 import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
 import ua.wyverno.util.dropbox.hasher.HexUtils;
 
@@ -14,40 +14,43 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.zip.CRC32;
 
 /**
  * Class just have Path File and its content hash
  */
-@JsonSerialize(using = FileHashInfoSerializer.class)
-@JsonDeserialize(using = FileHashInfoDeserializer.class)
-public class FileHashInfo extends File {
+@JsonSerialize(using = FileHashSerializer.class)
+@JsonDeserialize(using = FileHashDeserializer.class)
+public class FileHash extends File {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHashInfo.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileHash.class);
     private String hash;
+    private final Path absolutePath;
     private boolean isCloudFile = false;
     private boolean isCloudDirectory = false;
-    public FileHashInfo(Path pathFile) {
+
+    public FileHash(Path pathFile, Path absolutePath) {
         super(pathFile.toUri());
+        this.absolutePath = absolutePath;
     }
 
-    public FileHashInfo(Path pathFile, String hash) {
+    public FileHash(Path pathFile, Path absolutePath, String hash) {
         super(pathFile.toUri());
+        this.absolutePath = absolutePath;
         this.hash = hash;
     }
 
-    public FileHashInfo(String pathname) {
+    public FileHash(String pathname, String absolutePath) {
         super(pathname);
+        this.absolutePath = Paths.get(absolutePath);
     }
 
-    public FileHashInfo(String pathname, String hash) {
+    public FileHash(String pathname, String absolutePath, String hash) {
         super(pathname);
         this.hash = hash;
+        this.absolutePath = Paths.get(absolutePath);
     }
 
     public void calculateChecksum() throws IOException {
@@ -94,6 +97,7 @@ public class FileHashInfo extends File {
         if (!this.isCloudFile && this.isCloudDirectory) return true;
         return super.isDirectory();
     }
+
     @Override
     public boolean isFile() {
         if (this.isCloudFile && !this.isCloudDirectory) return true;
@@ -104,9 +108,31 @@ public class FileHashInfo extends File {
         return this.isCloudFile || this.isCloudDirectory;
     }
 
+    public boolean isCloudFile() {
+        return isCloudFile;
+    }
+
+    public boolean isCloudDirectory() {
+        return isCloudDirectory;
+    }
+
+    @Override
+    public String getAbsolutePath() {
+        return this.absolutePath.toString();
+    }
+
+    @Override
+    public File getAbsoluteFile() {
+        return new File(this.absolutePath.toString());
+    }
+
+    public Path toAbsolutePath() {
+        return this.absolutePath;
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof FileHashInfo otherFile)) return false;
+        if (!(obj instanceof FileHash otherFile)) return false;
         return this.hash.equals(otherFile.getHash())
                 &&
                 this.getPathFile().equals(otherFile.getPathFile());
@@ -114,7 +140,7 @@ public class FileHashInfo extends File {
 
     @Override
     public String toString() {
-        return "FileHashInfo{" +
+        return "FileHash{" +
                 "pathFile=" + this.getPathFile() +
                 ", hash='" + hash + '\'' +
                 '}';

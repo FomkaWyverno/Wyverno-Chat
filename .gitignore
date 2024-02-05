@@ -19,3 +19,4 @@ java/OverlayTwitchAPI/html/**/css/
 java/DeployAppTool/setting.properties
 java/DeployAppTool/cloud-files.json
 java/DeployAppTool/test-folder/**
+java/DeployAppTool/test-folder2/**

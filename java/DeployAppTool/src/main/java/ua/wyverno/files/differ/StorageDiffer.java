@@ -1,42 +1,81 @@
 package ua.wyverno.files.differ;
 
-import java.io.File;
+import ua.wyverno.files.hashs.FileHash;
+
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class StorageDiffer implements IStorageDiffer {
 
-    private final Set<File> firstStorage;
-    private final Set<File> secondStorage;
+    private final Set<FileHash> firstStorage;
+    private final Set<FileHash> secondStorage;
 
-    public StorageDiffer(Set<File> firstStorage, Set<File> secondStorage) {
+
+    private Set<Path> addedFiles;
+    private Set<Path> modifyFiles;
+    private Set<Path> deletedFiles;
+    private Set<Path> addedFolders;
+    private Set<Path> deletedFolders;
+    public StorageDiffer(Set<FileHash> firstStorage, Set<FileHash> secondStorage) {
         this.firstStorage = Collections.unmodifiableSet(firstStorage);
         this.secondStorage = Collections.unmodifiableSet(secondStorage);
     }
 
     @Override
     public Set<Path> getAddedFiles() {
-        return null;
+        if (this.addedFiles != null) return this.addedFiles;
+        this.addedFiles = new HashSet<>();
+        return this.addedFiles;
     }
-
     @Override
     public Set<Path> getModifyFiles() {
-        return null;
+        if (this.modifyFiles != null) return this.modifyFiles;
+        this.modifyFiles = new HashSet<>();
+        return this.modifyFiles;
     }
-
     @Override
     public Set<Path> getDeletedFiles() {
-        return null;
+        if (this.deletedFiles != null) return this.deletedFiles;
+        this.deletedFiles = new HashSet<>();
+        return this.deletedFiles;
     }
-
     @Override
     public Set<Path> getAddedFolders() {
-        return null;
+        if (this.addedFolders != null) return this.addedFolders;
+        this.addedFolders = new HashSet<>();
+        return this.addedFolders;
     }
-
     @Override
     public Set<Path> getDeletedFolders() {
-        return null;
+        if (this.deletedFolders != null) return this.deletedFolders;
+        Set<Path> deletedDirectories = new HashSet<>();
+        Set<FileHash> firstStorageDirectories = this.firstStorage.stream()
+                .filter(FileHash::isDirectory)
+                .collect(Collectors.toSet());
+        Set<FileHash> secondStorageDirectories = this.secondStorage.stream()
+                .filter(FileHash::isDirectory)
+                .collect(Collectors.toSet());
+
+
+        Path slashRoot = Paths.get("/");
+
+        Function<? super FileHash, ? extends FileHash> functionRemoveSlashRoot = (Function<FileHash, FileHash>) file -> {
+            if (file.getPathFile().startsWith(slashRoot)) {
+                return new FileHash(slashRoot.relativize(file.getPathFile()), file.getPathFile());
+            }
+            return file;
+        };
+        Set<FileHash> firstStorageWithoutSlashRoot = firstStorageDirectories.stream()
+                .map(functionRemoveSlashRoot).collect(Collectors.toSet());
+        Set<FileHash> secondStorageWithoutSlashRoot = secondStorageDirectories.stream()
+                .map(functionRemoveSlashRoot).collect(Collectors.toSet());
+
+        this.deletedFolders = Collections.unmodifiableSet(deletedDirectories);
+        return this.deletedFolders;
     }
 }

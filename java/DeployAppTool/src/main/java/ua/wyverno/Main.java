@@ -10,7 +10,7 @@ import ua.wyverno.dropbox.sharing.DbxSharingLinkManager;
 import ua.wyverno.files.FileCollectorVisitor;
 import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.cloud.SyncCloudStorageBuilder;
-import ua.wyverno.files.hashs.FileHashInfo;
+import ua.wyverno.files.hashs.FileHash;
 import ua.wyverno.files.hashs.HashSumFiles;
 
 import java.io.FileNotFoundException;
@@ -51,12 +51,11 @@ public class Main {
     }
 
     private static SyncCloudStorage buildSyncCloudStorage(FileCollectorVisitor visitor, MetadataContainer allContentMetadata) throws IOException {
-        List<FileHashInfo> cloudFiles = mapMetadataToFileHashInfos(allContentMetadata);
+        List<FileHash> cloudFiles = mapMetadataToFileHash(allContentMetadata);
 
         HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
 
-        List<FileHashInfo> appFilesHashInfo = hashSumFiles.getFilesHashInfo();
-        List<FileHashInfo> appRelativizedPathFiles = hashSumFiles.getRelativizeRootFilesHashInfo();
+        List<FileHash> appFilesHashInfo = hashSumFiles.getFilesHash();
         Set<Path> appRelativizedPathFolders = visitor.getFolderPath()
                 .stream()
                 .map(pathFolder -> Paths.get("/").resolve(CONFIG.getPathApplication().relativize(pathFolder)))
@@ -65,7 +64,7 @@ public class Main {
 
         return new SyncCloudStorageBuilder()
                 .applicationAbsolutePathFiles(appFilesHashInfo)
-                .applicationRelativizedPathFiles(appRelativizedPathFiles)
+                .applicationRelativizedPathFiles(null)
                 .applicationFoldersRelativized(appRelativizedPathFolders)
                 .cloudFiles(cloudFiles)
                 .cloudFolders(allContentMetadata
@@ -84,13 +83,13 @@ public class Main {
         return visitor;
     }
 
-    private static List<FileHashInfo> mapMetadataToFileHashInfos(MetadataContainer container) {
+    private static List<FileHash> mapMetadataToFileHash(MetadataContainer container) {
         return container.getFileMetadataList()
                 .stream()
                 .map(metadata -> {
                     Path path = Paths.get(metadata.getPathDisplay());
                     String hash = metadata.getContentHash();
-                    return new FileHashInfo(path, hash);
+                    return new FileHash(path,path, hash);
                 }).toList();
     }
 
