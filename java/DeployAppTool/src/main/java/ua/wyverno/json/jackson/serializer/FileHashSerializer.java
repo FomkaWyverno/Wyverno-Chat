@@ -16,8 +16,8 @@ public class FileHashSerializer extends StdSerializer<FileHash> {
     @Override
     public void serialize(FileHash fileHash, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("pathFile", fileHash.getPathFile().toString());
-        jsonGenerator.writeStringField("absolutePath", fileHash.getAbsolutePath());
+        jsonGenerator.writeStringField("pathFile", fileHash.getRelativePath().toString());
+        jsonGenerator.writeStringField("absolutePath", fileHash.getAbsolutePath().toString());
         jsonGenerator.writeStringField("hash", fileHash.getHash());
         jsonGenerator.writeEndObject();
     }

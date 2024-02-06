@@ -4,65 +4,74 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.wyverno.files.ICloudFile;
+import ua.wyverno.files.IFile;
+import ua.wyverno.files.exceptions.CloudFileTryCalculationException;
 import ua.wyverno.files.exceptions.FolderCalculationException;
 import ua.wyverno.json.jackson.deserializer.FileHashDeserializer;
 import ua.wyverno.json.jackson.serializer.FileHashSerializer;
 import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
 import ua.wyverno.util.dropbox.hasher.HexUtils;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.util.List;
 
 /**
  * Class just have Path File and its content hash
  */
 @JsonSerialize(using = FileHashSerializer.class)
 @JsonDeserialize(using = FileHashDeserializer.class)
-public class FileHash extends File {
+public class FileHash implements IFile<FileHash>, ICloudFile, Hashing {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHash.class);
     private String hash;
+
     private final Path absolutePath;
+    private final Path relativePath;
     private boolean isCloudFile = false;
     private boolean isCloudDirectory = false;
 
-    public FileHash(Path pathFile, Path absolutePath) {
-        super(pathFile.toUri());
+    public FileHash(Path relativePath, Path absolutePath) {
         this.absolutePath = absolutePath;
+        this.relativePath = relativePath;
     }
 
-    public FileHash(Path pathFile, Path absolutePath, String hash) {
-        super(pathFile.toUri());
+    public FileHash(Path relativePath, Path absolutePath, String hash) {
         this.absolutePath = absolutePath;
+        this.relativePath = relativePath;
         this.hash = hash;
     }
 
-    public FileHash(String pathname, String absolutePath) {
-        super(pathname);
+    public FileHash(String relativePath, String absolutePath) {
         this.absolutePath = Paths.get(absolutePath);
+        this.relativePath = Paths.get(relativePath);
     }
 
-    public FileHash(String pathname, String absolutePath, String hash) {
-        super(pathname);
+    public FileHash(String relativePath, String absolutePath, String hash) {
+        this.absolutePath = Paths.get(absolutePath);
         this.hash = hash;
-        this.absolutePath = Paths.get(absolutePath);
+        this.relativePath = Paths.get(relativePath);
     }
 
+    @Override
     public void calculateChecksum() throws IOException {
         if (this.isDirectory()) {
-            logger.warn("Try hashing file which is directory! Path: {}", this.toPath());
-            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.toPath());
+            logger.warn("Try hashing file which is directory! Path: {}", this.getAbsolutePath());
+            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.getAbsolutePath());
+        } else if (this.isCloud()) {
+            logger.warn("Try calculation cloud FILE! Path: {}", this.getAbsolutePath());
+            throw new CloudFileTryCalculationException("Try calculate cloud FILE! Path: " + this.getAbsolutePath());
         }
 
-        logger.debug("Hashing file for method DropBox SHA256 - {}", this.getPathFile());
+        logger.debug("Hashing file for method DropBox SHA256 - {}", this.getRelativePath());
         MessageDigest hasher = new DropboxContentHasher();
         byte[] buf = new byte[1024];
-        try (InputStream in = new FileInputStream(this)) {
+        try (InputStream in = new FileInputStream(this.getAbsolutePath().toFile())) {
             while (true) {
                 int n = in.read(buf);
                 if (n < 0) break;  // EOF
@@ -70,78 +79,84 @@ public class FileHash extends File {
             }
         }
         this.hash = HexUtils.hex(hasher.digest());
-        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.toPath(), this.hash);
+        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.getAbsolutePath(), this.hash);
 
     }
 
-    public Path getPathFile() {
-        return super.toPath();
-    }
-
+    @Override
     public String getHash() {
         return hash;
     }
+    @Override
+    public boolean isDirectory() {
+        if (!this.isCloudFile && this.isCloudDirectory) return true;
+        return this.absolutePath.toFile().isDirectory();
+    }
 
+    @Override
+    public boolean isFile() {
+        if (this.isCloudFile && !this.isCloudDirectory) return true;
+        return this.absolutePath.toFile().isFile();
+    }
+
+    @Override
+    public Path getRelativePath() {
+        return this.relativePath;
+    }
+
+    @Override
+    public Path getAbsolutePath() {
+        return this.absolutePath;
+    }
+
+    @Override
+    public FileHash getParent() {
+        return null;
+    }
+
+    @Override
+    public List<FileHash> getChildren() {
+        return null;
+    }
+
+    @Override
     public void setCloudFile(boolean cloudFile) {
         this.isCloudFile = cloudFile;
         this.isCloudDirectory = !this.isCloudFile;
     }
-
+    @Override
     public void setCloudDirectory(boolean cloudDirectory) {
         this.isCloudDirectory = cloudDirectory;
         this.isCloudFile = !this.isCloudDirectory;
     }
 
     @Override
-    public boolean isDirectory() {
-        if (!this.isCloudFile && this.isCloudDirectory) return true;
-        return super.isDirectory();
-    }
-
-    @Override
-    public boolean isFile() {
-        if (this.isCloudFile && !this.isCloudDirectory) return true;
-        return super.isFile();
-    }
-
     public boolean isCloud() {
         return this.isCloudFile || this.isCloudDirectory;
     }
-
+    @Override
     public boolean isCloudFile() {
         return isCloudFile;
     }
-
+    @Override
     public boolean isCloudDirectory() {
-        return isCloudDirectory;
+        return this.isCloudDirectory;
     }
 
-    @Override
-    public String getAbsolutePath() {
-        return this.absolutePath.toString();
-    }
-
-    @Override
-    public File getAbsoluteFile() {
-        return new File(this.absolutePath.toString());
-    }
-
-    public Path toAbsolutePath() {
-        return this.absolutePath;
-    }
 
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof FileHash otherFile)) return false;
         return this.hash.equals(otherFile.getHash())
                 &&
-                this.getPathFile().equals(otherFile.getPathFile());
+                this.getRelativePath().equals(otherFile.getRelativePath());
     }
 
     @Override
     public String toString() {
         return "FileHash{" +
-                "pathFile=" + this.getPathFile() +
+                "pathFile=" + this.getRelativePath() +
+                ", relativePath=" + this.relativePath.toString() +
                 ", hash='" + hash + '\'' +
                 '}';
     }

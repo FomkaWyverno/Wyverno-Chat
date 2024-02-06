@@ -3,11 +3,9 @@ package ua.wyverno.files.differ;
 import ua.wyverno.files.hashs.FileHash;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class StorageDiffer implements IStorageDiffer {
@@ -62,18 +60,6 @@ public class StorageDiffer implements IStorageDiffer {
                 .collect(Collectors.toSet());
 
 
-        Path slashRoot = Paths.get("/");
-
-        Function<? super FileHash, ? extends FileHash> functionRemoveSlashRoot = (Function<FileHash, FileHash>) file -> {
-            if (file.getPathFile().startsWith(slashRoot)) {
-                return new FileHash(slashRoot.relativize(file.getPathFile()), file.getPathFile());
-            }
-            return file;
-        };
-        Set<FileHash> firstStorageWithoutSlashRoot = firstStorageDirectories.stream()
-                .map(functionRemoveSlashRoot).collect(Collectors.toSet());
-        Set<FileHash> secondStorageWithoutSlashRoot = secondStorageDirectories.stream()
-                .map(functionRemoveSlashRoot).collect(Collectors.toSet());
 
         this.deletedFolders = Collections.unmodifiableSet(deletedDirectories);
         return this.deletedFolders;
