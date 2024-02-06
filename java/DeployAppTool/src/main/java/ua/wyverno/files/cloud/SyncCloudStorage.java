@@ -55,7 +55,7 @@ public class SyncCloudStorage {
                 .filter(file ->
                         this.getDeletedFolders()
                                 .stream()
-                                .noneMatch(deletedFolder -> file.getRelativePath().startsWith(deletedFolder)))
+                                .noneMatch(deletedFolder -> file.getPath().startsWith(deletedFolder)))
                 .filter(file -> !this.getApplicationRelativizedPathFiles().contains(file))
                 .collect(Collectors.toSet());
 
@@ -110,7 +110,7 @@ public class SyncCloudStorage {
                     final Path finalNotCheckedRoot = notCheckedRoot;
                     boolean notHasFileInFolder =  this.getApplicationRelativizedPathFiles()
                             .stream()
-                            .noneMatch(file -> file.getRelativePath().startsWith(finalNotCheckedRoot));
+                            .noneMatch(file -> file.getPath().startsWith(finalNotCheckedRoot));
 
                     checkedFolders.add(finalNotCheckedRoot);
                     if (notHasFileInFolder) this.deletedFolders.add(finalNotCheckedRoot);
@@ -182,11 +182,11 @@ public class SyncCloudStorage {
         Set<Path> cloudFolders = this.getCloudFolders();
         Set<Path> appFiles = this.getApplicationRelativizedPathFiles()
                 .stream()
-                .map(FileHash::getRelativePath)
+                .map(FileHash::getPath)
                 .collect(Collectors.toSet());
         Set<Path> cloudFiles = this.getCloudFiles()
                 .stream()
-                .map(FileHash::getRelativePath)
+                .map(FileHash::getPath)
                 .collect(Collectors.toSet());
 
         for (Path appFolder : appFolders) {
@@ -213,13 +213,13 @@ public class SyncCloudStorage {
      */
     private void synchronizedAddedFiles(DropBoxAPI dropBoxAPI, Path root, Set<FileHash> addedFiles) throws DbxException, IOException {
         for (FileHash file : addedFiles) {
-            logger.info("\nAdded or Modify: {}\nHash: {}", file.getRelativePath(), file.getHash());
+            logger.info("\nAdded or Modify: {}\nHash: {}", file.getPath(), file.getHash());
         }
         if (!addedFiles.isEmpty()) {
             dropBoxAPI.uploadFiles(addedFiles
                     .stream()
                     .map(file -> {
-                        Path cloudFile = file.getRelativePath();
+                        Path cloudFile = file.getPath();
                         Path originalPath = root.resolve(Paths.get("/").relativize(cloudFile));
                         return new CloudLocalFile(originalPath, cloudFile);
                     }).toList());
@@ -256,12 +256,12 @@ public class SyncCloudStorage {
      */
     private void synchronizedDeletedFiles(DropBoxAPI dropBoxAPI, Set<FileHash> deletedFiles) throws DbxException {
         for (FileHash file : deletedFiles) {
-            logger.info("\nDeleted files: {}\nHash: {}", file.getRelativePath(), file.getHash());
+            logger.info("\nDeleted files: {}\nHash: {}", file.getPath(), file.getHash());
         }
         if (!deletedFiles.isEmpty()) {
             dropBoxAPI.deleteFiles(deletedFiles
                     .stream()
-                    .map(file -> file.getRelativePath().toString())
+                    .map(file -> file.getPath().toString())
                     .toList());
         } else {
             logger.info("Not need delete file in cloud storage!");

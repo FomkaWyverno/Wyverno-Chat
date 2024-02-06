@@ -6,8 +6,7 @@ import java.util.List;
 public interface IFile<T extends IFile<T>> {
     boolean isDirectory();
     boolean isFile();
-    Path getRelativePath();
-    Path getAbsolutePath();
+    Path getPath();
     T getParent();
     List<T> getChildren();
 }

@@ -52,7 +52,7 @@ class StorageDifferTest {
         firstStorage.addAll(visitorFolder1.getFolderPath()
                 .stream()
                 .map(path -> new FileHash(folder1Root.relativize(path), path))
-                .filter(file -> !file.getRelativePath().equals(folder1Root))
+                .filter(file -> !file.getPath().equals(folder1Root))
                 .collect(Collectors.toSet()));
         secondStorage = visitorFolder2.getFilesPath()
                 .stream()
@@ -70,7 +70,7 @@ class StorageDifferTest {
         secondStorage.addAll(visitorFolder2.getFolderPath()
                 .stream()
                 .map(path -> new FileHash(folder2Root.relativize(path), path))
-                .filter(file -> !file.getRelativePath().equals(folder2Root))
+                .filter(file -> !file.getPath().equals(folder2Root))
                 .collect(Collectors.toSet()));
 
         storageDiffer = new StorageDiffer(firstStorage, secondStorage);
