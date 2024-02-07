@@ -51,7 +51,7 @@ public class Main {
     }
 
     private static SyncCloudStorage buildSyncCloudStorage(FileCollectorVisitor visitor, MetadataContainer allContentMetadata) throws IOException {
-        List<FileHash> cloudFiles = mapMetadataToFileHash(allContentMetadata);
+        List<FileHash> cloudFiles = null;//mapMetadataToFileHash(allContentMetadata);
 
         HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
 
@@ -83,15 +83,15 @@ public class Main {
         return visitor;
     }
 
-    private static List<FileHash> mapMetadataToFileHash(MetadataContainer container) {
-        return container.getFileMetadataList()
-                .stream()
-                .map(metadata -> {
-                    Path path = Paths.get(metadata.getPathDisplay());
-                    String hash = metadata.getContentHash();
-                    return new FileHash(path,path, hash);
-                }).toList();
-    }
+//    private static List<FileHash> mapMetadataToFileHash(MetadataContainer container) {
+//        return container.getFileMetadataList()
+//                .stream()
+//                .map(metadata -> {
+//                    Path path = Paths.get(metadata.getPathDisplay());
+//                    String hash = metadata.getContentHash();
+//                    return new FileHash(path,path, hash);
+//                }).toList();
+//    }
 
     private static Config loadConfig() throws IOException {
         Path pathConfig = Paths.get("./setting.properties");

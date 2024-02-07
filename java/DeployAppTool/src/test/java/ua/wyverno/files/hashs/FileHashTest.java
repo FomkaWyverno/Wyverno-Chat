@@ -1,14 +1,9 @@
 package ua.wyverno.files.hashs;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,41 +11,71 @@ class FileHashTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashTest.class);
 
-    @ParameterizedTest
-    @MethodSource("sourceIsDirectory")
-    void isDirectory(FileHash file, boolean expect) {
-        assertEquals(file.isDirectory(), expect);
+    static FileHash src;
+    static FileHash main;
+    static FileHash java;
+    static FileHash example;
+
+    @BeforeAll
+    static void init() {
+        FileHash src = new FileHash("src", false);
+        FileHash main = new FileHash(src,"main", false);
+        FileHash java = new FileHash(main,"java", false);
+        FileHash example = new FileHash(java,"example",false);
+
+        src.addChild(main);
+        main.addChild(java);
+        java.addChild(example);
+
+        FileHashTest.src = src;
+        FileHashTest.main = main;
+        FileHashTest.java = java;
+        FileHashTest.example = example;
+    }
+    @Test
+    void getName() {
+        assertEquals("example", example.getName());
     }
 
-    @ParameterizedTest
-    @MethodSource("sourceIsDirectory")
-    void isFile(FileHash file, boolean expect) {
-        assertEquals(file.isFile(), !expect);
+    @Test
+    void getPath() {
+        assertEquals("src/main/java/example", example.getPath());
     }
 
-    public static Stream<Arguments> sourceIsDirectory() {
-        FileHash cloudFile = new FileHash(Paths.get("/file/cloud.java"),Paths.get("/file/cloud.java"));
-        FileHash cloudFolder = new FileHash(Paths.get("/cloud"),Paths.get("/cloud"));
-        cloudFile.setCloudFile(true);
-        cloudFolder.setCloudDirectory(true);
-        FileHash localFile = new FileHash(Paths.get("/Main.java"),Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder\\Main.java"));
-        FileHash localFolder = new FileHash(Paths.get("/dropbox"),Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder\\dropbox"));
-        return Stream.of(
-                Arguments.of(cloudFile, false),
-                Arguments.of(cloudFolder, true),
-                Arguments.of(localFile, false),
-                Arguments.of(localFolder, true));
+    @Test
+    void getChildrenSrc() {
+        assertEquals(1, src.getChildren().size());
+        assertEquals(main, src.getChildren().get(0));
+    }
+
+    @Test
+    void getChildrenMain() {
+        assertEquals(1, main.getChildren().size());
+        assertEquals(java, main.getChildren().get(0));
+    }
+
+    @Test
+    void getChildrenJava() {
+        assertEquals(1, java.getChildren().size());
+        assertEquals(example, java.getChildren().get(0));
+    }
+
+    @Test
+    void getChildrenExample() {
+        assertEquals(0, example.getChildren().size());
     }
 
 
-    public static void main(String[] args) {
-        Path slashRoot = Paths.get("/");
-        Path path = Paths.get("/master/full/link.java");
-        Path systemPath = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder\\dropbox");
+    @Test
+    void getParent() {
+        assertNull(src.getParent());
+        assertEquals(src, main.getParent());
+        assertEquals(main, java.getParent());
+        assertEquals(java, example.getParent());
+    }
 
-        logger.info("Resolve: {}", slashRoot.resolve(path));
-        logger.info("Relatavize: {}", slashRoot.relativize(path));
-        logger.info("StartWith systemPath: {}", systemPath.startsWith(slashRoot));
-        logger.info("StartWith path: {}", path.startsWith(slashRoot));
+    @Test
+    void toStringTest(){
+        logger.info(java.toString());
     }
 }

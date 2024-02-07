@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.files.IFile;
 import ua.wyverno.files.exceptions.FolderCalculationException;
-import ua.wyverno.json.jackson.deserializer.FileHashDeserializer;
+//import ua.wyverno.json.jackson.deserializer.FileHashDeserializer;
 import ua.wyverno.json.jackson.serializer.FileHashSerializer;
 import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
 import ua.wyverno.util.dropbox.hasher.HexUtils;
@@ -17,116 +17,133 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class just have Path File and its content hash
  */
 @JsonSerialize(using = FileHashSerializer.class)
-@JsonDeserialize(using = FileHashDeserializer.class)
+//@JsonDeserialize(using = FileHashDeserializer.class)
 public class FileHash implements IFile<FileHash>, Hashing {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHash.class);
-    private String hash;
-
-    private final Path absolutePath;
-    private final Path relativePath;
-
-    public FileHash(Path relativePath, Path absolutePath) {
-        this.absolutePath = absolutePath;
-        this.relativePath = relativePath;
+    private final String hash;
+    private final String name;
+    private final FileHash parent;
+    private final List<FileHash> children;
+    private Path path;
+    private final boolean isFile;
+    public FileHash(FileHash parent, String nameFile, boolean isFile) {
+        this.parent = parent;
+        this.name = Objects.requireNonNull(nameFile);
+        this.isFile = isFile;
+        this.hash = "";
+        this.children = !this.isFile ? new ArrayList<>() : null;
     }
-
-//    public FileHash(Path relativePath, Path absolutePath, FileHash ) {
-//
-//    }
-
-    public FileHash(Path relativePath, Path absolutePath, String hash) {
-        this.absolutePath = absolutePath;
-        this.relativePath = relativePath;
+    public FileHash(FileHash parent, String nameFile, boolean isFile, String hash) {
+        this.parent = parent;
+        this.name = Objects.requireNonNull(nameFile);
+        this.isFile = isFile;
         this.hash = hash;
+        this.children = !this.isFile ? new ArrayList<>() : null;
     }
-
-    public FileHash(String relativePath, String absolutePath) {
-        this.absolutePath = Paths.get(absolutePath);
-        this.relativePath = Paths.get(relativePath);
+    public FileHash(String nameFile, boolean isFile) {
+        this.parent = null;
+        this.name = Objects.requireNonNull(nameFile);
+        this.isFile = isFile;
+        this.hash = "";
+        this.children = !this.isFile ? new ArrayList<>() : null;
     }
-
-    public FileHash(String relativePath, String absolutePath, String hash) {
-        this.absolutePath = Paths.get(absolutePath);
+    public FileHash(String nameFile, boolean isFile, String hash) {
+        this.parent = null;
+        this.name = Objects.requireNonNull(nameFile);
+        this.isFile = isFile;
         this.hash = hash;
-        this.relativePath = Paths.get(relativePath);
+        this.children = !this.isFile ? new ArrayList<>() : null;
     }
-
-    @Override
-    public void calculateChecksum() throws IOException {
-        if (this.isDirectory()) {
-            logger.warn("Try hashing file which is directory! Path: {}", this.getAbsolutePath());
-            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.getAbsolutePath());
-        }
-
-        logger.debug("Hashing file for method DropBox SHA256 - {}", this.getPath());
-        MessageDigest hasher = new DropboxContentHasher();
-        byte[] buf = new byte[1024];
-        try (InputStream in = new FileInputStream(this.getAbsolutePath().toFile())) {
-            while (true) {
-                int n = in.read(buf);
-                if (n < 0) break;  // EOF
-                hasher.update(buf, 0, n);
-            }
-        }
-        this.hash = HexUtils.hex(hasher.digest());
-        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.getAbsolutePath(), this.hash);
-
-    }
-
     @Override
     public String getHash() {
         return hash;
     }
     @Override
     public boolean isDirectory() {
-        return this.absolutePath.toFile().isDirectory();
+        return !this.isFile;
     }
 
     @Override
     public boolean isFile() {
-        return this.absolutePath.toFile().isFile();
+        return this.isFile;
     }
 
     @Override
-    public Path getPath() {
-        return this.relativePath;
+    public String getName() {
+        return this.name;
     }
 
     @Override
-    public Path getAbsolutePath() {
-        return this.absolutePath;
+    public String getPath() {
+        if (this.getParent() != null) {
+            return this.getParent().getPath() + "/" + this.getName();
+        }
+        return this.getName();
+    }
+
+    @Override
+    public Path toPath() {
+        if (this.path == null) this.path = Paths.get(this.getPath());
+        return this.path;
     }
 
     @Override
     public FileHash getParent() {
-        return null;
+        return this.parent;
     }
 
     @Override
     public List<FileHash> getChildren() {
-        return null;
+        if (this.children == null) return null;
+        return Collections.unmodifiableList(this.children);
     }
+
+    @Override
+    public void addChild(FileHash file) {
+        this.children.add(file);
+    }
+    @Override
+    public void addChildren(List<FileHash> files) {
+        this.children.addAll(files);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof FileHash otherFile)) return false;
-        return this.hash.equals(otherFile.getHash())
-                &&
-                this.getPath().equals(otherFile.getPath());
+        if (this.isFile() && otherFile.isFile()) {
+            return this.hash.equals(otherFile.getHash())
+                    &&
+                    this.toPath().equals(otherFile.toPath());
+        }
+        if (this.isDirectory() && otherFile.isDirectory()) {
+            return this.toPath().equals(otherFile.toPath());
+        }
+        return false;
     }
 
     @Override
     public String toString() {
-        return "FileHash{" +
-                "pathFile=" + this.getPath() +
-                ", relativePath=" + this.relativePath.toString() +
-                ", hash='" + hash + '\'' +
-                '}';
+        return String.format(
+                """
+                        {"FileHash": {
+                            "hash": "%s",
+                            "name": "%s",
+                            "path": "%s",
+                            "children": "%s"
+                        }}""",
+                this.getHash(),
+                this.getName(),
+                this.getPath(),
+                this.getChildren() != null ? this.getChildren().toString() : "null");
     }
 }

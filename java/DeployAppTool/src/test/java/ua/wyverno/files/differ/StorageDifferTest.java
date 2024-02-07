@@ -32,48 +32,6 @@ class StorageDifferTest {
         Path folder2Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder2");
         Files.walkFileTree(folder1Root,visitorFolder1);
         Files.walkFileTree(folder2Root,visitorFolder2);
-
-
-        Set<FileHash> firstStorage;
-        Set<FileHash> secondStorage;
-        firstStorage = visitorFolder1.getFilesPath()
-                .stream()
-                .map(path -> {
-                    try {
-                    FileHash fileHash = new FileHash(folder1Root.relativize(path), path);
-                    fileHash.calculateChecksum();
-                    return fileHash;
-                    } catch (IOException e) {
-                        logger.error("", e);
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toSet());
-        firstStorage.addAll(visitorFolder1.getFolderPath()
-                .stream()
-                .map(path -> new FileHash(folder1Root.relativize(path), path))
-                .filter(file -> !file.getPath().equals(folder1Root))
-                .collect(Collectors.toSet()));
-        secondStorage = visitorFolder2.getFilesPath()
-                .stream()
-                .map(path -> {
-                    try {
-                        FileHash fileHash = new FileHash(folder2Root.relativize(path), path);
-                        fileHash.calculateChecksum();;
-                        return fileHash;
-                    } catch (IOException e) {
-                        logger.error("", e);
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toSet());
-
-        secondStorage.addAll(visitorFolder2.getFolderPath()
-                .stream()
-                .map(path -> new FileHash(folder2Root.relativize(path), path))
-                .filter(file -> !file.getPath().equals(folder2Root))
-                .collect(Collectors.toSet()));
-
-        storageDiffer = new StorageDiffer(firstStorage, secondStorage);
     }
 
     @Test

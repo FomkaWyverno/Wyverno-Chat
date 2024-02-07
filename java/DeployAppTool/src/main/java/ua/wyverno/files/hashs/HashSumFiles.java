@@ -29,15 +29,15 @@ public class HashSumFiles {
      * @throws IOException generating when has problem reading file
      */
     private void calculateFilesHashInfo() throws IOException {
-        logger.debug("Start calculate for files hash info");
-        List<FileHash> calculatedFilesHash = new ArrayList<>();
-
-        for (Path p : this.originalFiles) {
-            FileHash fileHash = new FileHash(this.root.relativize(p), p);
-            fileHash.calculateChecksum();
-            calculatedFilesHash.add(fileHash);
-        }
-        this.filesHash = calculatedFilesHash;
+//        logger.debug("Start calculate for files hash info");
+//        List<FileHash> calculatedFilesHash = new ArrayList<>();
+//
+//        for (Path p : this.originalFiles) {
+//            FileHash fileHash = new FileHash(this.root.relativize(p), p);
+//            fileHash.calculateChecksum();
+//            calculatedFilesHash.add(fileHash);
+//        }
+//        this.filesHash = calculatedFilesHash;
     }
 
     public List<FileHash> getOriginalFiles() {

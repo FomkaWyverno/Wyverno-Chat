@@ -6,29 +6,15 @@ import java.nio.file.Path;
 public class CloudFileHash extends FileHash implements ICloudFile {
 
     private final boolean isCloudFile;
-    public CloudFileHash(Path relativePath, Path absolutePath, boolean isCloudFile) {
-        super(relativePath, absolutePath);
+
+    public CloudFileHash(FileHash parent, String nameFile, boolean isFile, boolean isCloudFile) {
+        super(parent, nameFile, isFile);
         this.isCloudFile = isCloudFile;
     }
 
-    public CloudFileHash(Path relativePath, Path absolutePath, String hash, boolean isCloudFile) {
-        super(relativePath, absolutePath, hash);
+    public CloudFileHash(String nameFile, boolean isFile, boolean isCloudFile) {
+        super(nameFile, isFile);
         this.isCloudFile = isCloudFile;
-    }
-
-    public CloudFileHash(String relativePath, String absolutePath, boolean isCloudFile) {
-        super(relativePath, absolutePath);
-        this.isCloudFile = isCloudFile;
-    }
-
-    public CloudFileHash(String relativePath, String absolutePath, String hash, boolean isCloudFile) {
-        super(relativePath, absolutePath, hash);
-        this.isCloudFile = isCloudFile;
-    }
-
-    @Override
-    public void calculateChecksum() {
-        throw new UnsupportedOperationException("calculateChecksum() method is not supported for CloudFileHash, as it does not have direct access to data");
     }
 
     @Override
