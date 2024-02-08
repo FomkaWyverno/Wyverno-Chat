@@ -6,34 +6,36 @@ import ua.wyverno.files.exceptions.FolderCalculationException;
 import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
 import ua.wyverno.util.dropbox.hasher.HexUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 
-public class FileComputeHash implements ComputeHash, Hashing, ConvertorFileHash {
+public class FileComputeHash implements ComputeHash, Hashing {
     private static final Logger logger = LoggerFactory.getLogger(FileComputeHash.class);
     private String hash;
-    private final Path originFile;
-    private final Path relativePath;
+    private final Path root;
+    private final FileHashNode fileHash;
+    private File absoluteFile;
 
-    public FileComputeHash(Path originFile, Path relativePath) {
-        this.originFile = originFile;
-        this.relativePath = relativePath;
+    public FileComputeHash(Path root, FileHashNode fileHash) {
+        this.root = root;
+        this.fileHash = fileHash;
     }
 
     @Override
     public void computeHash() throws IOException {
-        if (this.getOriginFile().toFile().isDirectory()) {
-            logger.warn("Try hashing file which is directory! Path: {}", this.getOriginFile());
-            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.getOriginFile());
+        if (this.toAbsoluteFile().isDirectory()) {
+            logger.warn("Try hashing file which is directory! Path: {}", this.toAbsoluteFile());
+            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.toAbsoluteFile());
         }
 
-        logger.debug("Hashing file for method DropBox SHA256 - {}", this.getOriginFile());
+        logger.debug("Hashing file for method DropBox SHA256 - {}", this.toAbsoluteFile());
         MessageDigest hasher = new DropboxContentHasher();
         byte[] buf = new byte[1024];
-        try (InputStream in = new FileInputStream(this.getOriginFile().toFile())) {
+        try (InputStream in = new FileInputStream(this.toAbsoluteFile())) {
             while (true) {
                 int n = in.read(buf);
                 if (n < 0) break;  // EOF
@@ -41,49 +43,24 @@ public class FileComputeHash implements ComputeHash, Hashing, ConvertorFileHash 
             }
         }
         this.hash = HexUtils.hex(hasher.digest());
-        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.getOriginFile(), this.hash);
+        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.toAbsoluteFile(), this.hash);
     }
 
-    public Path getOriginFile() {
-        return originFile;
+    public File toAbsoluteFile() {
+        if (this.absoluteFile == null) this.absoluteFile = this.root.resolve(this.fileHash.getPath()).toFile();
+        return this.absoluteFile;
     }
 
-    public Path getRelativePath() {
-        return relativePath;
+    public Path getRoot() {
+        return root;
+    }
+
+    public FileHashNode getFileHash() {
+        return fileHash;
     }
 
     @Override
     public String getHash() {
         return this.hash;
-    }
-
-    @Override
-    public FileHash mergeWithOtherFileHash(FileHash root) {
-        FileHash fileHash = this.toFileHash();
-        return mergeWithOtherFile(fileHash, root);
-    }
-
-    private FileHash mergeWithOtherFile(FileHash fileHash, FileHash root) {
-        for (FileHash file : root.getChildren()) {
-
-        }
-    }
-
-    @Override
-    public FileHash toFileHash() {
-        return this.convertToFileHash(this.getRelativePath(), this.getOriginFile().toFile().isFile());
-    }
-
-    private FileHash convertToFileHash(Path path, boolean headIsFile) {
-        Path parent = path.getParent();
-        FileHash fileHash;
-        if (parent != null) {
-            FileHash parentFile = this.convertToFileHash(parent, false);
-            fileHash = new FileHash(parentFile, path.toFile().getName(), headIsFile);
-            parentFile.addChild(fileHash);
-        } else {
-            fileHash = new FileHash(path.toFile().getName(), headIsFile);
-        }
-        return fileHash;
     }
 }

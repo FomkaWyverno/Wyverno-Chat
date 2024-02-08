@@ -5,14 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.files.FileCollectorVisitor;
-import ua.wyverno.files.hashs.FileHash;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,8 +22,8 @@ class StorageDifferTest {
 
     @BeforeAll
     static void initTest() throws IOException {
-        FileCollectorVisitor visitorFolder1 = new FileCollectorVisitor();
-        FileCollectorVisitor visitorFolder2 = new FileCollectorVisitor();
+        FileCollectorVisitor visitorFolder1 = new FileCollectorVisitor(null);
+        FileCollectorVisitor visitorFolder2 = new FileCollectorVisitor(null);
 
         Path folder1Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder");
         Path folder2Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder2");

@@ -1,18 +1,17 @@
 package ua.wyverno.files.hashs;
 
 import ua.wyverno.files.ICloudFile;
-import java.nio.file.Path;
 
-public class CloudFileHash extends FileHash implements ICloudFile {
+public class CloudFileNodeHash extends FileHashNode implements ICloudFile {
 
     private final boolean isCloudFile;
 
-    public CloudFileHash(FileHash parent, String nameFile, boolean isFile, boolean isCloudFile) {
+    public CloudFileNodeHash(FileHashNode parent, String nameFile, boolean isFile, boolean isCloudFile) {
         super(parent, nameFile, isFile);
         this.isCloudFile = isCloudFile;
     }
 
-    public CloudFileHash(String nameFile, boolean isFile, boolean isCloudFile) {
+    public CloudFileNodeHash(String nameFile, boolean isFile, boolean isCloudFile) {
         super(nameFile, isFile);
         this.isCloudFile = isCloudFile;
     }

@@ -1,22 +1,14 @@
 package ua.wyverno.files.hashs;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.files.IFile;
-import ua.wyverno.files.exceptions.FolderCalculationException;
+import ua.wyverno.files.IFileNode;
 //import ua.wyverno.json.jackson.deserializer.FileHashDeserializer;
 import ua.wyverno.json.jackson.serializer.FileHashSerializer;
-import ua.wyverno.util.dropbox.hasher.DropboxContentHasher;
-import ua.wyverno.util.dropbox.hasher.HexUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,37 +19,37 @@ import java.util.Objects;
  */
 @JsonSerialize(using = FileHashSerializer.class)
 //@JsonDeserialize(using = FileHashDeserializer.class)
-public class FileHash implements IFile<FileHash>, Hashing {
+public class FileHashNode implements IFileNode<FileHashNode>, Hashing {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHash.class);
-    private final String hash;
+    private static final Logger logger = LoggerFactory.getLogger(FileHashNode.class);
+    private String hash;
     private final String name;
-    private final FileHash parent;
-    private final List<FileHash> children;
+    private final FileHashNode parent;
+    private final List<FileHashNode> children;
     private Path path;
     private final boolean isFile;
-    public FileHash(FileHash parent, String nameFile, boolean isFile) {
+    public FileHashNode(FileHashNode parent, String nameFile, boolean isFile) {
         this.parent = parent;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
         this.hash = "";
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
-    public FileHash(FileHash parent, String nameFile, boolean isFile, String hash) {
+    public FileHashNode(FileHashNode parent, String nameFile, boolean isFile, String hash) {
         this.parent = parent;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
         this.hash = hash;
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
-    public FileHash(String nameFile, boolean isFile) {
+    public FileHashNode(String nameFile, boolean isFile) {
         this.parent = null;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
         this.hash = "";
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
-    public FileHash(String nameFile, boolean isFile, String hash) {
+    public FileHashNode(String nameFile, boolean isFile, String hash) {
         this.parent = null;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
@@ -98,28 +90,38 @@ public class FileHash implements IFile<FileHash>, Hashing {
     }
 
     @Override
-    public FileHash getParent() {
+    public FileHashNode getParent() {
         return this.parent;
     }
 
     @Override
-    public List<FileHash> getChildren() {
+    public List<FileHashNode> getChildren() {
         if (this.children == null) return null;
         return Collections.unmodifiableList(this.children);
     }
 
     @Override
-    public void addChild(FileHash file) {
+    public void addChild(FileHashNode file) {
         this.children.add(file);
     }
     @Override
-    public void addChildren(List<FileHash> files) {
+    public void addChildren(List<FileHashNode> files) {
         this.children.addAll(files);
     }
 
     @Override
+    public boolean removeChild(FileHashNode file) {
+        return this.children.remove(file);
+    }
+
+    @Override
+    public boolean removeChildren(List<FileHashNode> children) {
+        return this.children.removeAll(children);
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof FileHash otherFile)) return false;
+        if (!(obj instanceof FileHashNode otherFile)) return false;
         if (this.isFile() && otherFile.isFile()) {
             return this.hash.equals(otherFile.getHash())
                     &&

@@ -1,26 +1,26 @@
 package ua.wyverno.files.cloud;
 
-import ua.wyverno.files.hashs.FileHash;
+import ua.wyverno.files.hashs.FileHashNode;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
 public class SyncCloudStorageBuilder {
-    private List<FileHash> applicationAbsolutePathFiles;
-    private List<FileHash> applicationRelativizedPathFiles;
+    private List<FileHashNode> applicationAbsolutePathFiles;
+    private List<FileHashNode> applicationRelativizedPathFiles;
     private Set<Path> applicationFoldersRelativized;
 
 
-    private List<FileHash> cloudFiles;
+    private List<FileHashNode> cloudFiles;
     private Set<Path> cloudFolders;
 
-    public SyncCloudStorageBuilder applicationAbsolutePathFiles(List<FileHash> applicationAbsolutePathFiles) {
+    public SyncCloudStorageBuilder applicationAbsolutePathFiles(List<FileHashNode> applicationAbsolutePathFiles) {
         this.applicationAbsolutePathFiles = applicationAbsolutePathFiles;
         return this;
     }
 
-    public SyncCloudStorageBuilder applicationRelativizedPathFiles(List<FileHash> applicationRelativizedPathFiles) {
+    public SyncCloudStorageBuilder applicationRelativizedPathFiles(List<FileHashNode> applicationRelativizedPathFiles) {
         this.applicationRelativizedPathFiles = applicationRelativizedPathFiles;
         return this;
     }
@@ -30,7 +30,7 @@ public class SyncCloudStorageBuilder {
         return this;
     }
 
-    public SyncCloudStorageBuilder cloudFiles(List<FileHash> cloudFiles) {
+    public SyncCloudStorageBuilder cloudFiles(List<FileHashNode> cloudFiles) {
         this.cloudFiles = cloudFiles;
         return this;
     }

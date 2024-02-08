@@ -11,17 +11,17 @@ class FileHashTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashTest.class);
 
-    static FileHash src;
-    static FileHash main;
-    static FileHash java;
-    static FileHash example;
+    static FileHashNode src;
+    static FileHashNode main;
+    static FileHashNode java;
+    static FileHashNode example;
 
     @BeforeAll
     static void init() {
-        FileHash src = new FileHash("src", false);
-        FileHash main = new FileHash(src,"main", false);
-        FileHash java = new FileHash(main,"java", false);
-        FileHash example = new FileHash(java,"example",false);
+        FileHashNode src = new FileHashNode("src", false);
+        FileHashNode main = new FileHashNode(src,"main", false);
+        FileHashNode java = new FileHashNode(main,"java", false);
+        FileHashNode example = new FileHashNode(java,"example",false);
 
         src.addChild(main);
         main.addChild(java);

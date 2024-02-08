@@ -10,7 +10,7 @@ import ua.wyverno.dropbox.sharing.DbxSharingLinkManager;
 import ua.wyverno.files.FileCollectorVisitor;
 import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.cloud.SyncCloudStorageBuilder;
-import ua.wyverno.files.hashs.FileHash;
+import ua.wyverno.files.hashs.FileHashNode;
 import ua.wyverno.files.hashs.HashSumFiles;
 
 import java.io.FileNotFoundException;
@@ -51,11 +51,11 @@ public class Main {
     }
 
     private static SyncCloudStorage buildSyncCloudStorage(FileCollectorVisitor visitor, MetadataContainer allContentMetadata) throws IOException {
-        List<FileHash> cloudFiles = null;//mapMetadataToFileHash(allContentMetadata);
+        List<FileHashNode> cloudFiles = null;//mapMetadataToFileHash(allContentMetadata);
 
         HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
 
-        List<FileHash> appFilesHashInfo = hashSumFiles.getFilesHash();
+        List<FileHashNode> appFilesHashInfo = hashSumFiles.getFilesHash();
         Set<Path> appRelativizedPathFolders = visitor.getFolderPath()
                 .stream()
                 .map(pathFolder -> Paths.get("/").resolve(CONFIG.getPathApplication().relativize(pathFolder)))
@@ -77,7 +77,7 @@ public class Main {
 
     private static FileCollectorVisitor collectLocalApplicationFilesAndFolders() throws IOException {
         logger.info("Start collect files and folder from {}", CONFIG.getPathApplication().toAbsolutePath());
-        FileCollectorVisitor visitor = new FileCollectorVisitor();
+        FileCollectorVisitor visitor = new FileCollectorVisitor(CONFIG.getPathApplication());
         Files.walkFileTree(CONFIG.getPathApplication(), visitor);
         logger.info("Finish collect files and folder from {}", CONFIG.getPathApplication().toAbsolutePath());
         return visitor;

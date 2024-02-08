@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ public class HashSumFiles {
 
     private final Path root;
     private final List<Path> originalFiles;
-    private List<FileHash> filesHash;
+    private List<FileHashNode> filesHash;
 
     public HashSumFiles(Path root, List<Path> files) {
         this.root = root;
@@ -40,11 +39,11 @@ public class HashSumFiles {
 //        this.filesHash = calculatedFilesHash;
     }
 
-    public List<FileHash> getOriginalFiles() {
+    public List<FileHashNode> getOriginalFiles() {
         return this.filesHash;
     }
 
-    public List<FileHash> getFilesHash() throws IOException {
+    public List<FileHashNode> getFilesHash() throws IOException {
         if (this.filesHash != null) return filesHash;
         this.calculateFilesHashInfo();
         return this.filesHash;

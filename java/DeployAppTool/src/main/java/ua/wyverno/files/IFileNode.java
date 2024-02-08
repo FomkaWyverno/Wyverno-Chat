@@ -3,7 +3,7 @@ package ua.wyverno.files;
 import java.nio.file.Path;
 import java.util.List;
 
-public interface IFile<T extends IFile<T>> {
+public interface IFileNode<T extends IFileNode<T>> {
     boolean isDirectory();
     boolean isFile();
     String getName();
@@ -13,4 +13,6 @@ public interface IFile<T extends IFile<T>> {
     List<T> getChildren();
     void addChild(T file);
     void addChildren(List<T> files);
+    boolean removeChild(T File);
+    boolean removeChildren(List<T> children);
 }

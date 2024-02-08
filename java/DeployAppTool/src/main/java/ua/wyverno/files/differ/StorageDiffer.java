@@ -1,6 +1,6 @@
 package ua.wyverno.files.differ;
 
-import ua.wyverno.files.hashs.FileHash;
+import ua.wyverno.files.hashs.FileHashNode;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 public class StorageDiffer implements IStorageDiffer {
 
-    private final Set<FileHash> firstStorage;
-    private final Set<FileHash> secondStorage;
+    private final Set<FileHashNode> firstStorage;
+    private final Set<FileHashNode> secondStorage;
 
 
     private Set<Path> addedFiles;
@@ -19,7 +19,7 @@ public class StorageDiffer implements IStorageDiffer {
     private Set<Path> deletedFiles;
     private Set<Path> addedFolders;
     private Set<Path> deletedFolders;
-    public StorageDiffer(Set<FileHash> firstStorage, Set<FileHash> secondStorage) {
+    public StorageDiffer(Set<FileHashNode> firstStorage, Set<FileHashNode> secondStorage) {
         this.firstStorage = Collections.unmodifiableSet(firstStorage);
         this.secondStorage = Collections.unmodifiableSet(secondStorage);
     }
@@ -52,11 +52,11 @@ public class StorageDiffer implements IStorageDiffer {
     public Set<Path> getDeletedFolders() {
         if (this.deletedFolders != null) return this.deletedFolders;
         Set<Path> deletedDirectories = new HashSet<>();
-        Set<FileHash> firstStorageDirectories = this.firstStorage.stream()
-                .filter(FileHash::isDirectory)
+        Set<FileHashNode> firstStorageDirectories = this.firstStorage.stream()
+                .filter(FileHashNode::isDirectory)
                 .collect(Collectors.toSet());
-        Set<FileHash> secondStorageDirectories = this.secondStorage.stream()
-                .filter(FileHash::isDirectory)
+        Set<FileHashNode> secondStorageDirectories = this.secondStorage.stream()
+                .filter(FileHashNode::isDirectory)
                 .collect(Collectors.toSet());
 
 

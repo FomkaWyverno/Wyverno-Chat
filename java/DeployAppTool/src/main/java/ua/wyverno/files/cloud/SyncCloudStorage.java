@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.dropbox.DropBoxAPI;
 import ua.wyverno.dropbox.files.CloudLocalFile;
-import ua.wyverno.files.hashs.FileHash;
+import ua.wyverno.files.hashs.FileHashNode;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,22 +21,22 @@ public class SyncCloudStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncCloudStorage.class);
 
-    private final List<FileHash> applicationFiles;
-    private final List<FileHash> applicationRelativizedPathFiles;
-    private final List<FileHash> cloudFiles;
+    private final List<FileHashNode> applicationFiles;
+    private final List<FileHashNode> applicationRelativizedPathFiles;
+    private final List<FileHashNode> cloudFiles;
 
     private final Set<Path> applicationFoldersRelativized;
     private final Set<Path> cloudFolders;
 
     private Set<Path> deletedFolders;
     private Set<Path> addedFolders;
-    private Set<FileHash> deletedFiles;
-    private Set<FileHash> addedOrModifyFiles;
+    private Set<FileHashNode> deletedFiles;
+    private Set<FileHashNode> addedOrModifyFiles;
 
-    protected SyncCloudStorage(List<FileHash> applicationAbsolutePathFiles,
-                            List<FileHash> relativizedAppPathFiles,
+    protected SyncCloudStorage(List<FileHashNode> applicationAbsolutePathFiles,
+                            List<FileHashNode> relativizedAppPathFiles,
                             Set<Path> applicationRelativizedPathFolders,
-                            List<FileHash> cloudFiles,
+                            List<FileHashNode> cloudFiles,
                             Set<Path> cloudFolders) {
         this.applicationFiles = applicationAbsolutePathFiles;
         this.applicationRelativizedPathFiles = relativizedAppPathFiles;
@@ -46,9 +46,9 @@ public class SyncCloudStorage {
     }
 
     /**
-     * @return Set with {@link FileHash} that are required delete from Cloud Storage
+     * @return Set with {@link FileHashNode} that are required delete from Cloud Storage
      */
-    public Set<FileHash> getDeletedFiles() {
+    public Set<FileHashNode> getDeletedFiles() {
         if (this.deletedFiles != null) return Collections.unmodifiableSet(this.deletedFiles);
         this.deletedFiles = this.getCloudFiles()
                 .stream()
@@ -63,9 +63,9 @@ public class SyncCloudStorage {
     }
 
     /**
-     * @return Set with {@link FileHash} that are required add files to Cloud Storage
+     * @return Set with {@link FileHashNode} that are required add files to Cloud Storage
      */
-    public Set<FileHash> getAddedOrModifyFiles() {
+    public Set<FileHashNode> getAddedOrModifyFiles() {
         if (this.addedOrModifyFiles != null) return Collections.unmodifiableSet(this.addedOrModifyFiles);
 
         this.addedOrModifyFiles = this.getApplicationRelativizedPathFiles()
@@ -136,19 +136,19 @@ public class SyncCloudStorage {
     }
 
     /**
-     * @return List with {@link FileHash} - Application Files
+     * @return List with {@link FileHashNode} - Application Files
      */
-    public List<FileHash> getApplicationRelativizedPathFiles() {
+    public List<FileHashNode> getApplicationRelativizedPathFiles() {
         return Collections.unmodifiableList(applicationRelativizedPathFiles);
     }
-    public List<FileHash> getApplicationFiles() {
+    public List<FileHashNode> getApplicationFiles() {
         return Collections.unmodifiableList(this.applicationFiles);
     }
 
     /**
-     * @return List with {@link FileHash} - Cloud Storage Files
+     * @return List with {@link FileHashNode} - Cloud Storage Files
      */
-    public List<FileHash> getCloudFiles() {
+    public List<FileHashNode> getCloudFiles() {
         return Collections.unmodifiableList(this.cloudFiles);
     }
 
@@ -160,8 +160,8 @@ public class SyncCloudStorage {
      * @throws IOException generate when work with Dropbox API upload/download/get info about file
      */
     public synchronized void synchronizedWithCloudStorage(DropBoxAPI dropBoxAPI, Path root) throws DbxException, IOException {
-        Set<FileHash> deletedFiles = this.getDeletedFiles();
-        Set<FileHash> addedFiles = this.getAddedOrModifyFiles();
+        Set<FileHashNode> deletedFiles = this.getDeletedFiles();
+        Set<FileHashNode> addedFiles = this.getAddedOrModifyFiles();
         Set<Path> addedFolders = this.getAddedFolders();
         Set<Path> deletedFolders = this.getDeletedFolders();
 
@@ -182,11 +182,11 @@ public class SyncCloudStorage {
         Set<Path> cloudFolders = this.getCloudFolders();
         Set<Path> appFiles = this.getApplicationRelativizedPathFiles()
                 .stream()
-                .map(FileHash::toPath)
+                .map(FileHashNode::toPath)
                 .collect(Collectors.toSet());
         Set<Path> cloudFiles = this.getCloudFiles()
                 .stream()
-                .map(FileHash::toPath)
+                .map(FileHashNode::toPath)
                 .collect(Collectors.toSet());
 
         for (Path appFolder : appFolders) {
@@ -207,12 +207,12 @@ public class SyncCloudStorage {
      * Synchronize added files locally with the cloud
      * @param dropBoxAPI Authorized account DropBox API
      * @param root local Root files application
-     * @param addedFiles {@link java.util.Set}<{@link FileHash}> - Paths to files which need to added
+     * @param addedFiles {@link java.util.Set}<{@link FileHashNode}> - Paths to files which need to added
      * @throws DbxException DropBox API problems - when upload file
      * @throws IOException DropBox API problems - when upload file
      */
-    private void synchronizedAddedFiles(DropBoxAPI dropBoxAPI, Path root, Set<FileHash> addedFiles) throws DbxException, IOException {
-        for (FileHash file : addedFiles) {
+    private void synchronizedAddedFiles(DropBoxAPI dropBoxAPI, Path root, Set<FileHashNode> addedFiles) throws DbxException, IOException {
+        for (FileHashNode file : addedFiles) {
             logger.info("\nAdded or Modify: {}\nHash: {}", file.toPath(), file.getHash());
         }
         if (!addedFiles.isEmpty()) {
@@ -251,11 +251,11 @@ public class SyncCloudStorage {
     /**
      * Synchronize deleted folders locally with the cloud
      * @param dropBoxAPI Authorized account DropBox API
-     * @param deletedFiles {@link java.util.Set}<{@link FileHash}> - Paths to deleted files which need to add
+     * @param deletedFiles {@link java.util.Set}<{@link FileHashNode}> - Paths to deleted files which need to add
      * @throws DbxException DropBox API problems - when upload file
      */
-    private void synchronizedDeletedFiles(DropBoxAPI dropBoxAPI, Set<FileHash> deletedFiles) throws DbxException {
-        for (FileHash file : deletedFiles) {
+    private void synchronizedDeletedFiles(DropBoxAPI dropBoxAPI, Set<FileHashNode> deletedFiles) throws DbxException {
+        for (FileHashNode file : deletedFiles) {
             logger.info("\nDeleted files: {}\nHash: {}", file.toPath(), file.getHash());
         }
         if (!deletedFiles.isEmpty()) {
