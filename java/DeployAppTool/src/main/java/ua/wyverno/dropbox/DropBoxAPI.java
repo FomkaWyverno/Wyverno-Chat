@@ -12,10 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.dropbox.files.CloudLocalFile;
 import ua.wyverno.dropbox.metadata.MetadataContainer;
-import ua.wyverno.dropbox.modules.DropBoxFilesApi;
+import ua.wyverno.dropbox.modules.files.DropBoxFilesApi;
 import ua.wyverno.dropbox.modules.DropBoxSharingAPI;
 import ua.wyverno.dropbox.modules.IFilesAPI;
 import ua.wyverno.dropbox.modules.ISharingAPI;
+import ua.wyverno.files.hashs.CloudFileNodeHash;
 
 import java.io.IOException;
 import java.util.List;
@@ -129,22 +130,32 @@ public class DropBoxAPI implements IFilesAPI, ISharingAPI {
     }
 
     @Override
-    public MetadataContainer getListFolder(String path) throws DbxException {
+    public MetadataContainer getListFolderAsMetadataContainer(String path) throws DbxException {
         try {
-            return this.filesApi.getListFolder(path);
+            return this.filesApi.getListFolderAsMetadataContainer(path);
         } catch(InvalidAccessTokenException e) {
             this.accessTokenHasExpired();
-            return this.filesApi.getListFolder(path);
+            return this.filesApi.getListFolderAsMetadataContainer(path);
         }
     }
 
     @Override
-    public MetadataContainer collectAllContentFromPath(String path) throws DbxException {
+    public MetadataContainer collectAllContentFromPathAsMetadataContainer(String path) throws DbxException {
         try {
-            return this.filesApi.collectAllContentFromPath(path);
+            return this.filesApi.collectAllContentFromPathAsMetadataContainer(path);
         } catch(InvalidAccessTokenException e) {
             this.accessTokenHasExpired();
-            return this.filesApi.collectAllContentFromPath(path);
+            return this.filesApi.collectAllContentFromPathAsMetadataContainer(path);
+        }
+    }
+
+    @Override
+    public CloudFileNodeHash collectAllContentFromPathAsCloudFileNodeHash(String path) throws DbxException {
+        try {
+            return this.filesApi.collectAllContentFromPathAsCloudFileNodeHash(path);
+        } catch (InvalidAccessTokenException e) {
+            this.accessTokenHasExpired();
+            return this.filesApi.collectAllContentFromPathAsCloudFileNodeHash(path);
         }
     }
 

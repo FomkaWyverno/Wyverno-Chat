@@ -29,7 +29,7 @@ public class DbxSharingLinkManager {
      */
     private void collectAllShareLinks() {
         try {
-            MetadataContainer contentMetadata = this.api.collectAllContentFromPath("");
+            MetadataContainer contentMetadata = this.api.collectAllContentFromPathAsMetadataContainer("");
             Set<String> contentPaths = Stream
                     .concat(contentMetadata.getFileMetadataList().stream().map(FileMetadata::getPathLower),
                             contentMetadata.getFolderMetadataList().stream().map(FolderMetadata::getPathLower))

@@ -35,16 +35,16 @@ public class Main {
             DropBoxAPI dropBoxAPI = new DropBoxAPI(CONFIG.getAccessTokenDropBox());
             logger.info("Connect to DropBox API!");
 
-            FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
-            MetadataContainer dropboxContentContainer = dropBoxAPI.collectAllContentFromPath("");
-
-            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
-            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
-
-            DbxSharingLinkManager sharingLinkManager = new DbxSharingLinkManager(dropBoxAPI);
-            Set<SharedLinkMetadata> links = sharingLinkManager.getShareLinks();
-            links.forEach(link -> logger.info("Share path: {} url: {}", link.getPathLower(), link.getUrl()));
-
+            //FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
+            //MetadataContainer dropboxContentContainer = dropBoxAPI.collectAllContentFromPathAsMetadataContainer("");
+            FileHashNode cloudFolder = dropBoxAPI.collectAllContentFromPathAsCloudFileNodeHash("");
+//            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
+//            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
+//
+//            DbxSharingLinkManager sharingLinkManager = new DbxSharingLinkManager(dropBoxAPI);
+//            Set<SharedLinkMetadata> links = sharingLinkManager.getShareLinks();
+//            links.forEach(link -> logger.info("Share path: {} url: {}", link.getPathLower(), link.getUrl()));
+            logger.info(cloudFolder.toString());
         } catch (Throwable e) {
             logger.error("", e);
         }

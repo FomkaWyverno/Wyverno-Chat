@@ -15,7 +15,7 @@ class FileCollectorVisitorTest {
     @Test
     void getTreeFiles() {
         try {
-            Path root = Paths.get("D:\\MyProgram\\Overlay\\java\\DeployAppTool\\test-folder");
+            Path root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder");
             logger.info("Start visitor root: {}", root);
             FileCollectorVisitor visitor = new FileCollectorVisitor(root);
             Files.walkFileTree(root, visitor);

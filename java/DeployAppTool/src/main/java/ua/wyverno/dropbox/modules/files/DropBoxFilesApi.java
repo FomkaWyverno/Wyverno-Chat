@@ -1,4 +1,4 @@
-package ua.wyverno.dropbox.modules;
+package ua.wyverno.dropbox.modules.files;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
@@ -18,10 +18,13 @@ import ua.wyverno.dropbox.job.progress.WrapperDeleteBatchJobStatus;
 import ua.wyverno.dropbox.metadata.FileMetadata;
 import ua.wyverno.dropbox.metadata.FolderMetadata;
 import ua.wyverno.dropbox.metadata.MetadataContainer;
+import ua.wyverno.dropbox.modules.IFilesAPI;
+import ua.wyverno.files.hashs.CloudFileNodeHash;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -217,7 +220,7 @@ public class DropBoxFilesApi implements IFilesAPI {
     }
 
     @Override
-    public MetadataContainer getListFolder(String path) throws DbxException {
+    public MetadataContainer getListFolderAsMetadataContainer(String path) throws DbxException {
         MetadataContainer container = new MetadataContainer();
 
         logger.debug("Call to DropBox API Endpoint /list_folder path: {}", path);
@@ -252,22 +255,50 @@ public class DropBoxFilesApi implements IFilesAPI {
     }
 
     @Override
-    public MetadataContainer collectAllContentFromPath(String path) throws DbxException {
+    public MetadataContainer collectAllContentFromPathAsMetadataContainer(String path) throws DbxException {
         boolean isRootPath = path.equals("");
 
-        logger.info("Start collect all content from {} path in DropBox", isRootPath ? "root" : path);
+        logger.info("Start collect all content as MetadataContainer from {} path in DropBox", isRootPath ? "root" : path);
 
-        MetadataContainer container = this.getListFolder(path);
+        MetadataContainer container = this.getListFolderAsMetadataContainer(path);
 
         MetadataContainer resultContainer = new MetadataContainer();
         resultContainer.addMetadataContainer(container);
         for (FolderMetadata folderMetadata : container.getFolderMetadataList()) {
-            MetadataContainer folderContainer = this.collectAllContentFromPath(folderMetadata.getPathLower());
+            MetadataContainer folderContainer = this.collectAllContentFromPathAsMetadataContainer(folderMetadata.getPathLower());
             resultContainer.addMetadataContainer(folderContainer);
         }
 
         logger.info("End collect all content from {} path in DropBox",isRootPath ? "root" : path);
         return resultContainer;
+    }
+
+    @Override
+    public CloudFileNodeHash collectAllContentFromPathAsCloudFileNodeHash(String path) throws DbxException {
+        boolean isRootPath = path.equals("");
+
+        logger.info("Start collect all content as CloudFileNodeHash from {} path in DropBox", isRootPath ? "root" : path);
+        CloudFileNodeHash rootCloudFile = new CloudFileNodeHash(".",false);
+        this.recursiveCollectAllContentAsCloudFileNodeHash(rootCloudFile,path);
+        logger.info("End collect all content as CloudFileNodeHash from {} path in DropBox", isRootPath ? "root" : path);
+        return rootCloudFile;
+    }
+
+    private void recursiveCollectAllContentAsCloudFileNodeHash(CloudFileNodeHash parent, String path) throws DbxException {
+        MetadataContainer metadataContainer = this.getListFolderAsMetadataContainer(path);
+
+        List<FileMetadata> fileMetadataList = metadataContainer.getFileMetadataList();
+        List<FolderMetadata> folderMetadataList = metadataContainer.getFolderMetadataList();
+
+        fileMetadataList.forEach(fileMetadata -> {
+            CloudFileNodeHash cloudFile = new CloudFileNodeHash(parent, fileMetadata.getName(), fileMetadata.getContentHash(), true);
+            parent.addChild(cloudFile);
+        });
+        for (FolderMetadata folderMetadata : folderMetadataList) {
+            CloudFileNodeHash cloudFolder = new CloudFileNodeHash(parent, folderMetadata.getName(), false);
+            parent.addChild(cloudFolder);
+            this.recursiveCollectAllContentAsCloudFileNodeHash(cloudFolder, folderMetadata.getPathLower());
+        }
     }
 
     private void waitUntilJobComplete(JobStatus jobStatus, String descriptionJob) throws DbxException {
