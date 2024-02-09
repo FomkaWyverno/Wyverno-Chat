@@ -150,12 +150,12 @@ public class DropBoxAPI implements IFilesAPI, ISharingAPI {
     }
 
     @Override
-    public CloudFileNodeHash collectAllContentFromPathAsCloudFileNodeHash(String path) throws DbxException {
+    public CloudFileNodeHash collectRootContentAsCloudFileHashNode() throws DbxException {
         try {
-            return this.filesApi.collectAllContentFromPathAsCloudFileNodeHash(path);
+            return this.filesApi.collectRootContentAsCloudFileHashNode();
         } catch (InvalidAccessTokenException e) {
             this.accessTokenHasExpired();
-            return this.filesApi.collectAllContentFromPathAsCloudFileNodeHash(path);
+            return this.filesApi.collectRootContentAsCloudFileHashNode();
         }
     }
 

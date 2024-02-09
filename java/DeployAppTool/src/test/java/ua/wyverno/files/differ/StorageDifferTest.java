@@ -22,13 +22,16 @@ class StorageDifferTest {
 
     @BeforeAll
     static void initTest() throws IOException {
-        FileCollectorVisitor visitorFolder1 = new FileCollectorVisitor(null);
-        FileCollectorVisitor visitorFolder2 = new FileCollectorVisitor(null);
-
         Path folder1Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder");
         Path folder2Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder2");
+
+        FileCollectorVisitor visitorFolder1 = new FileCollectorVisitor(folder1Root);
+        FileCollectorVisitor visitorFolder2 = new FileCollectorVisitor(folder2Root);
+
         Files.walkFileTree(folder1Root,visitorFolder1);
         Files.walkFileTree(folder2Root,visitorFolder2);
+
+        storageDiffer = new StorageDiffer(visitorFolder1.getTreeFileNode(), visitorFolder2.getTreeFileNode());
     }
 
     @Test
@@ -53,6 +56,7 @@ class StorageDifferTest {
 
     @Test
     void getDeletedFolders() {
-        assertEquals(1, storageDiffer.getDeletedFolders().size());
+        assertEquals(2, storageDiffer.getDeletedFolders().size());
+        storageDiffer.getDeletedFolders().forEach(item -> logger.info(item.toString()));
     }
 }

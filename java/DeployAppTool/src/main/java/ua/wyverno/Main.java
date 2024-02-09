@@ -37,7 +37,7 @@ public class Main {
 
             //FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
             //MetadataContainer dropboxContentContainer = dropBoxAPI.collectAllContentFromPathAsMetadataContainer("");
-            FileHashNode cloudFolder = dropBoxAPI.collectAllContentFromPathAsCloudFileNodeHash("");
+            FileHashNode cloudFolder = dropBoxAPI.collectRootContentAsCloudFileHashNode();
 //            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
 //            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
 //

@@ -274,13 +274,12 @@ public class DropBoxFilesApi implements IFilesAPI {
     }
 
     @Override
-    public CloudFileNodeHash collectAllContentFromPathAsCloudFileNodeHash(String path) throws DbxException {
-        boolean isRootPath = path.equals("");
+    public CloudFileNodeHash collectRootContentAsCloudFileHashNode() throws DbxException {
 
-        logger.info("Start collect all content as CloudFileNodeHash from {} path in DropBox", isRootPath ? "root" : path);
+        logger.info("Start collect all content as CloudFileNodeHash from root path in DropBox");
         CloudFileNodeHash rootCloudFile = new CloudFileNodeHash(".",false);
-        this.recursiveCollectAllContentAsCloudFileNodeHash(rootCloudFile,path);
-        logger.info("End collect all content as CloudFileNodeHash from {} path in DropBox", isRootPath ? "root" : path);
+        this.recursiveCollectAllContentAsCloudFileNodeHash(rootCloudFile,"");
+        logger.info("End collect all content as CloudFileNodeHash from root path in DropBox");
         return rootCloudFile;
     }
 

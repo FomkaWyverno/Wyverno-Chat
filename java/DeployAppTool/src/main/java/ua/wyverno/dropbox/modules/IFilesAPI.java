@@ -17,5 +17,5 @@ public interface IFilesAPI {
     void uploadFiles(List<CloudLocalFile> filesUpload) throws DbxException, IOException;
     MetadataContainer getListFolderAsMetadataContainer(String path) throws DbxException;
     MetadataContainer collectAllContentFromPathAsMetadataContainer(String path) throws DbxException;
-    CloudFileNodeHash collectAllContentFromPathAsCloudFileNodeHash(String path) throws DbxException;
+    CloudFileNodeHash collectRootContentAsCloudFileHashNode() throws DbxException;
 }
