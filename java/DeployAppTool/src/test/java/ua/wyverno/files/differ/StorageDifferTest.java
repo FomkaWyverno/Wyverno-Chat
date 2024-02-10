@@ -22,8 +22,8 @@ class StorageDifferTest {
 
     @BeforeAll
     static void initTest() throws IOException {
-        Path folder1Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder");
-        Path folder2Root = Paths.get("D:\\MyProgram\\ElectronJS-Program\\Overlay\\java\\DeployAppTool\\test-folder2");
+        Path folder1Root = Paths.get(".\\test-folder").toAbsolutePath();
+        Path folder2Root = Paths.get(".\\test-folder2").toAbsolutePath();
 
         FileCollectorVisitor visitorFolder1 = new FileCollectorVisitor(folder1Root);
         FileCollectorVisitor visitorFolder2 = new FileCollectorVisitor(folder2Root);
@@ -46,7 +46,8 @@ class StorageDifferTest {
 
     @Test
     void getDeletedFiles() {
-        assertEquals(0, storageDiffer.getDeletedFiles().size());
+        assertEquals(2, storageDiffer.getDeletedFiles().size());
+        storageDiffer.getDeletedFiles().forEach(item -> logger.info("Deleted file {}", item));
     }
 
     @Test
@@ -57,6 +58,6 @@ class StorageDifferTest {
     @Test
     void getDeletedFolders() {
         assertEquals(2, storageDiffer.getDeletedFolders().size());
-        storageDiffer.getDeletedFolders().forEach(item -> logger.info(item.toString()));
+        storageDiffer.getDeletedFolders().forEach(item -> logger.info("Deleted folder {}",item));
     }
 }
