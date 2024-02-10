@@ -19,46 +19,46 @@ import java.util.Objects;
  */
 @JsonSerialize(using = FileHashSerializer.class)
 //@JsonDeserialize(using = FileHashDeserializer.class)
-public class FileHashNode implements IFileNode<FileHashNode>, Hashing {
+public class FileMetadataNode implements IFileNode<FileMetadataNode>, Hashing {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHashNode.class);
-    private String hash;
+    private static final Logger logger = LoggerFactory.getLogger(FileMetadataNode.class);
+    private final String contentHash;
     private final String name;
-    private final FileHashNode parent;
-    private final List<FileHashNode> children;
+    private final FileMetadataNode parent;
+    private final List<FileMetadataNode> children;
     private Path path;
     private final boolean isFile;
-    public FileHashNode(FileHashNode parent, String nameFile, boolean isFile) {
+    public FileMetadataNode(FileMetadataNode parent, String nameFile, boolean isFile) {
         this.parent = parent;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
-        this.hash = "";
+        this.contentHash = "";
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
-    public FileHashNode(FileHashNode parent, String nameFile, boolean isFile, String hash) {
+    public FileMetadataNode(FileMetadataNode parent, String nameFile, boolean isFile, String contentHash) {
         this.parent = parent;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
-        this.hash = hash;
+        this.contentHash = contentHash;
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
-    public FileHashNode(String nameFile, boolean isFile) {
+    public FileMetadataNode(String nameFile, boolean isFile) {
         this.parent = null;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
-        this.hash = "";
+        this.contentHash = "";
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
-    public FileHashNode(String nameFile, boolean isFile, String hash) {
+    public FileMetadataNode(String nameFile, boolean isFile, String contentHash) {
         this.parent = null;
         this.name = Objects.requireNonNull(nameFile);
         this.isFile = isFile;
-        this.hash = hash;
+        this.contentHash = contentHash;
         this.children = !this.isFile ? new ArrayList<>() : null;
     }
     @Override
-    public String getHash() {
-        return hash;
+    public String getContentHash() {
+        return contentHash;
     }
     @Override
     public boolean isDirectory() {
@@ -90,40 +90,40 @@ public class FileHashNode implements IFileNode<FileHashNode>, Hashing {
     }
 
     @Override
-    public FileHashNode getParent() {
+    public FileMetadataNode getParent() {
         return this.parent;
     }
 
     @Override
-    public List<FileHashNode> getChildren() {
+    public List<FileMetadataNode> getChildren() {
         if (this.children == null) return null;
         return Collections.unmodifiableList(this.children);
     }
 
     @Override
-    public void addChild(FileHashNode file) {
+    public void addChild(FileMetadataNode file) {
         this.children.add(file);
     }
     @Override
-    public void addChildren(List<FileHashNode> files) {
+    public void addChildren(List<FileMetadataNode> files) {
         this.children.addAll(files);
     }
 
     @Override
-    public boolean removeChild(FileHashNode file) {
+    public boolean removeChild(FileMetadataNode file) {
         return this.children.remove(file);
     }
 
     @Override
-    public boolean removeChildren(List<FileHashNode> children) {
+    public boolean removeChildren(List<FileMetadataNode> children) {
         return this.children.removeAll(children);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof FileHashNode otherFile)) return false;
+        if (!(obj instanceof FileMetadataNode otherFile)) return false;
         if (this.isFile() && otherFile.isFile()) {
-            return this.hash.equals(otherFile.getHash())
+            return this.contentHash.equals(otherFile.getContentHash())
                     &&
                     this.toPath().equals(otherFile.toPath());
         }
@@ -143,7 +143,7 @@ public class FileHashNode implements IFileNode<FileHashNode>, Hashing {
                             "path": "%s",
                             "children": "%s"
                         }}""",
-                this.getHash(),
+                this.getContentHash(),
                 this.getName(),
                 this.getPath(),
                 this.getChildren() != null ? this.getChildren().toString() : "null");

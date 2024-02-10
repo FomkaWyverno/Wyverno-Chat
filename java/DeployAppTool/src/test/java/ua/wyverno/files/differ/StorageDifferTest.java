@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.files.FileCollectorVisitor;
+import ua.wyverno.files.hashs.FileCollectorWithHashVisitor;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,8 +26,8 @@ class StorageDifferTest {
         Path folder1Root = Paths.get(".\\test-folder").toAbsolutePath();
         Path folder2Root = Paths.get(".\\test-folder2").toAbsolutePath();
 
-        FileCollectorVisitor visitorFolder1 = new FileCollectorVisitor(folder1Root);
-        FileCollectorVisitor visitorFolder2 = new FileCollectorVisitor(folder2Root);
+        FileCollectorVisitor visitorFolder1 = new FileCollectorWithHashVisitor(folder1Root);
+        FileCollectorVisitor visitorFolder2 = new FileCollectorWithHashVisitor(folder2Root);
 
         Files.walkFileTree(folder1Root,visitorFolder1);
         Files.walkFileTree(folder2Root,visitorFolder2);
@@ -36,25 +37,25 @@ class StorageDifferTest {
 
     @Test
     void getAddedFiles() {
-        assertEquals(0, storageDiffer.getAddedFiles().size());
+        storageDiffer.getAddedFiles().forEach(item -> logger.info("Added file {}", item));
+        assertEquals(1, storageDiffer.getAddedFiles().size());
     }
-
+    @Test
+    void getAddedFolders() {
+        storageDiffer.getAddedFolders().forEach(item -> logger.info("Added Folder {}", item));
+        assertEquals(1, storageDiffer.getAddedFolders().size());
+    }
     @Test
     void getModifyFiles() {
-        assertEquals(0, storageDiffer.getModifyFiles().size());
+        storageDiffer.getModifyFiles().forEach(item -> logger.info("Modify File {}", item));
+        assertEquals(2, storageDiffer.getModifyFiles().size());
     }
 
     @Test
     void getDeletedFiles() {
-        assertEquals(2, storageDiffer.getDeletedFiles().size());
         storageDiffer.getDeletedFiles().forEach(item -> logger.info("Deleted file {}", item));
+        assertEquals(3, storageDiffer.getDeletedFiles().size());
     }
-
-    @Test
-    void getAddedFolders() {
-        assertEquals(0, storageDiffer.getAddedFolders().size());
-    }
-
     @Test
     void getDeletedFolders() {
         assertEquals(2, storageDiffer.getDeletedFolders().size());

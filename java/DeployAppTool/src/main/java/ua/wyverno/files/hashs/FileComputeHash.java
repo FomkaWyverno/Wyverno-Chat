@@ -16,26 +16,24 @@ import java.security.MessageDigest;
 public class FileComputeHash implements ComputeHash, Hashing {
     private static final Logger logger = LoggerFactory.getLogger(FileComputeHash.class);
     private String hash;
-    private final Path root;
-    private final FileHashNode fileHash;
+    private final Path path;
     private File absoluteFile;
 
-    public FileComputeHash(Path root, FileHashNode fileHash) {
-        this.root = root;
-        this.fileHash = fileHash;
+    public FileComputeHash(Path path) {
+        this.path = path;
     }
 
     @Override
     public void computeHash() throws IOException {
-        if (this.toAbsoluteFile().isDirectory()) {
-            logger.warn("Try hashing file which is directory! Path: {}", this.toAbsoluteFile());
-            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.toAbsoluteFile());
+        if (this.getPath().toFile().isDirectory()) {
+            logger.warn("Try hashing file which is directory! Path: {}", this.getPath());
+            throw new FolderCalculationException("Try hashing file which is directory! Path: " + this.getPath());
         }
 
-        logger.debug("Hashing file for method DropBox SHA256 - {}", this.toAbsoluteFile());
+        logger.debug("Hashing file for method DropBox SHA256 - {}", this.getPath());
         MessageDigest hasher = new DropboxContentHasher();
         byte[] buf = new byte[1024];
-        try (InputStream in = new FileInputStream(this.toAbsoluteFile())) {
+        try (InputStream in = new FileInputStream(this.getPath().toFile())) {
             while (true) {
                 int n = in.read(buf);
                 if (n < 0) break;  // EOF
@@ -43,24 +41,15 @@ public class FileComputeHash implements ComputeHash, Hashing {
             }
         }
         this.hash = HexUtils.hex(hasher.digest());
-        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.toAbsoluteFile(), this.hash);
+        logger.debug("Calculate SHA256 by Method Dropbox API for file {} | Content hash = {}", this.getPath(), this.hash);
     }
 
-    public File toAbsoluteFile() {
-        if (this.absoluteFile == null) this.absoluteFile = this.root.resolve(this.fileHash.getPath()).toFile();
-        return this.absoluteFile;
-    }
-
-    public Path getRoot() {
-        return root;
-    }
-
-    public FileHashNode getFileHash() {
-        return fileHash;
+    public Path getPath() {
+        return path;
     }
 
     @Override
-    public String getHash() {
+    public String getContentHash() {
         return this.hash;
     }
 }

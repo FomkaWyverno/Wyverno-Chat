@@ -16,7 +16,7 @@ import ua.wyverno.dropbox.modules.files.DropBoxFilesApi;
 import ua.wyverno.dropbox.modules.DropBoxSharingAPI;
 import ua.wyverno.dropbox.modules.IFilesAPI;
 import ua.wyverno.dropbox.modules.ISharingAPI;
-import ua.wyverno.files.hashs.CloudFileNodeHash;
+import ua.wyverno.files.hashs.CloudFileMetadataNode;
 
 import java.io.IOException;
 import java.util.List;
@@ -150,7 +150,7 @@ public class DropBoxAPI implements IFilesAPI, ISharingAPI {
     }
 
     @Override
-    public CloudFileNodeHash collectRootContentAsCloudFileHashNode() throws DbxException {
+    public CloudFileMetadataNode collectRootContentAsCloudFileHashNode() throws DbxException {
         try {
             return this.filesApi.collectRootContentAsCloudFileHashNode();
         } catch (InvalidAccessTokenException e) {

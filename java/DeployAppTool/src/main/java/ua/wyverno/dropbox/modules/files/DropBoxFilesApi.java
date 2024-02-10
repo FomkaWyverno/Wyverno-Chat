@@ -19,12 +19,11 @@ import ua.wyverno.dropbox.metadata.FileMetadata;
 import ua.wyverno.dropbox.metadata.FolderMetadata;
 import ua.wyverno.dropbox.metadata.MetadataContainer;
 import ua.wyverno.dropbox.modules.IFilesAPI;
-import ua.wyverno.files.hashs.CloudFileNodeHash;
+import ua.wyverno.files.hashs.CloudFileMetadataNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -274,27 +273,27 @@ public class DropBoxFilesApi implements IFilesAPI {
     }
 
     @Override
-    public CloudFileNodeHash collectRootContentAsCloudFileHashNode() throws DbxException {
+    public CloudFileMetadataNode collectRootContentAsCloudFileHashNode() throws DbxException {
 
-        logger.info("Start collect all content as CloudFileNodeHash from root path in DropBox");
-        CloudFileNodeHash rootCloudFile = new CloudFileNodeHash(".",false);
+        logger.info("Start collect all content as CloudFileMetadataNode from root path in DropBox");
+        CloudFileMetadataNode rootCloudFile = new CloudFileMetadataNode(".",false);
         this.recursiveCollectAllContentAsCloudFileNodeHash(rootCloudFile,"");
-        logger.info("End collect all content as CloudFileNodeHash from root path in DropBox");
+        logger.info("End collect all content as CloudFileMetadataNode from root path in DropBox");
         return rootCloudFile;
     }
 
-    private void recursiveCollectAllContentAsCloudFileNodeHash(CloudFileNodeHash parent, String path) throws DbxException {
+    private void recursiveCollectAllContentAsCloudFileNodeHash(CloudFileMetadataNode parent, String path) throws DbxException {
         MetadataContainer metadataContainer = this.getListFolderAsMetadataContainer(path);
 
         List<FileMetadata> fileMetadataList = metadataContainer.getFileMetadataList();
         List<FolderMetadata> folderMetadataList = metadataContainer.getFolderMetadataList();
 
         fileMetadataList.forEach(fileMetadata -> {
-            CloudFileNodeHash cloudFile = new CloudFileNodeHash(parent, fileMetadata.getName(), fileMetadata.getContentHash(), true);
+            CloudFileMetadataNode cloudFile = new CloudFileMetadataNode(parent, fileMetadata.getName(), fileMetadata.getContentHash(), true);
             parent.addChild(cloudFile);
         });
         for (FolderMetadata folderMetadata : folderMetadataList) {
-            CloudFileNodeHash cloudFolder = new CloudFileNodeHash(parent, folderMetadata.getName(), false);
+            CloudFileMetadataNode cloudFolder = new CloudFileMetadataNode(parent, folderMetadata.getName(), false);
             parent.addChild(cloudFolder);
             this.recursiveCollectAllContentAsCloudFileNodeHash(cloudFolder, folderMetadata.getPathLower());
         }

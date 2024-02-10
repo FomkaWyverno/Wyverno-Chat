@@ -1,17 +1,14 @@
 package ua.wyverno;
 
-import com.dropbox.core.v2.sharing.SharedLinkMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.wyverno.config.Config;
 import ua.wyverno.dropbox.DropBoxAPI;
 import ua.wyverno.dropbox.metadata.MetadataContainer;
-import ua.wyverno.dropbox.sharing.DbxSharingLinkManager;
 import ua.wyverno.files.FileCollectorVisitor;
 import ua.wyverno.files.cloud.SyncCloudStorage;
 import ua.wyverno.files.cloud.SyncCloudStorageBuilder;
-import ua.wyverno.files.hashs.FileHashNode;
-import ua.wyverno.files.hashs.HashSumFiles;
+import ua.wyverno.files.hashs.FileMetadataNode;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,7 +34,7 @@ public class Main {
 
             //FileCollectorVisitor localContentVisitor = collectLocalApplicationFilesAndFolders();
             //MetadataContainer dropboxContentContainer = dropBoxAPI.collectAllContentFromPathAsMetadataContainer("");
-            FileHashNode cloudFolder = dropBoxAPI.collectRootContentAsCloudFileHashNode();
+            FileMetadataNode cloudFolder = dropBoxAPI.collectRootContentAsCloudFileHashNode();
 //            SyncCloudStorage syncCloudStorage = buildSyncCloudStorage(localContentVisitor, dropboxContentContainer);
 //            syncCloudStorage.synchronizedWithCloudStorage(dropBoxAPI,CONFIG.getPathApplication());
 //
@@ -51,11 +48,11 @@ public class Main {
     }
 
     private static SyncCloudStorage buildSyncCloudStorage(FileCollectorVisitor visitor, MetadataContainer allContentMetadata) throws IOException {
-        List<FileHashNode> cloudFiles = null;//mapMetadataToFileHash(allContentMetadata);
+        List<FileMetadataNode> cloudFiles = null;//mapMetadataToFileHash(allContentMetadata);
 
-        HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
+        //HashSumFiles hashSumFiles = new HashSumFiles(CONFIG.getPathApplication(), visitor.getFilesPath());
 
-        List<FileHashNode> appFilesHashInfo = hashSumFiles.getFilesHash();
+        //List<FileMetadataNode> appFilesHashInfo = hashSumFiles.getFilesHash();
         Set<Path> appRelativizedPathFolders = visitor.getFolderPath()
                 .stream()
                 .map(pathFolder -> Paths.get("/").resolve(CONFIG.getPathApplication().relativize(pathFolder)))
@@ -63,7 +60,7 @@ public class Main {
         appRelativizedPathFolders.remove(Paths.get("/"));
 
         return new SyncCloudStorageBuilder()
-                .applicationAbsolutePathFiles(appFilesHashInfo)
+                .applicationAbsolutePathFiles(null)
                 .applicationRelativizedPathFiles(null)
                 .applicationFoldersRelativized(appRelativizedPathFolders)
                 .cloudFiles(cloudFiles)

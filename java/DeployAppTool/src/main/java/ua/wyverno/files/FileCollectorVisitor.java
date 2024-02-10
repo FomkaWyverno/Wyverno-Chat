@@ -2,7 +2,7 @@ package ua.wyverno.files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.files.hashs.FileHashNode;
+import ua.wyverno.files.hashs.FileMetadataNode;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -19,8 +19,8 @@ public class FileCollectorVisitor implements FileVisitor<Path> {
 
     private final List<Path> filesPath = new ArrayList<>();
     private final List<Path> folderPath = new ArrayList<>();
-    private final Path root;
-    private FileHashNode treeFileNode;
+    protected final Path root;
+    private FileMetadataNode treeFileNode;
     public FileCollectorVisitor(Path root) {
         this.root = Objects.requireNonNull(root);
     }
@@ -32,7 +32,7 @@ public class FileCollectorVisitor implements FileVisitor<Path> {
         return folderPath;
     }
 
-    public FileHashNode getTreeFileNode() {
+    public FileMetadataNode getTreeFileNode() {
         return this.treeFileNode;
     }
 
@@ -43,9 +43,9 @@ public class FileCollectorVisitor implements FileVisitor<Path> {
         Path relativeFolder = this.root.relativize(dir);
         Path emptyPath = Paths.get("");
         if (relativeFolder.equals(emptyPath)) {
-            this.treeFileNode = new FileHashNode(".",false);
+            this.treeFileNode = new FileMetadataNode(".",false);
         } else {
-            FileHashNode fileHash = new FileHashNode(this.treeFileNode, relativeFolder.toFile().getName(), false);
+            FileMetadataNode fileHash = new FileMetadataNode(this.treeFileNode, relativeFolder.toFile().getName(), false);
             this.treeFileNode.addChild(fileHash);
             this.treeFileNode = fileHash;
         }
@@ -58,7 +58,7 @@ public class FileCollectorVisitor implements FileVisitor<Path> {
         logger.debug("Visit File: {}", file.toString());
         this.filesPath.add(file);
         Path relativeFile = this.root.relativize(file);
-        FileHashNode fileHash = new FileHashNode(this.treeFileNode, relativeFile.toFile().getName(), true);
+        FileMetadataNode fileHash = new FileMetadataNode(this.treeFileNode, relativeFile.toFile().getName(), true);
         this.treeFileNode.addChild(fileHash);
 
         return FileVisitResult.CONTINUE;

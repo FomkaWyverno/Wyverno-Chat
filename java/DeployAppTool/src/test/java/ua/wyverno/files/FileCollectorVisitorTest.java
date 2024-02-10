@@ -3,7 +3,7 @@ package ua.wyverno.files;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.wyverno.files.hashs.FileHashNode;
+import ua.wyverno.files.hashs.FileMetadataNode;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ class FileCollectorVisitorTest {
             FileCollectorVisitor visitor = new FileCollectorVisitor(root);
             Files.walkFileTree(root, visitor);
             logger.info("End visitor");
-            FileHashNode file = visitor.getTreeFileNode();
+            FileMetadataNode file = visitor.getTreeFileNode();
         } catch (IOException e) {
             logger.error("Error: ->",e);
         }

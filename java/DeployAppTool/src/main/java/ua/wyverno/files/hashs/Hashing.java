@@ -4,5 +4,5 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public interface Hashing {
-    String getHash();
+    String getContentHash();
 }
